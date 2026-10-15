@@ -2,7 +2,7 @@
 
 발표용 e-Care 커넥티드 케어 3D 시뮬레이터입니다. 빌드 과정 없이 `index.html` 한 파일로 동작합니다 (Three.js r128을 cdnjs에서 불러옵니다).
 
-현재 버전: **v0.0.3** · 화면 왼쪽 위 e-Care 버튼을 누르면 버전 기록을 볼 수 있습니다. 버전은 0.0.1씩 올립니다 (`index.html`의 `VERSIONS` 배열).
+현재 버전: **v0.0.4** · 화면 왼쪽 위 e-Care 버튼을 누르면 버전 기록을 볼 수 있습니다. 버전은 0.0.1씩 올립니다 (`index.html`의 `VERSIONS` 배열).
 
 ## 화면 구성
 - **정보 영역 (왼쪽)** — 차량 상태, 경고등, SLA 타이머, 이벤트 로그
@@ -11,7 +11,7 @@
 - **조작 패널 (아래)** — 시나리오 버튼
 
 ## 시연 흐름 (🔵 발표자 선택 · 🟢 자동 진행)
-1. 🔵 첫 화면에서 **e-Care** 선택 (GS는 다음 버전)
+1. 🔵 첫 화면에서 **e-Care** 선택 (상단 e-Care / GS 버튼으로 언제든 전환)
 2. 🔵 **경고등 (심각)** 또는 **경고등 (정비)**
 3. 🟢 차량 TCU → VDP(일본) → VEP(한국) → OPW WNG 필터(중복 · VIN · 위치 · 정비) → 경고 정보 배포
    - 긴급: 차량 HU · e-Care 앱 · 콜센터 웹(CCW) · DMS
@@ -27,6 +27,23 @@
 6. 🔵 **처음부터 다시**
 
 정비 경고등은 콜센터 상담원이 대응하지 않으며, 앱의 [콜센터 전화하기]는 긴급 경고에서만 제공합니다.
+
+## GS · Global South 시나리오 (기획서 GS KR Service Planning v1.1.2 기준)
+차량은 주차 상태에서 시작하며, 서비스 가입 전에는 Service Flag가 모두 OFF입니다. 가입이 필요한 버튼은 흐리게 표시됩니다.
+
+| 키 | 시나리오 | 🔵 선택 | 🟢 자동 진행 |
+|---|---|---|---|
+| P | 서비스 가입 · 프로비저닝 | 요금제 (예시 3종) | Local App → TSP → TSC Capability 확인 → 현재 Flag 조회 → 프로비저닝 → TSC(MQTT) → 차량 Flag ON → 결과 → OPW 이력 |
+| K | Digital Key 등록 | Global One App / SMS / 차량 HU | SMS: TSC Pairing URL → TSP(대표자 조회 · SMS 발송, TSP 개발 영역) → Wallet → NFC 탭 |
+| D | 디지털 키로 문 열기 | – | 스마트폰 BLE → 차량 잠금 해제 |
+| O | OTT 실행 | DCM 망 / 외부 Wi-Fi | DCM: 인포테인먼트 APN 공유, 사용량 TSP → OPW(앱별 분리 없음) / Wi-Fi: 가입 무관, 집계 제외 |
+| W | Wi-Fi Hotspot | – | 전용 APN, 기기 2대 접속(DCM 제어), 사용량 TSP → OPW |
+| U | OTA 업데이트 | 지금 설치 / 나중에 | TMC → 차량(OTA APN, TSP 미관여) → 설치 → 결과 TMC |
+| M | DMS 팝업 메시지 | – | DMS → TSP → TSC(TSC-MM #7) → 차량 MM 팝업 |
+| F | OPW Flag 제어 | Digital Key / OTT / Hotspot | OPW → TSP → TSC → 차량 Flag ON·OFF |
+| X | 서비스 해지 | – | TSP → TSC → 차량 전체 Flag OFF |
+
+요금제 구성(세이프티 베이직 / + OTT / + Hotspot)은 기획서상 추후 확정이라 예시로 넣었습니다.
 
 ## 단축키
 | 키 | 동작 |
