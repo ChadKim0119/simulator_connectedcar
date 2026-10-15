@@ -318,6 +318,41 @@ button{font:inherit;color:inherit}
 .vrow time{margin-left:auto;font:500 11.5px var(--f-mono);color:var(--muted)}
 .vlist ul{margin:9px 0 0;padding-left:18px;color:#b9c3d1;font-size:12.5px;line-height:1.65}
 
+/* customer devices */
+.devs{display:grid;grid-template-columns:1.25fr 1fr;gap:10px;margin-top:12px;align-items:start}
+.devcap{font:600 9.5px var(--f-display);letter-spacing:.18em;color:var(--muted);margin-bottom:5px;text-transform:uppercase}
+.hu{border-radius:12px;background:#05080d;border:2px solid #263042;padding:8px;box-shadow:inset 0 0 0 3px #0b0f16}
+.hu-bar{display:flex;justify-content:space-between;gap:6px;font:600 9px var(--f-mono);color:#5d6878;letter-spacing:.1em;margin-bottom:6px}
+.pop{border-radius:9px;background:#f3f5f8;color:#141a22;padding:9px 10px;font-size:11px;line-height:1.4}
+.pop .k,.ph-card .k{font:700 9px var(--f-display);letter-spacing:.16em;color:#d4000f}
+.pop.amber .k,.ph-card.amber .k{color:#a86a00}
+.pop b{display:block;font-size:13px;margin-top:2px}
+.pop p{margin:4px 0 0;color:#4b5563;font-size:10.5px;line-height:1.45}
+.cbtn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:7px 8px;border-radius:7px;background:#e60012;color:#fff;font-weight:700;font-size:11px}
+.cbtn svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cbtn.alt{background:#141a22}
+.cbtn.press{animation:press .7s ease-out;box-shadow:0 0 0 3px rgba(46,230,207,.8)}
+.cbtn.press::after{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;border-radius:50%;background:rgba(255,255,255,.75);animation:ripple .7s ease-out forwards}
+.cnote{margin-top:5px;font-size:10px;color:#6b7481;text-align:center;line-height:1.35}
+.ph{border-radius:18px;background:#05080d;border:2px solid #263042;padding:7px}
+.ph-in{border-radius:12px;background:#eef1f5;color:#141a22;padding:8px;min-height:150px}
+.ph-h{font:800 12px var(--f-body);letter-spacing:-.02em}
+.ph-h .e{color:#e60012}
+.ph-card{margin-top:6px;border-radius:8px;background:#fff;padding:7px 8px;font-size:10.5px;line-height:1.4;box-shadow:0 2px 6px rgba(20,30,50,.12);color:#4b5563}
+.ph-card b{display:block;font-size:12px;color:#141a22}
+.dl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.dl li{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px;padding:6px 7px;border-radius:7px;background:#fff;border:1.5px solid transparent;transition:border-color .3s,background .3s;animation:logIn .35s ease-out both}
+.dl li b{font-size:11px}
+.dl li small{display:block;color:#6b7481;font-size:9.5px}
+.dl li i{font-style:normal;font-weight:700;font-size:8.5px;color:#0d8f82;background:rgba(13,143,130,.12);padding:2px 5px;border-radius:4px;margin-left:4px}
+.dl .tel{width:22px;height:22px;border-radius:50%;background:#0d8f82;display:grid;place-items:center}
+.dl .tel svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dl li.sel{border-color:#0d8f82;background:#e6f6f4}
+.fn.skip rect{stroke-dasharray:4 3;opacity:.45}
+.fn.skip text{opacity:.45}
+.fe.skip{stroke-dasharray:3 4;opacity:.35}
+@keyframes press{30%{transform:scale(.92)}}
+@keyframes ripple{to{transform:scale(16);opacity:0}}
 @keyframes blink{50%{opacity:.25}}
 @keyframes lampPulse{50%{background:rgba(255,69,82,.28)}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -451,18 +486,18 @@ button{font:inherit;color:inherit}
       <p class="intro-p">차량의 고장 신호가 일본 VDP와 한국 VEP를 거쳐 차량·고객 휴대폰·콜센터 웹·DMS로 전달되고, SLA 기준에 따라 상담과 긴급출동으로 이어지는 과정을 버튼 하나씩 눌러가며 보여드립니다.</p>
       <div class="svcs">
         <button class="svc" id="pickEcare">
-          <span class="tags2"><span class="chip">LIVE DEMO</span><span class="chip mute">경고등 2종 · SLA 25분 · 출동</span></span>
+          <span class="tags2"><span class="chip">LIVE DEMO</span><span class="chip mute">긴급 · 정비 · SLA 25분 · 딜러 연결</span></span>
           <span class="logo"><span class="e" style="color:var(--red)">e</span>-Care</span>
           <span class="d">스마트 케어 시스템. 경고 감지, 정보 흐름, 고객 연락 SLA, 선제 콜아웃, 긴급출동과 서비스센터 연계까지.</span>
           <span class="go">시뮬레이션 시작 <span aria-hidden="true">→</span></span>
         </button>
         <button class="svc" disabled>
-          <span class="tags2"><span class="chip mute">준비 중</span></span>
-          <span style="font-size:18px;font-weight:700">추가 서비스 시나리오</span>
-          <span class="d">다음 단계에서 다른 커넥티드 서비스 시나리오를 추가할 수 있습니다.</span>
+          <span class="tags2"><span class="chip mute">다음 버전</span></span>
+          <span style="font-size:18px;font-weight:700">GS · Global South</span>
+          <span class="d">프로비저닝, Digital Key, OTT, Wi-Fi Hotspot, OTA 시나리오를 다음 버전에 추가합니다.</span>
         </button>
       </div>
-      <div class="keys"><span><kbd>1</kbd>경고등(심각)</span><span><kbd>2</kbd>경고등(정비)</span><span><kbd>V</kbd>고객이 전화</span><span><kbd>C</kbd>25분 미연락</span><span><kbd>E</kbd>긴급출동</span><span><kbd>N</kbd>낮/밤</span><span><kbd>+</kbd><kbd>-</kbd>확대·축소</span><span><kbd>R</kbd>초기화</span></div>
+      <div class="keys"><span><kbd>1</kbd>경고등(심각)</span><span><kbd>2</kbd>경고등(정비)</span><span><kbd>H</kbd>HU 전화하기</span><span><kbd>A</kbd>앱 전화 · 딜러 찾기</span><span><kbd>C</kbd>25분 미연락</span><span><kbd>E</kbd>긴급출동</span><span><kbd>N</kbd>낮/밤</span><span><kbd>+</kbd><kbd>-</kbd>확대·축소</span><span><kbd>R</kbd>초기화</span></div>
     </div>
   </div>
 
@@ -481,6 +516,14 @@ button{font:inherit;color:inherit}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.0.3',date:'2026-10-16',name:'고객 연락 채널 · 정비 딜러 연결',notes:[
+    '긴급 경고: 차량 HU 팝업 [전화하기] · 앱 [콜센터 전화하기] · 25분 미연락(SLA 콜아웃) 중 고객 행동 선택',
+    '정비 경고: 콜센터 상담원 미대응, HU [전화하기]는 선호 딜러 서비스센터로 연결',
+    '정비 경고: e-Care 앱에서 선호 딜러 · 근처 딜러 목록을 보고 서비스센터에 전화',
+    '고객 화면 카드: 차량 HU 경고 팝업과 e-Care 앱 화면, 버튼 누르는 동작 표시',
+    '지도에 강남 · 용산 서비스센터 추가, 고른 딜러로 입고',
+    '정보 흐름에 OPW WNG 필터와 통화 경로(차량 HU · 앱 ↔ 콜센터 · 딜러) 표시'
+  ]},
   {v:'0.0.2',date:'2026-10-15',name:'SLA 콜아웃 · 정보 흐름',notes:[
     '화면을 정보 영역 · 시뮬레이션 화면 · 정보 흐름 · 조작 패널로 분리',
     '시뮬레이션 화면 확대·축소(휠, + / - 버튼)와 드래그 이동',
@@ -587,7 +630,7 @@ function park(cx,cz){
     const tr=new THREE.Mesh(trunkGeo,trunkMat); tr.position.set(x,.95,z); scene.add(tr); }
 }
 const BLK=[-75,-45,-15,15,45,75];
-const SPECIAL={'-45,-45':'center','-45,45':'service','45,-45':'depot','15,-75':'vep'};
+const SPECIAL={'-45,-45':'center','-45,45':'dealer','45,45':'dealer','-15,-45':'dealer','45,-45':'depot','15,-75':'vep'};
 for(const cx of BLK) for(const cz of BLK){
   const sw=new THREE.Mesh(new THREE.BoxGeometry(22,.4,22),sideMat); sw.position.set(cx,.2,cz); sw.receiveShadow=true; scene.add(sw);
   const key=cx+','+cz; if(SPECIAL[key]) continue;
@@ -608,14 +651,20 @@ const glassMat=new THREE.MeshStandardMaterial({color:0x1d3550,roughness:.25,meta
   const ant=new THREE.Mesh(new THREE.CylinderGeometry(.15,.25,6,6),roofMat); ant.position.set(-45,43.4,-45); scene.add(ant);
   const bl=glow(0xff2a3a,5); bl.position.set(-45,46.6,-45); scene.add(bl); CENTER.beacon=bl;
 })();
-// service center (DMS)
-const SERVICE={x:-45,z:30}, DMS_TOP=V3(-45,12,46);
-(function(){
-  building(-45,46,20,9,13);
-  const sign=new THREE.Mesh(new THREE.BoxGeometry(20.2,1,13.2),signMat(0x2ee6cf,1.4)); sign.position.set(-45,8.6,46); scene.add(sign);
-  const canopy=new THREE.Mesh(new THREE.BoxGeometry(14,.4,5),new THREE.MeshStandardMaterial({color:0xd8dee6,roughness:.5})); canopy.position.set(-45,5,37.5); canopy.castShadow=true; scene.add(canopy);
-  for(const x of [-51,-39]){const p=new THREE.Mesh(new THREE.BoxGeometry(.4,4.6,.4),roofMat);p.position.set(x,2.7,36);scene.add(p);}
-})();
+// dealer service centers (DMS)
+const DEALERS=[
+  {id:'seocho',name:'서초 서비스센터',bx:-45,bz:45,pref:true},
+  {id:'gangnam',name:'강남 서비스센터',bx:45,bz:45},
+  {id:'yongsan',name:'용산 서비스센터',bx:-15,bz:-45}
+];
+DEALERS.forEach(d=>{
+  d.x=d.bx; d.z=d.bz-15; d.top=V3(d.bx,12,d.bz+1); d.km='-';
+  building(d.bx,d.bz+1,20,9,13);
+  const sign=new THREE.Mesh(new THREE.BoxGeometry(20.2,1,13.2),signMat(0x2ee6cf,1.4)); sign.position.set(d.bx,8.6,d.bz+1); scene.add(sign);
+  const canopy=new THREE.Mesh(new THREE.BoxGeometry(14,.4,5),new THREE.MeshStandardMaterial({color:0xd8dee6,roughness:.5})); canopy.position.set(d.bx,5,d.bz-7.5); canopy.castShadow=true; scene.add(canopy);
+  for(const x of [d.bx-6,d.bx+6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.4,4.6,.4),roofMat);p.position.set(x,2.7,d.bz-9);scene.add(p);}
+});
+const PREF=DEALERS[0];
 // emergency depot
 const DEPOT={x:45,z:-30};
 (function(){
@@ -798,7 +847,7 @@ function addTag(html,getPos,cls,color){
 function setTag(t,html,cls){ if(t.html!==html){t.el.innerHTML=html;t.html=html;} if(cls!==undefined&&t.cls!==cls){t.el.className='tag '+cls;t.cls=cls;} }
 function removeTag(t){if(!t)return;const i=tags.indexOf(t);if(i>=0)tags.splice(i,1);t.el.remove();}
 addTag('<span class="d" style="background:var(--red)"></span>e-Care 상담센터<small>콜센터 웹</small>',CENTER.top.clone().add(V3(0,4,0)));
-addTag('<span class="d"></span>서초 서비스센터<small>DMS</small>',V3(-45,12,46));
+DEALERS.forEach(d=>addTag(`<span class="d"></span>${d.name}<small>${d.pref?'선호 딜러 · DMS':'DMS'}</small>`,d.top.clone()));
 addTag('<span class="d" style="background:var(--alert)"></span>긴급출동 센터',V3(45,10,-47));
 addTag('<span class="d"></span>VDP · 일본<small>GLOBAL</small>',NODE.vdp.pos.clone().add(V3(0,9,0)),'node vdp');
 addTag('<span class="d"></span>VEP · 한국<small>LOCAL</small>',NODE.vep.pos.clone().add(V3(0,9,0)),'node vep');
@@ -978,24 +1027,30 @@ const mmss=sec=>{sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60
 const FN={
   vdp:{x:220,y:48,w:124,h:40,t:'VDP',s:'일본 · 글로벌 서버'},
   veh:{x:72,y:142,w:112,h:40,t:'차량 TCU',s:'고장 신호 발생'},
-  vep:{x:220,y:142,w:124,h:40,t:'VEP',s:'한국 · 로컬 서버'},
+  vep:{x:220,y:142,w:124,h:40,t:'VEP',s:'한국 · WNG 필터'},
   hu:{x:47,y:250,w:72,h:44,t:'차량 HU',s:'경고 팝업'},
-  app:{x:127,y:250,w:72,h:44,t:'고객 휴대폰',s:'앱 푸시'},
-  web:{x:207,y:250,w:72,h:44,t:'콜센터 웹',s:'상담 화면'},
+  app:{x:127,y:250,w:72,h:44,t:'e-Care 앱',s:'고객 휴대폰'},
+  web:{x:207,y:250,w:72,h:44,t:'콜센터 웹',s:'CCW · 긴급'},
   dms:{x:287,y:250,w:72,h:44,t:'DMS',s:'딜러 시스템'}
 };
 const FE={
   e1:'M72 122 C72 78 104 48 158 48', e2:'M220 68 L220 122',
   e3:'M196 162 C196 205 47 196 47 228', e4:'M210 162 C210 205 127 200 127 228',
-  e5:'M226 162 C226 200 207 204 207 228', e6:'M240 162 C240 200 287 200 287 228',
-  e7:'M127 272 C127 293 207 293 207 272', e8:'M207 272 C207 293 287 293 287 272'
+  e5:'M226 162 C226 200 207 204 207 228', e6:'M240 162 C240 200 287 200 287 228'
 };
-$('#flowSvg').innerHTML=`<svg viewBox="0 0 340 300" role="img" aria-label="정보 흐름도">
+$('#flowSvg').innerHTML=`<svg viewBox="0 0 340 326" role="img" aria-label="정보 흐름도">
  <rect class="fband" x="6" y="6" width="328" height="78" rx="9"/><text class="fband-l" x="16" y="22">JAPAN · 글로벌</text>
- <rect class="fband" x="6" y="92" width="328" height="204" rx="9"/><text class="fband-l" x="16" y="108">KOREA · 로컬</text>
+ <rect class="fband" x="6" y="92" width="328" height="230" rx="9"/><text class="fband-l" x="16" y="108">KOREA · 로컬</text>
  ${Object.entries(FE).map(([k,d])=>`<path class="fe" id="fe-${k}" d="${d}"/>`).join('')}
+ <g id="flinks"></g>
  ${Object.entries(FN).map(([k,n])=>`<g class="fn" id="fn-${k}"><rect x="${n.x-n.w/2}" y="${n.y-n.h/2}" width="${n.w}" height="${n.h}" rx="8"/><text class="t" x="${n.x}" y="${n.y-(n.h>40?3:2)}" text-anchor="middle">${n.t}</text><text class="s" x="${n.x}" y="${n.y+(n.h>40?12:11)}" text-anchor="middle">${n.s}</text></g>`).join('')}
  <g id="fpk"></g></svg>`;
+function fLink(a,b,cls){
+  const A=FN[a],B=FN[b],id=`lk-${a}-${b}`; let p=document.getElementById('fe-'+id);
+  if(!p){p=document.createElementNS('http://www.w3.org/2000/svg','path');p.id='fe-'+id;$('#flinks').appendChild(p);}
+  const y=272, cy=y+14+Math.abs(A.x-B.x)*.12;
+  p.setAttribute('d',`M${A.x} ${y} C${A.x} ${cy} ${B.x} ${cy} ${B.x} ${y}`); p.setAttribute('class','fe '+(cls||'on')); return id;
+}
 const FPK=[];
 function flowSend(e,dur,color,rev){
   const p=document.getElementById('fe-'+e); if(!p) return; const len=p.getTotalLength();
@@ -1004,15 +1059,17 @@ function flowSend(e,dur,color,rev){
 }
 function flowTick(){ const now=performance.now();
   for(let i=FPK.length-1;i>=0;i--){const f=FPK[i];const k=clamp((now-f.t0)/f.dur,0,1);const pt=f.p.getPointAtLength(f.len*(f.rev?1-ease(k):ease(k)));f.c.setAttribute('cx',pt.x);f.c.setAttribute('cy',pt.y);if(k>=1){f.c.remove();FPK.splice(i,1);}}
-  if(S.callLive&&now-(S.callPk||0)>700){S.callPk=now;flowSend('e7',900,'#2ee6cf',S.callDir<0);flowSend('e7',900,'#ffffff',S.callDir>0);}
+  if(S.callLive&&S.callLink&&now-(S.callPk||0)>700){S.callPk=now;flowSend(S.callLink,900,'#2ee6cf',S.callDir<0);flowSend(S.callLink,900,'#ffffff',S.callDir>0);}
 }
 function fNode(id,cls){const g=document.getElementById('fn-'+id);if(g)g.setAttribute('class','fn '+(cls||''));}
 function fEdge(id,cls){const p=document.getElementById('fe-'+id);if(p)p.setAttribute('class','fe '+(cls||''));}
 function fCap(html){$('#flowCap').innerHTML=html;}
-function flowReset(){Object.keys(FN).forEach(k=>fNode(k,''));Object.keys(FE).forEach(k=>fEdge(k,''));FPK.splice(0).forEach(f=>f.c.remove());S.callLive=false;fCap('차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.');}
+function flowReset(){$('#flinks').innerHTML='';Object.keys(FN).forEach(k=>fNode(k,''));Object.keys(FE).forEach(k=>fEdge(k,''));FPK.splice(0).forEach(f=>f.c.remove());S.callLive=false;fCap('차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.');}
 
 /* ================= UI ================= */
 const ICON={
+  car:'<svg viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="12" rx="2"/><path d="M8 20.5h8M12 16.5v4"/><path d="M14.5 8l-3.5 3.5M11 8.5V11.5h3"/></svg>',
+  tel:'<svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>',
   warn:'<svg viewBox="0 0 24 24"><path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.2v.3"/></svg>',
   tool:'<svg viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.4 2.4-2.6-.6-.6-2.6z"/></svg>',
   in:'<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M15 7l-4 4M11 7.5V11h3.5"/></svg>',
@@ -1024,8 +1081,8 @@ const ICON={
   agent:'<svg viewBox="0 0 24 24"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="2.5" y="12" width="4" height="6" rx="1.5"/><rect x="17.5" y="12" width="4" height="6" rx="1.5"/><path d="M19.5 18a4 4 0 0 1-4 3H13"/></svg>',
   phone:'<svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg>'
 };
-const STEPS=['경고 감지','정보 전달','상담 연결','현장 대응','케어 완료'];
-const PHASE_STEP={intro:0,drive:0,warn:1,diagnose:2,awaitCall:3,lapse:3,call:3,awaitAction:4,dispatch:4,arrived:4,tow:4,service:4,done:6};
+const STEPS=['경고 감지','정보 전달','고객 연락','현장 대응 · 입고','케어 완료'];
+const PHASE_STEP={intro:0,drive:0,warn:1,diagnose:2,awaitCall:3,lapse:3,busy:3,pickDealer:3,call:3,awaitAction:4,dispatch:4,arrived:4,tow:4,service:4,done:6};
 $('#steps').innerHTML=STEPS.map((s,i)=>`<div class="step" data-i="${i+1}"><span class="n">0${i+1}</span>${s}</div>`).join('');
 function renderSteps(){const cur=PHASE_STEP[phase]||0;document.querySelectorAll('.step').forEach(el=>{const i=+el.dataset.i;el.classList.toggle('on',i===cur||(cur===6&&i===5));el.classList.toggle('done',i<cur);});}
 
@@ -1036,10 +1093,17 @@ const DOCK={
   drive:()=>[btn('warnSevere','경고등 (심각)','브레이크 시스템 이상','1','red','warn'),btn('warnMaint','경고등 (정비)','엔진 점검 필요','2','amber','tool')],
   warn:()=>[info('경고 감지 · 차량 데이터 수집 중')],
   diagnose:()=>[info('VDP(일본) → VEP(한국) 정보 전달 중')],
-  awaitCall:()=>[btn('custCall','고객이 전화를 건다','SLA 25분 이내 · 고객 → 상담센터','V','teal','in'),btn('noCall','고객이 25분간 전화하지 않는다','SLA 초과 · 상담원 → 고객 휴대폰','C','amber','clock')],
+  awaitCall:()=>scenario==='severe'?[
+    btn('huCall','HU 팝업 [전화하기]','고객 → 콜센터 · 차량에서 통화','H','teal','car'),
+    btn('appCall','앱 [콜센터 전화하기]','고객 → 콜센터 · 휴대폰','A','teal','tel'),
+    btn('noCall','25분간 연락 없음','SLA 초과 · 상담원 → 고객 휴대폰','C','amber','clock')]
+   :[btn('huDealer','HU 팝업 [전화하기]',`선호 딜러 ${PREF.name}로 연결`,'H','teal','car'),
+     btn('appDealer','앱에서 서비스센터 찾기','선호 · 근처 딜러 목록 → 전화','A','teal','tel')],
+  busy:()=>[info('고객이 화면을 조작하는 중')],
+  pickDealer:()=>S.dlist.map((d,i)=>btn('dealer'+i,d.name,`${d.pref?'선호 딜러 · ':'근처 · '}${d.km} km`,String(i+1),d.pref?'teal':'neutral','tel')),
   lapse:()=>[info('타임랩스 · 시간이 빠르게 흐르는 중')],
-  call:()=>[info('고객과 상담원이 통화 중입니다')],
-  awaitAction:()=>scenario==='severe'?[btn('dispatch','긴급 출동','현재 위치로 출동 차량 배정','E','red','siren')]:[btn('reserve','정비 예약 확정','서초 서비스센터 입고 · DMS 전달','S','teal','cal'),btn('dispatch','긴급 출동 요청','현장 출동으로 전환','E','neutral','siren')],
+  call:()=>[info(S.dealer&&scenario==='maint'?`고객과 ${S.dealer.name} 어드바이저가 통화 중입니다`:'고객과 상담원이 통화 중입니다')],
+  awaitAction:()=>scenario==='severe'?[btn('dispatch','긴급 출동','현재 위치로 출동 차량 배정','E','red','siren')]:[btn('reserve','정비 예약 확정',`${S.dealer.name} 입고 · DMS 등록`,'S','teal','cal')],
   dispatch:()=>[info('긴급출동 차량이 고객 위치로 이동 중')],
   arrived:()=>[btn('tow','서비스센터로 견인','서초 서비스센터 입고 · DMS 전달','T','teal','tow')],
   tow:()=>[info('견인 차량이 서비스센터로 이동 중')],
@@ -1086,12 +1150,12 @@ function sideIdle(){
    <li><span><i class="dot" style="background:var(--blue)"></i>VDP · 일본</span><b>정상</b></li>
    <li><span><i class="dot"></i>VEP · 한국</span><b>정상</b></li>
    <li><span><i class="dot" style="background:var(--red)"></i>콜센터 웹</span><b>대기 상담원 12명</b></li>
-   <li><span><i class="dot"></i>DMS · 서초 서비스센터</span><b>연동</b></li>
+   <li><span><i class="dot"></i>DMS · 딜러 서비스센터 3곳</span><b>연동</b></li>
   </ul></section>`;
 }
 const DIAG={
   severe:{chip:'<span class="chip red">심각</span>',title:'브레이크 시스템 이상',cls:'',risk:'높음 · 즉시 정차',act:'고객 연락 · 긴급출동 검토',code:'C1241'},
-  maint:{chip:'<span class="chip amber">정비</span>',title:'엔진 점검 경고 (배출가스 계통)',cls:'amber',risk:'보통 · 주행 가능',act:'점검 안내 · 서비스센터 예약',code:'P0420'}
+  maint:{chip:'<span class="chip amber">정비</span>',title:'엔진 점검 경고 (배출가스 계통)',cls:'amber',risk:'보통 · 주행 가능',act:'고객이 딜러에 직접 연락 · 입고 예약',code:'P0420'}
 };
 function sideDiag(){
   const d=DIAG[scenario];
@@ -1100,25 +1164,38 @@ function sideDiag(){
   <ol class="diag">
    <li id="dg0"><span class="st"></span><div><b>고장 신호 수신</b><small>차량 → VDP · 일본</small></div><i class="bar"><em></em></i></li>
    <li id="dg1"><span class="st"></span><div><b>진단 데이터 전달</b><small>VDP · 일본 → VEP · 한국</small></div><i class="bar"><em></em></i></li>
-   <li id="dg2"><span class="st"></span><div><b>경고 정보 배포</b><small>VEP → 차량 HU · 고객 휴대폰 · 콜센터 웹 · DMS</small></div><i class="bar"><em></em></i></li>
+   <li id="dg2"><span class="st"></span><div><b>경고 정보 배포</b><small>${scenario==='severe'?'VEP → WNG 필터 → 차량 HU · 앱 · 콜센터 웹 · DMS':'VEP → WNG 필터 → 차량 HU · 앱 · DMS (콜센터 제외)'}</small></div><i class="bar"><em></em></i></li>
   </ol>
   <div class="result ${d.cls}" id="dres" hidden><div class="k">DIAGNOSIS · ${d.code}</div><div class="v">${d.title}</div>
    <div class="r"><span>위험도</span><b>${d.risk}</b></div><div class="r"><span>권장 조치</span><b>${d.act}</b></div></div></section>`;
 }
 function diagStep(i,state,dur){const li=$('#dg'+i);if(!li)return;li.className=state;const em=li.querySelector('.bar em');if(state==='run'){em.style.transitionDuration=dur+'ms';requestAnimationFrame(()=>requestAnimationFrame(()=>{em.style.width='100%';}));}else em.style.width='100%';}
-function sideAwait(){
-  const d=DIAG[scenario];
-  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Customer Contact · SLA</span>${d.chip}</header>
-  <h3>경고 알림 발송 완료</h3><p>차량 HU와 고객 휴대폰에 ${d.title} 알림이 표시되었고, 콜센터 웹과 DMS에도 같은 정보가 등록되었습니다.</p>
-  <div class="rule"><b>SLA 기준</b> · 경고 발생 후 <b>25분</b> 안에 고객이 상담센터로 전화하지 않으면 상담원이 고객 휴대폰으로 먼저 전화합니다.</div>
-  <div class="opts"><div><kbd>V</kbd><span>고객이 알림을 보고 상담센터로 전화를 겁니다.</span></div><div><kbd>C</kbd><span>고객이 25분 동안 연락하지 않습니다. 25분을 5초로 빠르게 보여줍니다.</span></div></div></section>`;
+function devHTML(){
+  const sv=scenario==='severe', d=DIAG[scenario];
+  const hu=`<div><div class="devcap">차량 HU</div><div class="hu"><div class="hu-bar"><span>e-CARE</span><span>${hms(simMs()).slice(0,5)}</span></div><div class="pop ${sv?'':'amber'}"><div class="k">e-CARE · ${sv?'긴급':'정비'}</div><b>${d.title}</b><p>${sv?'즉시 안전한 곳에 정차하고 비상등을 켜세요.':'주행은 가능합니다. 가까운 시일 내 점검을 받으세요.'}</p><div class="cbtn" id="huBtn">${ICON.tel}전화하기</div><div class="cnote">${sv?'→ e-Care 콜센터':'→ 선호 딜러 '+PREF.name}</div></div></div></div>`;
+  return `<div class="devs">${hu}<div><div class="devcap">e-Care 앱</div><div class="ph"><div class="ph-in" id="phIn">${phoneHome()}</div></div></div></div>`;
 }
-function sideCall(mode){
-  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${mode==='out'?'SLA Call-out':'Inbound Call'}</span><span class="chip amber" id="cst">${mode==='out'?'고객 휴대폰 호출 중':'상담센터 수신 중'}</span></header>
+function phoneHome(){
+  const sv=scenario==='severe', d=DIAG[scenario];
+  return `<div class="ph-h"><span class="e">e</span>-Care</div><div class="ph-card ${sv?'':'amber'}"><div class="k">${sv?'긴급 알림':'정비 알림'}</div><b>${d.title}</b>${sv?'즉시 정차 권고':'점검 권장 · 주행 가능'}</div><div class="cbtn ${sv?'':'alt'}" id="appBtn">${ICON.tel}${sv?'콜센터 전화하기':'서비스센터 찾기'}</div><div class="cnote">${sv?'긴급 경고에서만 제공':'선호 · 근처 딜러 목록'}</div>`;
+}
+function phoneDealers(){
+  return `<div class="ph-h">서비스센터 선택</div><ul class="dl">${S.dlist.map((x,i)=>`<li id="dl${i}" style="animation-delay:${i*.08}s"><div><b>${x.name}${x.pref?'<i>선호</i>':''}</b><small>${x.km} km</small></div><span class="tel">${ICON.tel}</span></li>`).join('')}</ul>`;
+}
+function sideAwait(){
+  const sv=scenario==='severe', d=DIAG[scenario];
+  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Customer Screens</span>${d.chip}</header>
+  <h3>경고 알림 표시</h3><p>${sv?'차량 HU와 e-Care 앱에 긴급 경고가 표시되고, 콜센터 웹과 DMS에도 같은 정보가 등록되었습니다.':'차량 HU와 e-Care 앱에 정비 경고가 표시되고, 선호 딜러 DMS에 정보가 등록되었습니다.'}</p>
+  ${devHTML()}
+  <div class="rule">${sv?'<b>SLA</b> · 경고 발생 후 <b>25분</b> 안에 고객이 콜센터로 전화하지 않으면 상담원이 고객 휴대폰으로 먼저 전화합니다.':'<b>정비 경고</b> · 콜센터 상담원이 대응하지 않습니다. 고객이 HU나 앱에서 서비스센터로 직접 연락합니다.'}</div></section>`;
+}
+function sideCall(o){
+  const toDealer=o.party==='dealer';
+  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${o.dir==='out'?'SLA Call-out':toDealer?'Dealer Call':'Inbound Call'}</span><span class="chip amber" id="cst">${o.dir==='out'?'고객 휴대폰 호출 중':toDealer?S.dealer.name+' 수신 중':'콜센터 수신 중'}</span></header>
   <div class="parties">
-   <div class="party" id="pA"><div class="av ag">${ICON.agent}</div><div><b>e-Care 상담원</b><small>콜센터 웹 · 차량 진단 정보 연동</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
+   <div class="party" id="pA"><div class="av ag">${ICON.agent}</div><div><b>${toDealer?S.dealer.name+' 어드바이저':'e-Care 상담원'}</b><small>${toDealer?'DMS · 차량 경고 정보 연동':'콜센터 웹 · 차량 진단 정보 연동'}</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
    <div class="linkrow"><span id="ctime">00:00</span></div>
-   <div class="party" id="pC"><div class="av cu">${ICON.phone}</div><div><b>홍길동 고객님</b><small>고객 휴대폰 · 010-****-1234</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
+   <div class="party" id="pC"><div class="av cu">${o.via==='hu'?ICON.car:ICON.phone}</div><div><b>홍길동 고객님</b><small>${o.via==='hu'?'차량 HU · 핸즈프리 통화':'고객 휴대폰 · 010-****-1234'}</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
   </div><div class="script" id="tx"></div></section>`;
 }
 function sideDispatch(){
@@ -1135,7 +1212,7 @@ function sideArrived(){
 }
 function sideService(kind){
   side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Service Center · DMS</span><span class="chip">${kind==='tow'?'견인 입고':'정비 예약'}</span></header>
-  <h3>서초 서비스센터</h3><p>DMS로 진단 정보가 먼저 전달되어 도착 전에 정비 준비를 시작합니다.</p>
+  <h3>${S.dealer.name}</h3><p>DMS로 진단 정보가 먼저 전달되어 도착 전에 정비 준비를 시작합니다.</p>
   <div class="eta"><div><div class="unit">도착 예정</div><div class="big" id="eta">--:--</div></div><div style="text-align:right"><div class="unit">남은 거리</div><div style="font:700 18px var(--f-mono)" id="edist">-- km</div></div></div>
   <div class="prog teal"><em id="eprog"></em></div>
   <dl class="kv"><dt>입고 방식</dt><dd>${kind==='tow'?'견인 차량 입고':'고객 직접 입고'}</dd><dt>DMS 전달</dt><dd>원격 진단 데이터 · ${DIAG[scenario].code}</dd><dt>담당</dt><dd>서비스 어드바이저 배정 완료</dd></dl></section>`;
@@ -1152,19 +1229,23 @@ function lamps(sev){ $('#lampBrake').className='lamp'+(sev==='severe'?' red':'')
 function hazard(on){S.hazard=on;$('#lampHaz').className='lamp'+(on?' haz':'');}
 
 /* ================= scenario ================= */
-const S={hazard:false,status:'normal',load:null,beam:null,callT0:0,eta:null,slaT0:0,slaStop:0,lapse:null,ff:1,callLive:false,callDir:1,phoneTag:null};
+const S={dealer:PREF,dlist:[],callLink:null,hazard:false,status:'normal',load:null,beam:null,callT0:0,eta:null,slaT0:0,slaStop:0,lapse:null,ff:1,callLive:false,callDir:1,phoneTag:null};
 const SLA_MS=25*60*1000;
 const live=(run,ms)=>new Promise(r=>setTimeout(()=>r(run===token),ms));
 const SCRIPT={
-  severe:{
-    out:[['agent','안녕하세요, e-Care 상담센터입니다. 홍길동 고객님 휴대폰 맞으신가요?'],['cust','네, 맞아요.'],['agent','25분 전 차량에서 브레이크 시스템 경고가 감지됐는데 연락이 없으셔서 먼저 전화드렸습니다. 지금 안전한 곳에 계신가요?'],['cust','경황이 없어서 연락을 못 했어요. 갓길에 세워 뒀어요.'],['agent','현재 위치로 긴급출동 차량을 바로 보내드리겠습니다. 비상등을 켜고 차 밖 안전한 곳에서 기다려 주세요.']],
-    in:[['cust','여보세요, 휴대폰으로 브레이크 경고 알림이 왔어요.'],['agent','e-Care 상담센터입니다. 고객님 차량의 진단 정보가 이미 접수되어 있습니다.'],['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?'],['cust','네, 갓길에 세웠어요.'],['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.']]
-  },
-  maint:{
-    out:[['agent','안녕하세요, e-Care 상담센터입니다. 홍길동 고객님 휴대폰 맞으신가요?'],['cust','네, 무슨 일이시죠?'],['agent','25분 전 엔진 점검 경고 알림을 보내드렸는데 확인이 안 되셔서 연락드렸습니다. 주행은 가능하지만 빠른 점검을 권해 드립니다.'],['cust','그럼 어디로 가면 될까요?'],['agent','가까운 서초 서비스센터에 바로 입고 예약을 도와드릴게요. 진단 정보도 미리 전달해 두겠습니다.']],
-    in:[['cust','휴대폰으로 엔진 점검 알림이 왔는데 괜찮을까요?'],['agent','e-Care 상담센터입니다. 고객님 차량의 진단 정보를 확인했습니다.'],['agent','배출가스 계통 점검 경고로, 주행은 가능하지만 빠른 점검이 필요합니다.'],['cust','그럼 어디로 가면 될까요?'],['agent','가까운 서초 서비스센터로 예약을 도와드릴게요. 진단 정보도 미리 전달해 두겠습니다.']]
-  }
+  out:[['agent','안녕하세요, e-Care 상담센터입니다. 홍길동 고객님 휴대폰 맞으신가요?'],['cust','네, 맞아요.'],['agent','25분 전 차량에서 브레이크 시스템 경고가 감지됐는데 연락이 없으셔서 먼저 전화드렸습니다. 지금 안전한 곳에 계신가요?'],['cust','경황이 없어서 연락을 못 했어요. 갓길에 세워 뒀어요.'],['agent','현재 위치로 긴급출동 차량을 바로 보내드리겠습니다. 비상등을 켜고 차 밖 안전한 곳에서 기다려 주세요.']],
+  hu:[['cust','차량 화면에 브레이크 경고가 떠서 전화하기 버튼을 눌렀어요.'],['agent','e-Care 상담센터입니다. 차량에서 바로 연결되어 고객님 차량의 진단 정보가 함께 접수되었습니다.'],['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?'],['cust','네, 갓길에 세웠어요.'],['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.']],
+  app:[['cust','앱에서 브레이크 경고 알림을 보고 전화드렸어요.'],['agent','e-Care 상담센터입니다. 고객님 차량의 진단 정보가 이미 접수되어 있습니다.'],['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?'],['cust','네, 갓길에 세웠어요.'],['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.']]
 };
+function scriptFor(o){
+  if(o.party==='dealer'){ const n=S.dealer.name; return [
+    o.via==='hu'?['cust','차량 화면에 엔진 점검 경고가 떠서 전화하기 버튼을 눌렀어요.']:['cust','앱에서 서비스센터를 골라 전화드렸어요. 엔진 점검 경고가 떴어요.'],
+    ['agent',`${n} 서비스 어드바이저입니다. e-Care로 전달된 차량 경고 정보를 DMS에서 확인했습니다.`],
+    ['agent','배출가스 계통 점검이 필요합니다. 주행은 가능하니 편하신 시간에 입고해 주세요.'],
+    ['cust','오늘 오후에 갈 수 있을까요?'],
+    ['agent','오후 3시로 예약해 드릴게요. 진단 정보로 부품도 미리 준비해 두겠습니다.']]; }
+  return o.dir==='out'?SCRIPT.out:SCRIPT[o.via];
+}
 
 function start(){
   if(phase!=='intro') return;
@@ -1198,28 +1279,37 @@ async function warnFlow(sc){
   fCap('<b>③</b> VDP (일본) → <b>VEP (한국)</b> · 진단 데이터 전달'); addLog('VDP(일본) → VEP(한국) 진단 데이터 전달');
   await packet(NODE.vdp.pos,NODE.vep.pos,0x59a8ff,1700,'DIAGNOSIS DATA → VEP 한국'); if(run!==token) return;
   diagStep(1,'done'); fNode('vep','done');
-  // hop 3 — VEP fan-out
+  // hop 3 — VEP → WNG filter → fan-out
   focus(V3(-10,6,-18),92); if(!await live(run,800)) return;
+  const ft=addTag('<span class="d"></span>WNG 필터<small>중복 · VIN · 위치 · 정비</small>',NODE.vep.pos.clone().add(V3(0,-5,0)),'phone');
+  fNode('vep','act'); fCap('<b>④</b> VEP · OPW <b>WNG 필터</b> (중복 · VIN · 위치 · 정비) 적용');
+  addLog('VEP · WNG 필터 적용 (중복 · VIN · 위치 · 정비)');
+  pulseAt(V3(VEPDC.x,.3,VEPDC.z),0x2ee6cf,9);
+  if(!await live(run,1300)) return; removeTag(ft); fNode('vep','done');
   diagStep(2,'run',1600);
-  ['e3','e4','e5','e6'].forEach(e=>{fEdge(e,'on');flowSend(e,1600,'#2ee6cf');}); ['hu','app','web','dms'].forEach(n=>fNode(n,'act'));
-  fCap('<b>④</b> VEP (한국) → <b>차량 HU · 고객 휴대폰 · 콜센터 웹 · DMS</b> 경고 정보 배포');
-  addLog('VEP → 차량 HU · 고객 휴대폰 · 콜센터 웹 · DMS 경고 전달');
-  await Promise.all([
-    packet(NODE.vep.pos,carTop,0x2ee6cf,1600,'차량 HU'),
-    packet(NODE.vep.pos,phonePos,0x7ff5e6,1600,'고객 휴대폰'),
-    packet(NODE.vep.pos,CENTER.top,0x2ee6cf,1600,'콜센터 웹'),
-    packet(NODE.vep.pos,DMS_TOP,0x2ee6cf,1600,'DMS')
-  ]); if(run!==token) return;
-  diagStep(2,'done'); ['hu','app','web','dms'].forEach(n=>fNode(n,'done'));
-  removeTag(S.phoneTag); S.phoneTag=addTag(`<span class="d"></span>고객 휴대폰<small>경고 알림 수신</small>`,()=>phonePos().add(V3(0,3,0)),'phone');
+  const T=severe?[['hu','e3',carTop,'차량 HU'],['app','e4',phonePos,'e-Care 앱'],['web','e5',CENTER.top,'콜센터 웹'],['dms','e6',PREF.top,'DMS']]
+                :[['hu','e3',carTop,'차량 HU'],['app','e4',phonePos,'e-Care 앱'],['dms','e6',PREF.top,'DMS · 선호 딜러']];
+  T.forEach(([n,e])=>{fEdge(e,'on');flowSend(e,1600,'#2ee6cf');fNode(n,'act');});
+  if(!severe){fEdge('e5','skip');fNode('web','skip');}
+  const who=severe?'차량 HU · 앱 · 콜센터 웹 · DMS':'차량 HU · 앱 · DMS';
+  fCap(severe?`<b>⑤</b> VEP → <b>${who}</b> 경고 정보 배포`:`<b>⑤</b> VEP → <b>${who}</b> · 정비 경고는 콜센터 웹으로 보내지 않음`);
+  addLog(`VEP → ${who} 경고 전달`);
+  await Promise.all(T.map(([n,e,pos,lbl])=>packet(NODE.vep.pos,pos,n==='app'?0x7ff5e6:0x2ee6cf,1600,lbl))); if(run!==token) return;
+  diagStep(2,'done'); T.forEach(([n])=>fNode(n,'done'));
+  removeTag(S.phoneTag); S.phoneTag=addTag(`<span class="d"></span>e-Care 앱<small>경고 알림 수신</small>`,()=>phonePos().add(V3(0,3,0)),'phone');
   const r=$('#dres'); if(r) r.hidden=false;
-  addLog(severe?'차량 HU · 휴대폰 알림 · 즉시 정차 권고':'차량 HU · 휴대폰 알림 · 빠른 점검 권고',severe?'red':'amber');
-  S.slaT0=simMs(); S.slaStop=0; $('#slaBox').hidden=false; $('#slaL').textContent='SLA · 고객 연락 대기';
-  addLog('SLA 시작 · 25분 내 고객 연락 대기','amber');
-  fCap('<b>⑤</b> 알림 완료 · SLA 25분 동안 고객 연락을 기다립니다');
+  addLog(severe?'차량 HU 팝업 · 앱 알림 · 즉시 정차 권고':'차량 HU 팝업 · 앱 알림 · 점검 권장',severe?'red':'amber');
+  if(severe){
+    S.slaT0=simMs(); S.slaStop=0; $('#slaBox').hidden=false; $('#slaL').textContent='SLA · 고객 연락 대기';
+    addLog('SLA 시작 · 25분 내 고객 연락 대기','amber');
+    fCap('<b>⑥</b> 알림 완료 · SLA 25분 동안 고객 연락을 기다립니다');
+  } else {
+    addLog('정비 경고 · 콜센터 상담원 대응 없음 · 고객이 딜러에 직접 연락','amber');
+    fCap('<b>⑥</b> 알림 완료 · 고객이 HU나 앱에서 서비스센터로 직접 연락합니다');
+  }
   if(!await live(run,500)) return;
   setPhase('awaitCall'); sideAwait();
-  focus(mid(carPos,V3(CENTER.x,10,CENTER.z)),62);
+  focus(severe?mid(carPos,V3(CENTER.x,10,CENTER.z)):mid(carPos,V3(PREF.bx,6,PREF.bz)),62);
 }
 
 function timeLapse(targetMs,realMs,run,opts){
@@ -1232,14 +1322,16 @@ function timeLapse(targetMs,realMs,run,opts){
 }
 function endLapse(){ $('#lapse').hidden=true; stage.classList.remove('ff'); $('#clockBox').classList.remove('fast'); S.ff=1; S.lapse=null; }
 
-async function custCallFlow(){
+function pressBtn(id,run){ const el=document.getElementById(id); if(el){el.classList.remove('press');void el.offsetWidth;el.classList.add('press');} tone(1500,.06,'triangle',.03); return live(run,850); }
+async function custCallFlow(via){
   const run=++token; setPhase('lapse');
-  await timeLapse(Math.max(S.slaT0+(3*60+12)*1000,simMs()+30000),1400,run,{note:'고객이 휴대폰 알림을 확인하는 중'}); if(run!==token) return;
-  $('#lapse').classList.add('ok'); $('#lapseD').textContent='SLA 이내 · 고객이 상담센터로 전화';
+  await timeLapse(Math.max(S.slaT0+(3*60+12)*1000,simMs()+30000),1400,run,{note:via==='hu'?'고객이 차량 HU 경고 팝업을 확인하는 중':'고객이 e-Care 앱 알림을 확인하는 중'}); if(run!==token) return;
+  $('#lapse').classList.add('ok'); $('#lapseD').textContent=via==='hu'?'SLA 이내 · 고객이 HU [전화하기]를 누름':'SLA 이내 · 고객이 앱 [콜센터 전화하기]를 누름';
   S.slaStop=simMs(); $('#slaL').textContent='SLA 충족 · 고객 연락';
-  addLog(`고객 → 상담센터 전화 · SLA 이내 (${mmss((S.slaStop-S.slaT0)/1000)})`,'teal');
-  if(!await live(run,900)) return; endLapse();
-  await callFlow('in',run);
+  if(!await pressBtn(via==='hu'?'huBtn':'appBtn',run)) return;
+  addLog(`고객 → 콜센터 전화 (${via==='hu'?'차량 HU':'e-Care 앱'}) · SLA 이내 ${mmss((S.slaStop-S.slaT0)/1000)}`,'teal');
+  if(!await live(run,500)) return; endLapse();
+  await callFlow({party:'center',dir:'in',via},run);
 }
 async function noCallFlow(){
   const run=++token; setPhase('lapse');
@@ -1251,41 +1343,76 @@ async function noCallFlow(){
   pulseAt(V3(CENTER.x,.3,CENTER.z),0xff4552,10);
   if(!await live(run,1500)) return; endLapse();
   addLog('상담원 → 고객 휴대폰 선제 콜아웃');
-  await callFlow('out',run);
+  await callFlow({party:'center',dir:'out',via:'phone'},run);
+}
+function dealerKm(){
+  const c=carM.center();
+  DEALERS.forEach(d=>{const p=roadPath(c,{x:d.x,z:d.z});let L=0;for(let i=1;i<p.length;i++)L+=dist2(p[i],p[i-1]);d.km=(L*.025+.4).toFixed(1);});
+  S.dlist=[PREF,...DEALERS.filter(d=>!d.pref).sort((a,b)=>a.km-b.km)];
+}
+async function huDealerFlow(){
+  const run=++token; setPhase('busy'); S.dealer=PREF;
+  if(!await pressBtn('huBtn',run)) return;
+  addLog(`고객 → ${PREF.name} 전화 · 차량 HU 팝업 (선호 딜러)`,'teal');
+  await callFlow({party:'dealer',dir:'in',via:'hu'},run);
+}
+async function appDealerFlow(){
+  const run=++token; setPhase('busy');
+  if(!await pressBtn('appBtn',run)) return;
+  dealerKm(); const ph=$('#phIn'); if(ph) ph.innerHTML=phoneDealers();
+  addLog('e-Care 앱 · 선호 딜러와 근처 딜러 목록 표시');
+  fCap('<b>⑦</b> e-Care 앱 · 선호 딜러와 근처 서비스센터 목록');
+  S.dlist.forEach(d=>pulseAt(V3(d.bx,.3,d.bz),0x2ee6cf,6));
+  focus(V3(-5,0,5),100);
+  setPhase('pickDealer');
+}
+async function pickDealerFlow(i){
+  const d=S.dlist[i]; if(!d) return;
+  const run=++token; S.dealer=d; setPhase('busy');
+  const li=$('#dl'+i); if(li) li.classList.add('sel');
+  pulseAt(V3(d.bx,.3,d.bz),0x2ee6cf,10); tone(1500,.06,'triangle',.03);
+  if(!await live(run,900)) return;
+  addLog(`고객 → ${d.name} 전화 · e-Care 앱`,'teal');
+  await callFlow({party:'dealer',dir:'in',via:'app'},run);
 }
 function typeText(el,text,run){return new Promise(res=>{let i=0;const step=()=>{if(run!==token)return res();i++;el.textContent=text.slice(0,i);const z=side.closest('.zone-body');if(z)z.scrollTop=z.scrollHeight;if(i<text.length)setTimeout(step,reduce?0:26);else res();};step();});}
-async function callFlow(mode,run){
-  setPhase('call'); sideCall(mode);
-  focus(mid(carPos,V3(CENTER.x,14,CENTER.z)),60);
-  killFX(S.beam);
-  S.beam=makeBeam(V3(CENTER.x,44,CENTER.z),phonePos,0x2ee6cf); S.beam.dir=mode==='out'?1:-1;
-  removeTag(S.phoneTag); S.phoneTag=addTag(`<span class="d"></span>고객 휴대폰<small>${mode==='out'?'수신 중':'발신 중'}</small>`,()=>phonePos().add(V3(0,3,0)),'phone');
-  fEdge('e7','live'); fNode('app','act'); fNode('web','act'); S.callLive=true; S.callDir=mode==='out'?-1:1;
-  fCap(mode==='out'?'<b>⑥</b> 콜센터 → <b>고객 휴대폰</b> · SLA 초과 선제 콜아웃':'<b>⑥</b> <b>고객 휴대폰</b> → 콜센터 · SLA 이내 인바운드 통화');
-  const recv=mode==='out'?$('#pC'):$('#pA'); recv.classList.add('ringing');
-  vehUI(mode==='out'?'휴대폰 수신 중':'상담센터 발신 중',scenario==='severe'?'red':'amber');
+async function callFlow(o,run){
+  const toDealer=o.party==='dealer', d=S.dealer;
+  setPhase('call'); sideCall(o);
+  const far=toDealer?d.top.clone():V3(CENTER.x,44,CENTER.z);
+  const cust=o.via==='hu'?carTop:phonePos;
+  focus(mid(carPos,toDealer?V3(d.bx,10,d.bz):V3(CENTER.x,14,CENTER.z)),62);
+  killFX(S.beam); S.beam=makeBeam(far,cust,0x2ee6cf); S.beam.dir=o.dir==='out'?1:-1;
+  removeTag(S.phoneTag); S.phoneTag=null;
+  if(o.via!=='hu') S.phoneTag=addTag(`<span class="d"></span>고객 휴대폰<small>${o.dir==='out'?'수신 중':'발신 중'}</small>`,()=>phonePos().add(V3(0,3,0)),'phone');
+  const a=o.via==='hu'?'hu':'app', b=toDealer?'dms':'web';
+  S.callLink=fLink(a,b,'live'); fNode(a,'act'); fNode(b,'act'); S.callLive=true; S.callDir=o.dir==='out'?-1:1;
+  const src=o.via==='hu'?'차량 HU':'e-Care 앱';
+  fCap(o.dir==='out'?'<b>⑦</b> 콜센터 → <b>고객 휴대폰</b> · SLA 초과 선제 콜아웃':toDealer?`<b>⑧</b> <b>${src}</b> → <b>${d.name}</b> · 딜러 직접 통화`:`<b>⑦</b> <b>${src}</b> → 콜센터 · SLA 이내 고객 전화`);
+  const recv=o.dir==='out'?$('#pC'):$('#pA'); recv.classList.add('ringing');
+  vehUI(o.dir==='out'?'휴대폰 수신 중':'발신 중',scenario==='severe'?'red':'amber');
   sfx.ring();
   if(!await live(run,2500)) return;
   recv.classList.remove('ringing'); S.beam.connected=true; sfx.connect();
   const cst=$('#cst'); cst.textContent='통화 연결'; cst.className='chip';
   S.callT0=performance.now(); vehUI('통화 중','');
-  setTag(S.phoneTag,`<span class="d"></span>고객 휴대폰<small>통화 중</small>`);
+  if(S.phoneTag) setTag(S.phoneTag,'<span class="d"></span>고객 휴대폰<small>통화 중</small>');
   addLog('통화 연결','teal');
-  for(const [who,text] of SCRIPT[scenario][mode]){
+  for(const [who,text] of scriptFor(o)){
     const tx=$('#tx'); if(!tx||run!==token) return;
-    const b=document.createElement('div'); b.className='bub '+who; b.innerHTML=`<span class="who">${who==='agent'?'상담원':'고객'}</span><span class="tt"></span>`; tx.appendChild(b);
+    const bb=document.createElement('div'); bb.className='bub '+who; bb.innerHTML=`<span class="who">${who==='agent'?(toDealer?'서비스 어드바이저':'상담원'):'고객'}</span><span class="tt"></span>`; tx.appendChild(bb);
     const sp=who==='agent'?$('#pA'):$('#pC'); sp.classList.add('speaking');
-    await typeText(b.querySelector('.tt'),text,run);
+    await typeText(bb.querySelector('.tt'),text,run);
     if(!await live(run,650+text.length*14)) return;
     sp.classList.remove('speaking');
   }
   if(!await live(run,500)) return;
-  S.callT0=0; S.beam.fade=1; S.callLive=false; fEdge('e7','on'); fNode('app','done'); fNode('web','done');
+  S.callT0=0; S.beam.fade=1; S.callLive=false; fLink(a,b,'on'); fNode(a,'done'); fNode(b,'done');
   removeTag(S.phoneTag); S.phoneTag=null;
   const c2=$('#cst'); if(c2){c2.textContent='통화 종료';c2.className='chip mute';}
   vehUI(scenario==='severe'?'정차 · 비상등':'주행 중',scenario==='severe'?'red':'amber');
-  addLog(scenario==='severe'?'통화 종료 · 긴급출동 필요':'통화 종료 · 정비 예약 안내');
-  fCap(scenario==='severe'?'<b>⑦</b> 상담 완료 · 콜센터 웹에서 긴급출동 배정 대기':'<b>⑦</b> 상담 완료 · DMS로 정비 예약 전달 대기');
+  if(toDealer){ addLog(`통화 종료 · ${d.name} 입고 예약 안내`); fCap(`<b>⑨</b> 통화 완료 · ${d.name} DMS 입고 예약 대기`); }
+  else { addLog('통화 종료 · 긴급출동 필요'); fCap('<b>⑧</b> 상담 완료 · 콜센터 웹에서 긴급출동 배정 대기'); }
   setPhase('awaitAction');
 }
 
@@ -1298,7 +1425,7 @@ async function dispatchFlow(){
   truckM.setPath(path,false,8.5); truckM.place(true);
   sideDispatch(); S.eta={m:truckM,total:truckM.end};
   S.route=ribbon(path,0xff4552); S.pin=pin(tgt,0xff4552);
-  fNode('web','act'); fCap('<b>⑧</b> 콜센터 웹 → 긴급출동 7호차 배정');
+  fNode('web','act'); fCap('<b>⑨</b> 콜센터 웹 → 긴급출동 7호차 배정');
   addLog('긴급출동 요청 · 7호차 배정','red');
   focus(mid(truckPos,carPos),Math.max(46,truckM.len*.42));
   await packet(V3(CENTER.x,44,CENTER.z),()=>truckPos().add(V3(0,4,0)),0xff4552,1200,'DISPATCH → 출동 7호차'); if(run!==token) return;
@@ -1308,50 +1435,51 @@ async function dispatchFlow(){
   focus(mid(truckPos,carPos),50); S.followDispatch=true;
   await new Promise(r=>{truckM.onArrive=r;}); if(run!==token) return;
   S.followDispatch=false; killFX(S.route); killFX(S.pin);
-  addLog('현장 도착 · 고객 차량 확인','teal'); fCap('<b>⑨</b> 출동 차량 현장 도착');
+  addLog('현장 도착 · 고객 차량 확인','teal'); fCap('<b>⑩</b> 출동 차량 현장 도착');
   setPhase('arrived'); sideArrived(); focus(mid(truckPos,carPos),30); vehUI('출동 차량 도착','');
 }
 function dmsSend(label){
-  fEdge('e8','on'); fNode('dms','act'); flowSend('e8',1300,'#2ee6cf');
-  return packet(V3(CENTER.x,44,CENTER.z),DMS_TOP,0x2ee6cf,1300,label).then(()=>fNode('dms','done'));
+  const id=fLink('web','dms','on'); fNode('dms','act'); flowSend(id,1300,'#2ee6cf');
+  return packet(V3(CENTER.x,44,CENTER.z),PREF.top,0x2ee6cf,1300,label).then(()=>fNode('dms','done'));
 }
 async function towFlow(){
-  const run=++token; setPhase('tow'); hazard(false);
-  addLog('견인 시작 · 서초 서비스센터로 이동'); fCap('<b>⑩</b> 콜센터 웹 → <b>DMS</b> · 견인 입고 정보 전달');
+  const run=++token; setPhase('tow'); hazard(false); S.dealer=PREF;
+  addLog(`견인 시작 · ${PREF.name}로 이동`); fCap(`<b>⑪</b> 콜센터 웹 → <b>DMS</b> · ${PREF.name} 견인 입고 정보 전달`);
   dmsSend('입고 정보 → DMS');
   carM.active=false; S.load={t:0,from:hero.g.position.clone(),rot:hero.g.rotation.y};
   vehUI('견인 적재 중','');
   if(!await live(run,1900)) return;
-  const path=roadPath(truckM.center(),{x:SERVICE.x,z:SERVICE.z});
+  const path=roadPath(truckM.center(),{x:PREF.x,z:PREF.z});
   truckM.setPath(path,false,0); truckM.target=13;
-  S.route=ribbon(path,0x2ee6cf); S.pin=pin({x:SERVICE.x,z:SERVICE.z},0x2ee6cf);
+  S.route=ribbon(path,0x2ee6cf); S.pin=pin({x:PREF.x,z:PREF.z},0x2ee6cf);
   sideService('tow'); S.eta={m:truckM,total:truckM.end};
   focus(truckPos,48); vehUI('견인 이동 중','');
   await new Promise(r=>{truckM.onArrive=r;}); if(run!==token) return;
   finish('견인 입고 완료 · 정비 착수');
 }
 async function reserveFlow(){
-  const run=++token; setPhase('service');
-  addLog('서초 서비스센터 입고 예약 확정','teal'); fCap('<b>⑧</b> 콜센터 웹 → <b>DMS</b> · 정비 예약과 진단 정보 전달');
-  focus(mid(V3(CENTER.x,20,CENTER.z),DMS_TOP),60);
-  await dmsSend('정비 예약 → DMS'); if(run!==token) return;
-  const path=roadPath(carM.center(),{x:SERVICE.x,z:SERVICE.z});
+  const run=++token; setPhase('service'); const d=S.dealer;
+  addLog(`${d.name} 입고 예약 확정 · DMS 등록`,'teal'); fNode('dms','act');
+  fCap(`<b>⑩</b> ${d.name} <b>DMS</b>에 입고 예약과 진단 정보 등록`);
+  focus(V3(d.bx,8,d.bz),40); pulseAt(V3(d.bx,.3,d.bz),0x2ee6cf,10);
+  if(!await live(run,1400)) return; fNode('dms','done');
+  const path=roadPath(carM.center(),{x:d.x,z:d.z});
   carM.setPath(path,false,0); carM.target=10;
-  S.route=ribbon(path,0x2ee6cf); S.pin=pin({x:SERVICE.x,z:SERVICE.z},0x2ee6cf);
+  S.route=ribbon(path,0x2ee6cf); S.pin=pin({x:d.x,z:d.z},0x2ee6cf);
   sideService('drive'); S.eta={m:carM,total:carM.end}; vehUI('서비스센터로 이동','amber');
   focus(carPos,46);
   await new Promise(r=>{carM.onArrive=r;}); if(run!==token) return;
-  finish('서비스센터 도착 · 사전 진단으로 바로 정비');
+  finish(`${d.name} 도착 · 사전 진단으로 바로 정비`);
 }
 function finish(msg){
   killFX(S.route); killFX(S.pin); S.beacon=false; S.eta=null;
   addLog(msg,'teal'); sfx.done(); fCap('<b>완료</b> · 경고 감지부터 서비스센터 입고까지 연결되었습니다');
-  pulseAt(V3(SERVICE.x,.3,SERVICE.z+6),0x2ee6cf,10);
+  pulseAt(V3(S.dealer.bx,.3,S.dealer.bz-9),0x2ee6cf,10);
   lamps(null); vehUI('케어 완료','');
-  setPhase('done'); sideDone(); focus(V3(-30,0,20),70);
+  setPhase('done'); sideDone(); focus(V3(S.dealer.bx*.5,0,S.dealer.bz*.5),70);
 }
 function reset(){
-  token++; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false; S.callT0=0;
+  token++; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false; S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
   scenario=null; S.status='normal'; hazard(false); lamps(null); flowReset(); removeTag(S.phoneTag); S.phoneTag=null;
   S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=0;
   carM.active=true; carM.setPath(LOOP,true); carM.s=18; carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
@@ -1361,7 +1489,9 @@ function reset(){
 }
 const ACT={
   warnSevere:()=>warnFlow('severe'), warnMaint:()=>warnFlow('maint'),
-  custCall:()=>custCallFlow(), noCall:()=>noCallFlow(),
+  huCall:()=>custCallFlow('hu'), appCall:()=>custCallFlow('app'), noCall:()=>noCallFlow(),
+  huDealer:()=>huDealerFlow(), appDealer:()=>appDealerFlow(),
+  dealer0:()=>pickDealerFlow(0), dealer1:()=>pickDealerFlow(1), dealer2:()=>pickDealerFlow(2),
   dispatch:()=>dispatchFlow(), tow:()=>towFlow(), reserve:()=>reserveFlow(), restart:()=>reset()
 };
 
@@ -1410,7 +1540,7 @@ function frame(){
   updateCam(dt);
   // tags
   const st=S.status;
-  const cs={drive:'주행 중',warn:st==='severe'?'경고 · 감속 중':'경고 감지',diagnose:'경고 정보 전달 중',awaitCall:st==='severe'?'정차 · 고객 연락 대기':'주행 중 · 고객 연락 대기',lapse:'고객 연락 대기',call:'통화 중',awaitAction:st==='severe'?'정차 · 비상등':'주행 중 · 경고',dispatch:'출동 대기',arrived:'출동 차량 도착',tow:'견인 중',service:'서비스센터로 이동',done:'케어 완료',intro:'주행 중'}[phase];
+  const cs={drive:'주행 중',warn:st==='severe'?'경고 · 감속 중':'경고 감지',diagnose:'경고 정보 전달 중',awaitCall:st==='severe'?'정차 · 고객 연락 대기':'주행 중 · 고객 연락 대기',lapse:'고객 연락 대기',busy:'고객 연락 중',pickDealer:'딜러 선택 중',call:'통화 중',awaitAction:st==='severe'?'정차 · 비상등':'주행 중 · 경고',dispatch:'출동 대기',arrived:'출동 차량 도착',tow:'견인 중',service:'서비스센터로 이동',done:'케어 완료',intro:'주행 중'}[phase];
   setTag(carTag,`<span class="d"></span>${cs}<small>12가 3456</small>`,'hero '+(phase==='done'||phase==='arrived'||phase==='tow'?'':st==='severe'?'red':st==='maint'?'amber':''));
   const tstate=(phase==='dispatch'&&S.beacon)?`출동 7호차 <small>ETA ${mmss(truckM.remaining()*1.9)}</small>`:phase==='tow'?'출동 7호차 <small>견인 중</small>':'출동 7호차 <small>대기</small>';
   setTag(truckTag,`<span class="d"${S.beacon||phase==='tow'?'':' style="background:#7d8a9c;animation:none"'}></span>${tstate}`,'truck');
