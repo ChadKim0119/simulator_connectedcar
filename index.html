@@ -41,7 +41,7 @@ img{max-width:100%}
 [hidden]{display:none!important}
 button{font:inherit;color:inherit}
 
-#app{position:relative;height:100%;display:grid;grid-template-columns:282px minmax(0,1fr) 372px;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top top top" "info stage flow" "info ctrl flow";gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#app{position:relative;height:100%;display:grid;grid-template-columns:282px minmax(0,1fr) 372px;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"top top top" "info stage flow" "info ctrl ctrl";gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* ---------- top bar ---------- */
 .top{grid-area:top;display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0}
@@ -352,18 +352,20 @@ button{font:inherit;color:inherit}
 .fn.skip text{opacity:.45}
 .fe.skip{stroke-dasharray:3 4;opacity:.35}
 /* hierarchy v0.0.5 */
-#app{--infoW:282px;--stageW:minmax(0,1fr);--flowW:372px;grid-template-columns:var(--infoW) var(--stageW) var(--flowW)}
 @media (min-width:1181px){
-  #app.infoClosed{--infoW:52px}
-  #app.flowFocus{--stageW:minmax(0,1fr);--flowW:minmax(0,1.35fr);grid-template-areas:"top top top" "info flow stage" "info flow ctrl";grid-template-columns:var(--infoW) minmax(0,1.35fr) minmax(0,1fr)}
-  #app.flowFocus .zone-flow .zone-body{flex-direction:row;align-items:flex-start}
-  #app.flowFocus .zone-flow .flow{flex:1.45;min-width:0;position:sticky;top:0}
-  #app.flowFocus #side{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
-  #app.flowFocus .flow svg{max-height:66vh}
-  #app.flowFocus .fn .t{font-size:11px}
+  #app.flowWide .zone-flow .zone-body{flex-direction:row;align-items:flex-start}
+  #app.flowWide .zone-flow .flow{flex:1.45;min-width:0;position:sticky;top:0}
+  #app.flowWide #side{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+  #app.flowWide .flow svg{max-height:66vh}
+  .zone.collapsed>:not(.rail){display:none!important}
+  .zone.collapsed .rail{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;padding:12px 0;border:0;background:transparent;color:#aab5c4;cursor:pointer}
+  .zone.collapsed .rail:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+  .zone.opening>:not(.rail){animation:zoneIn .45s ease-out}
 }
-.zone-stage{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-color:rgba(150,185,220,.28)}
-.zone-ctrl{margin-top:-6px;border-top-left-radius:4px;border-top-right-radius:4px;transition:border-color .3s,box-shadow .3s}
+@keyframes zoneIn{from{opacity:0}}
+@media (max-width:1180px){#stageBtn,#flowBtn{display:none}}
+.zone-stage{border-color:rgba(150,185,220,.28)}
+.zone-ctrl{transition:border-color .3s,box-shadow .3s}
 .zone-ctrl.turn{border-color:rgba(46,230,207,.6);box-shadow:0 0 0 1px rgba(46,230,207,.22),0 -8px 34px rgba(46,230,207,.14)}
 .zone-ctrl.turn .zone-h .zl{color:var(--teal)}
 .zone-ctrl .zone-h .zk{min-width:7.5em}
@@ -386,16 +388,13 @@ button{font:inherit;color:inherit}
 .subtitle.fresh{animation:subIn .45s ease-out}
 @keyframes subIn{from{transform:translate(-50%,8px);opacity:.3}}
 #app.flowFocus .subtitle{display:none}
-#app:not(.flowFocus) .fcap{display:none}
+#app:not(.flowWide) .fcap{display:none}
 .hint{top:12px;bottom:auto}
 .zoom button[aria-pressed="true"]{background:rgba(46,230,207,.18);color:var(--teal)}
 .drawer-btn{margin-left:auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:transparent;color:#aab5c4;display:grid;place-items:center;cursor:pointer}
 .drawer-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .rail{display:none}
 @media (min-width:1181px){
-  #app.infoClosed .zone-info>.zone-h,#app.infoClosed .zone-info>.zone-body{display:none}
-  #app.infoClosed .rail{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;padding:12px 0;border:0;background:transparent;color:#aab5c4;cursor:pointer}
-  #app.infoClosed .rail:hover{background:rgba(255,255,255,.03)}
   .rail .rv{writing-mode:vertical-rl;font:600 11px var(--f-display);letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
   .rail .rk{writing-mode:vertical-rl;font-size:12.5px;font-weight:600;color:#c3ccd8}
   .rail .rn{font:700 11px var(--f-mono);padding:4px 6px;border-radius:6px;background:var(--panel-hi);color:var(--ink)}
@@ -559,7 +558,8 @@ button{font:inherit;color:inherit}
   </aside>
 
   <main class="zone zone-stage" aria-label="시뮬레이션 화면">
-    <div class="zone-h"><span class="zd" style="background:var(--teal)"></span><span class="zl">Simulation</span><span class="stchip" id="stState">연결 대기</span><span class="ticker" id="ticker"></span><span class="zr" id="viewLbl" style="margin-left:0">자동 카메라</span><button class="tbtn" id="btnLayout" aria-pressed="false" title="레이아웃 전환 (L)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/></svg><span id="layoutLbl">정보 흐름 크게</span></button></div>
+    <div class="zone-h"><span class="zd" style="background:var(--teal)"></span><span class="zl">Simulation</span><span class="stchip" id="stState">연결 대기</span><span class="ticker" id="ticker"></span><span class="zr" id="viewLbl" style="margin-left:0">자동 카메라</span><button class="tbtn" id="btnLayout" aria-pressed="false" title="레이아웃 전환 (L)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/></svg><span id="layoutLbl">정보 흐름 크게</span></button><button class="drawer-btn" id="stageBtn" title="시뮬레이션 접기 (V)"><svg viewBox="0 0 24 24"><path d="M4 4l6 6M4 4v5M4 4h5M20 20l-6-6M20 20v-5M20 20h-5"/></svg></button></div>
+    <button class="rail" id="stageRail" title="시뮬레이션 펼치기 (V)"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span class="rv">Simulation</span><span class="rk">시뮬레이션 화면</span><span class="rd" id="railDot2"></span></button>
     <div class="stage" id="stage">
       <canvas id="scene" aria-label="e-Care 3D 시뮬레이션"></canvas>
       <div class="vignette"></div>
@@ -588,7 +588,8 @@ button{font:inherit;color:inherit}
   </main>
 
   <aside class="zone zone-flow" aria-label="정보 흐름">
-    <div class="zone-h"><span class="zd" style="background:var(--amber)"></span><span class="zl">Data Flow</span><span class="zk">정보 흐름</span></div>
+    <div class="zone-h"><span class="zd" style="background:var(--amber)"></span><span class="zl">Data Flow</span><span class="zk">정보 흐름</span><button class="drawer-btn" id="flowBtn" title="정보 흐름 접기 (B)"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <button class="rail" id="flowRail" title="정보 흐름 펼치기 (B)"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="rv">Data Flow</span><span class="rk">정보 흐름</span></button>
     <div class="zone-body">
       <section class="card flow">
         <div id="flowSvg"></div>
@@ -643,6 +644,12 @@ button{font:inherit;color:inherit}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.0.7',date:'2026-10-16',name:'패널 크기 전환 · 접기',notes:[
+    '레이아웃 전환 시 패널 위치는 그대로 두고 크기만 바뀌도록 변경, 전환 애니메이션 추가',
+    '시뮬레이션 패널과 정보 흐름 패널도 접기 · 펼치기 제공(차량 · 이벤트 패널 포함 3개)',
+    '조작 패널을 시뮬레이션 패널과 분리해, 시뮬레이션을 접어도 아래에서 그대로 조작',
+    '지도를 30% 이하로 축소하면 자동으로 지도 고정, 다시 확대하면 자동 해제'
+  ]},
   {v:'0.0.6',date:'2026-10-16',name:'e-Care UI 시나리오(화면정의서) 반영',notes:[
     '콜센터 웹 진입 경로 3가지: MM 콜 → 전화 수신 팝업 · 일반 전화 → 상담 이력에서 응대 시작 · 25분 경과 → 유휴 상담사 자동 배정 경고 알림 팝업(05:00 타임아웃)',
     '25분 아웃바운드 예외: 3회 발신 실패(재시도 2회 · 후처리 5분) → SMS 자동 발송, 유휴 상담사 없음 → SMS 콜백 문자 후 자동 할당',
@@ -1108,13 +1115,17 @@ let camLock=false;
 function focus(get,size){ goal.get=fn(get); goal.size=size; if(camLock) return; view.target.add(pan); pan.set(0,0,0); updViewLbl(); }
 function frameHop(a,b){const A=fn(a)(),B=fn(b)();const m=A.clone().add(B).multiplyScalar(.5);m.y*=.4;focus(m,clamp(A.distanceTo(B)*.6+18,40,135));}
 function updZoom(){ $('#zPct').textContent=Math.round(100/userZoom)+'%'; $('#tags').classList.toggle('far',userZoom>2.4); updViewLbl(); }
-function updViewLbl(){ const manual=userZoom!==1||pan.lengthSq()>0.01; $('#viewLbl').textContent=camLock?`지도 고정 · ${Math.round(100/userZoom)}%`:manual?`수동 보기 · ${Math.round(100/userZoom)}%`:'자동 카메라'; }
+function updViewLbl(){ const manual=userZoom!==1||pan.lengthSq()>0.01; $('#viewLbl').textContent=camLock?`지도 고정${typeof autoLock!=='undefined'&&autoLock?' (자동)':''} · ${Math.round(100/userZoom)}%`:manual?`수동 보기 · ${Math.round(100/userZoom)}%`:'자동 카메라'; }
+let autoLock=false;
 function setLock(on){ camLock=on; $('#zLock').setAttribute('aria-pressed',on); updViewLbl(); }
-$('#zLock').addEventListener('click',()=>setLock(!camLock));
-function zoomBy(f){ userZoom=clamp(userZoom*f,.3,100/15); updZoom(); }
+$('#zLock').addEventListener('click',()=>{autoLock=false;setLock(!camLock);});
+function zoomBy(f){ userZoom=clamp(userZoom*f,.3,100/15);
+  if(100/userZoom<=30.5){ if(!camLock){ autoLock=true; setLock(true); } }
+  else if(autoLock){ autoLock=false; setLock(false); }
+  updZoom(); }
 $('#zIn').addEventListener('click',()=>zoomBy(1/1.25));
 $('#zOut').addEventListener('click',()=>zoomBy(1.25));
-$('#zFit').addEventListener('click',()=>{setLock(false);userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();});
+$('#zFit').addEventListener('click',()=>{autoLock=false;setLock(false);userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();});
 stage.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(e.deltaY*.0012));},{passive:false});
 let drag=null;
 stage.addEventListener('pointerdown',e=>{ if(e.button!==0||e.target.closest('.zoom')) return; drag={x:e.clientX,y:e.clientY,id:e.pointerId}; stage.setPointerCapture(e.pointerId); stage.classList.add('drag'); });
@@ -1166,12 +1177,53 @@ function applyTheme(k){
 function setDay(on,keepClock){ dayTarget=on?1:0; $('#btnDay').setAttribute('aria-pressed',on); $('#btnNight').setAttribute('aria-pressed',!on); stage.classList.toggle('day',on);
   if(!keepClock&&(phase==='intro'||phase==='drive'||phase==='gsHub')) clockTo(on?14:22,10);
   updDealers(); if(phase==='awaitCall'&&scenario==='maint') sideAwait(); if(phase==='drive'||phase==='awaitCall') addLog(on?'낮 · 딜러 영업 중':'밤 · 딜러 영업 종료 (09:00 오픈)'); }
-function setLayout(flow){ const app=$('#app'); app.classList.toggle('flowFocus',flow); $('#btnLayout').setAttribute('aria-pressed',flow); $('#layoutLbl').textContent=flow?'시뮬레이션 중심':'정보 흐름 크게'; try{localStorage.setItem('ecareLayout',flow?'flow':'sim');}catch(e){} }
-$('#btnLayout').addEventListener('click',()=>setLayout(!$('#app').classList.contains('flowFocus')));
-function setDrawer(open){ const app=$('#app'); app.classList.toggle('infoClosed',!open); $('#drawerBtn').setAttribute('aria-expanded',open); try{localStorage.setItem('ecareDrawer',open?'1':'0');}catch(e){} }
+const LAY={info:false,stage:true,flow:true,focus:false};
+try{Object.assign(LAY,JSON.parse(localStorage.getItem('ecareLay')||'{}'));}catch(e){}
+let layAnim=0;
+function layCols(){
+  const app=$('#app'), cs=getComputedStyle(app);
+  const inner=app.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-20;
+  const info=LAY.info?282:52, avail=inner-info;
+  if(LAY.stage&&LAY.flow) return `${info}px minmax(0,1fr) ${LAY.focus?Math.round(Math.max(372,avail*.6)):372}px`;
+  if(LAY.stage) return `${info}px minmax(0,1fr) 52px`;
+  return `${info}px 52px minmax(0,1fr)`;
+}
+function applyLayout(animate){
+  const app=$('#app');
+  if(!LAY.stage&&!LAY.flow) LAY.flow=true;
+  const z={info:$('.zone-info'),stage:$('.zone-stage'),flow:$('.zone-flow')};
+  for(const k in z){ const was=z[k].classList.contains('collapsed'); z[k].classList.toggle('collapsed',!LAY[k]);
+    if(was&&LAY[k]&&animate){ z[k].classList.add('opening'); setTimeout(()=>z[k].classList.remove('opening'),460); } }
+  const focus=LAY.focus&&LAY.stage&&LAY.flow;
+  app.classList.toggle('flowFocus',focus); app.classList.toggle('stageClosed',!LAY.stage); app.classList.toggle('flowWide',focus||!LAY.stage); app.classList.toggle('infoClosed',!LAY.info);
+  $('#btnLayout').setAttribute('aria-pressed',focus); $('#layoutLbl').textContent=focus?'시뮬레이션 크게':'정보 흐름 크게';
+  try{localStorage.setItem('ecareLay',JSON.stringify(LAY));}catch(e){}
+  if(innerWidth<=1180){ app.style.gridTemplateColumns=''; return; }
+  const parse=()=>getComputedStyle(app).gridTemplateColumns.split(' ').map(parseFloat);
+  const from=parse(), fin=layCols();
+  app.style.gridTemplateColumns=fin;
+  const to=parse();
+  if(!animate||reduce||from.length!==3||to.length!==3) return;
+  const id=++layAnim, t0=performance.now(), D=460;
+  app.style.gridTemplateColumns=from.map(v=>v+'px').join(' ');
+  const step=()=>{ if(id!==layAnim) return; const k=Math.min(1,(performance.now()-t0)/D), e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    app.style.gridTemplateColumns=from.map((v,i)=>(v+(to[i]-v)*e).toFixed(1)+'px').join(' ');
+    if(k<1) requestAnimationFrame(step); else app.style.gridTemplateColumns=fin; };
+  requestAnimationFrame(step);
+}
+function setLayout(flow){ LAY.focus=flow; if(flow){LAY.stage=true;LAY.flow=true;} applyLayout(true); }
+function setDrawer(open){ LAY.info=open; applyLayout(true); }
+function setStage(open){ LAY.stage=open; if(!open&&!LAY.flow) LAY.flow=true; applyLayout(true); }
+function setFlow(open){ LAY.flow=open; if(!open&&!LAY.stage) LAY.stage=true; applyLayout(true); }
+$('#btnLayout').addEventListener('click',()=>setLayout(!(LAY.focus&&LAY.stage&&LAY.flow)));
 $('#drawerBtn').addEventListener('click',()=>setDrawer(false));
 $('#railBtn').addEventListener('click',()=>setDrawer(true));
-(function(){let l='sim',d='0';try{l=localStorage.getItem('ecareLayout')||'sim';d=localStorage.getItem('ecareDrawer')||'0';}catch(e){} setLayout(l==='flow'); setDrawer(d==='1');})();
+$('#stageBtn').addEventListener('click',()=>setStage(false));
+$('#stageRail').addEventListener('click',()=>setStage(true));
+$('#flowBtn').addEventListener('click',()=>setFlow(false));
+$('#flowRail').addEventListener('click',()=>setFlow(true));
+let layRT=0; window.addEventListener('resize',()=>{clearTimeout(layRT);layRT=setTimeout(()=>applyLayout(false),120);});
+applyLayout(false);
 $('#btnDay').addEventListener('click',()=>setDay(true));
 $('#btnNight').addEventListener('click',()=>setDay(false));
 
@@ -1352,7 +1404,7 @@ document.addEventListener('keydown',e=>{
   if(phase==='intro'){ if(k==='ENTER'||k===' '){e.preventDefault();start('ecare');} return; }
   if(k==='+'||k==='='){zoomBy(1/1.25);return;} if(k==='-'||k==='_'){zoomBy(1.25);return;} if(k==='0'){$('#zFit').click();return;}
   if(k==='N'){setDay(dayTarget<.5);return;}
-  if(k==='L'){$('#btnLayout').click();return;} if(k==='G'){setLock(!camLock);return;} if(k==='I'){setDrawer($('#app').classList.contains('infoClosed'));return;}
+  if(k==='L'){$('#btnLayout').click();return;} if(k==='G'){autoLock=false;setLock(!camLock);return;} if(k==='I'){setDrawer(!LAY.info);return;} if(k==='V'&&!document.querySelector('#dock [data-key="V"]')){setStage(!LAY.stage);return;} if(k==='B'){setFlow(!LAY.flow);return;}
   const b=document.querySelector(`#dock [data-key="${k}"]`); if(b){e.preventDefault();b.click();}
 });
 function setPhase(p){phase=p;renderSteps();renderDock();}
@@ -1453,7 +1505,7 @@ function sideDone(){
   <p>경고 감지부터 서비스센터 입고까지 한 흐름으로 이어졌습니다.</p>
   <ol style="margin-top:12px">${rows}</ol></section>`;
 }
-function vehUI(state,cls){const c=$('#vehState');c.textContent=state;c.className='chip '+(cls||'');const t=$('#stState');if(t){t.textContent=state;t.className='stchip '+(cls||'');}const r=$('#railDot');if(r)r.className='rd '+(cls||'');}
+function vehUI(state,cls){const c=$('#vehState');c.textContent=state;c.className='chip '+(cls||'');const t=$('#stState');if(t){t.textContent=state;t.className='stchip '+(cls||'');}const r=$('#railDot');if(r)r.className='rd '+(cls||'');const r2=$('#railDot2');if(r2)r2.className='rd '+(cls||'');}
 function lamps(sev){ $('#lampBrake').className='lamp'+(sev==='severe'?' red':''); $('#lampEngine').className='lamp'+(sev==='maint'?' amber':''); }
 function hazard(on){S.hazard=on;$('#lampHaz').className='lamp'+(on?' haz':'');}
 
