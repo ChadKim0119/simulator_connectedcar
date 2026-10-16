@@ -363,7 +363,7 @@ button{font:inherit;color:inherit}
   .zone.opening>:not(.rail){animation:zoneIn .45s ease-out}
 }
 @keyframes zoneIn{from{opacity:0}}
-@media (max-width:1180px){#stageBtn,#flowBtn{display:none}}
+@media (max-width:1180px){#stageBtn{display:none}}
 /* ---------- call transcript pane (v0.0.8) ---------- */
 .callpane{position:absolute;left:12px;top:48px;bottom:80px;width:min(400px,calc(100% - 96px));z-index:7;display:flex;flex-direction:column;border-radius:14px;background:#070b12;border:1px solid rgba(46,230,207,.35);box-shadow:0 18px 44px rgba(0,0,0,.55);overflow:hidden;cursor:default;animation:cpIn .35s ease-out}
 .callpane[hidden]{display:none}
@@ -685,6 +685,39 @@ body.wng .wng-only{display:block!important}
   .hint{display:none}
   .lapse-t b{font-size:22px}
 }
+
+/* ---------- v0.0.9: 정보 흐름 접기 (모든 화면 폭) ---------- */
+.zone-flow.collapsed>:not(.rail){display:none!important}
+.zone-flow.collapsed .rail{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;padding:12px 0;border:0;background:transparent;color:#aab5c4;cursor:pointer}
+.zone-flow.collapsed .rail:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+.zone-flow .rail .rv{writing-mode:vertical-rl;font:600 11px var(--f-display);letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
+.zone-flow .rail .rk{writing-mode:vertical-rl;font-size:12.5px;font-weight:600;color:#c3ccd8}
+.zone-flow .rail svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+@media (max-width:1180px){
+  #app.flowClosed{grid-template-columns:minmax(0,1fr) 52px}
+}
+@media (max-width:820px){
+  #app.flowClosed{grid-template-columns:minmax(0,1fr)}
+  .zone-flow.collapsed .rail{flex-direction:row;justify-content:flex-start;padding:12px 14px}
+  .zone-flow .rail .rv,.zone-flow .rail .rk{writing-mode:horizontal-tb}
+  .zone-flow.collapsed .rail svg{transform:rotate(-90deg)}
+}
+/* WNG: 정보 흐름 · 차량 이벤트 없이 보드 전체 폭 */
+body.wng .zone-info,body.wng .zone-flow{display:none!important}
+body.wng #app{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"top" "stage" "ctrl"!important;grid-template-rows:auto minmax(0,1fr) auto!important}
+body.wng #btnLayout,body.wng #stageBtn,body.wng #stageRail{display:none!important}
+@media (max-width:820px){ body.wng #app{grid-template-rows:auto 76vh auto!important} }
+.wv-main{flex:1;min-height:0;display:flex;gap:10px}
+.wv-main .wv-board{flex:1;min-width:0}
+.wvp{width:340px;flex:none;display:flex;flex-direction:column;min-height:0;border:1px solid var(--line-2);border-radius:12px;background:#0c131e;overflow:hidden;animation:wvpIn .35s ease-out}
+.wvp[hidden]{display:none}
+@keyframes wvpIn{from{transform:translateX(18px)}}
+.wvp-h{display:flex;align-items:center;gap:8px;padding:9px 10px 9px 14px;border-bottom:1px solid var(--line)}
+.wvp-h .cp-x{margin-left:auto}
+.wvp-b{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}
+.wvp[data-mode=ccw] #wvpEdit,.wvp[data-mode=edit] #wCcw{display:none}
+@media (max-width:1100px){ .wvp{width:300px} }
+@media (max-width:820px){ .wv-main{flex-direction:column} .wvp{width:auto;max-height:50%} }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
@@ -756,7 +789,10 @@ body.wng .wng-only{display:block!important}
           <div class="wv-title"><span class="hl"><span class="k">WNG INFORMATION FLOW</span><b class="h">타이밍별 WNG 메시지 · 채널별 표출 · DMS 전송</b></span><div class="wv-cap" id="wvCap"></div></div>
           <div class="wv-gs" id="wvGs"></div>
         </div>
-        <div class="wv-board" id="wvBoard"><div class="wv-grid" id="wvGrid"></div></div>
+        <div class="wv-main">
+          <div class="wv-board" id="wvBoard"><div class="wv-grid" id="wvGrid"></div></div>
+          <aside class="wvp" id="wvPanel" hidden><div class="wvp-h"><span class="eyebrow" id="wvpT">패널</span><button class="cp-x" id="wvpX" title="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="wvp-b" id="wvpB"></div></aside>
+        </div>
         <div class="wv-foot"><span class="lg"><span style="--c:#8f9bad">기존 정보 유지</span><span style="--c:#59a8ff">On으로 변경 발생</span><span style="--c:#ff5fa8">Off로 변경 발생</span><span style="--c:#a78bfa">[유지]</span></span><span><i class="q" style="margin:0 4px 0 0">?</i>기획서에 '?'로 표시된 항목 · Group 종료 조건(컨택 완료)은 가정</span></div>
         <div class="wv-toast" id="wvToast"></div>
       </div>
@@ -847,6 +883,11 @@ body.wng .wng-only{display:block!important}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.0.9',date:'2026-10-16',name:'정보 흐름 접기 확대 · WNG 전용 화면',notes:[
+    '정보 흐름 패널을 모든 화면 폭에서 접고 펼칠 수 있게 변경 (e-Care · GS, 좁은 화면 포함)',
+    'WNG 시나리오에서는 정보 흐름 패널과 차량 · 이벤트 패널을 없애고 WNG 보드를 화면 전체 폭으로 표시',
+    'WNG 직접 구성(256칸)과 콜센터 웹 화면은 보드 오른쪽에 필요할 때만 열리는 패널로 이동'
+  ]},
   {v:'0.0.8',date:'2026-10-16',name:'WNG 정보 흐름 · 통화 내용',notes:[
     '첫 화면에 WNG 정보 흐름 시뮬레이션 추가: 타이밍별 WNG 메시지(VDP → TSP)가 MM · GSA · MID 표출과 DMS 전송으로 갈라지는 과정을 Trigger마다 한 칸씩 표시',
     'Group ID(WorkFlow ID) 생성 · MSG ID 증가 · ON 정보만 DMS 전송 · 전송 없음 규칙, 컨택 후 새 발생이면 신규 Group ID',
@@ -1401,14 +1442,16 @@ function layCols(){
 function applyLayout(animate){
   const app=$('#app');
   if(!LAY.stage&&!LAY.flow) LAY.flow=true;
+  const wn=document.body.classList.contains('wng'), narrow=innerWidth<=1180;
+  const E={info:LAY.info,stage:wn||narrow?true:LAY.stage,flow:LAY.flow};
   const z={info:$('.zone-info'),stage:$('.zone-stage'),flow:$('.zone-flow')};
-  for(const k in z){ const was=z[k].classList.contains('collapsed'); z[k].classList.toggle('collapsed',!LAY[k]);
-    if(was&&LAY[k]&&animate){ z[k].classList.add('opening'); setTimeout(()=>z[k].classList.remove('opening'),460); } }
-  const focus=LAY.focus&&LAY.stage&&LAY.flow;
-  app.classList.toggle('flowFocus',focus); app.classList.toggle('stageClosed',!LAY.stage); app.classList.toggle('flowWide',focus||!LAY.stage); app.classList.toggle('infoClosed',!LAY.info);
+  for(const k in z){ const was=z[k].classList.contains('collapsed'); z[k].classList.toggle('collapsed',!E[k]);
+    if(was&&E[k]&&animate){ z[k].classList.add('opening'); setTimeout(()=>z[k].classList.remove('opening'),460); } }
+  const focus=!wn&&LAY.focus&&E.stage&&E.flow;
+  app.classList.toggle('flowFocus',focus); app.classList.toggle('stageClosed',!E.stage); app.classList.toggle('flowWide',focus||!E.stage); app.classList.toggle('infoClosed',!E.info); app.classList.toggle('flowClosed',!E.flow);
   $('#btnLayout').setAttribute('aria-pressed',focus); $('#layoutLbl').textContent=focus?'시뮬레이션 크게':'정보 흐름 크게';
   try{localStorage.setItem('ecareLay',JSON.stringify(LAY));}catch(e){}
-  if(innerWidth<=1180){ app.style.gridTemplateColumns=''; return; }
+  if(narrow||wn){ app.style.gridTemplateColumns=''; return; }
   const parse=()=>getComputedStyle(app).gridTemplateColumns.split(' ').map(parseFloat);
   const from=parse(), fin=layCols();
   app.style.gridTemplateColumns=fin;
@@ -1630,6 +1673,7 @@ document.addEventListener('keydown',e=>{
   if(phase==='intro'){ if(k==='ENTER'||k===' '){e.preventDefault();start('ecare');} return; }
   if(k==='+'||k==='='){zoomBy(1/1.25);return;} if(k==='-'||k==='_'){zoomBy(1.25);return;} if(k==='0'){$('#zFit').click();return;}
   if(k==='N'){setDay(dayTarget<.5);return;}
+  if(PROJECT==='wng'&&'LIVB'.includes(k)&&k.length===1&&!document.querySelector(`#dock [data-key="${k}"]`)) return;
   if(k==='L'){$('#btnLayout').click();return;} if(k==='G'){autoLock=false;setLock(!camLock);return;} if(k==='I'){setDrawer(!LAY.info);return;} if(k==='V'&&!document.querySelector('#dock [data-key="V"]')){setStage(!LAY.stage);return;} if(k==='B'){setFlow(!LAY.flow);return;}
   const b=document.querySelector(`#dock [data-key="${k}"]`); if(b){e.preventDefault();b.click();}
 });
@@ -1765,7 +1809,7 @@ function applyProject(p){
   const was=PROJECT; PROJECT=p; const gs=p==='gs', wn=p==='wng';
   document.body.classList.toggle('gs',gs); document.body.classList.toggle('wng',wn);
   $('#btnPE').setAttribute('aria-pressed',p==='ecare'); $('#btnPG').setAttribute('aria-pressed',gs); $('#btnPW').setAttribute('aria-pressed',wn);
-  $('#wngView').hidden=!wn; if(!wn) cpClose();
+  $('#wngView').hidden=!wn; if(!wn) cpClose(); applyLayout(false);
   if(was==='wng'&&!wn) clockTo(dayTarget>.5?14:22,10);
   setTag(T_CENTER,gs?'<span class="d" style="background:var(--red)"></span>CCW · OPW<small>콜센터 웹 · 운영 웹</small>':'<span class="d" style="background:var(--red)"></span>e-Care 상담센터<small>콜센터 웹</small>');
   setTag(T_VDP,gs?'<span class="d"></span>TSC · 일본<small>One Server · MQTT</small>':'<span class="d"></span>VDP · 일본<small>GLOBAL</small>');
@@ -2561,20 +2605,22 @@ function wInfo(){
    ${WG.groups.length?WG.groups.map(g=>`<div class="wi-g" style="--gc:${g.col}"><i></i><span><b>GROUP ${w3(g.id)}</b><small>${hhmm(g.t0)} 생성 · MSG ${g.msg}건 · 컨택 ${g.contacts.length}회</small></span><em>${g.status==='open'?'수신 중':g.status==='contact'?'컨택 중':g.res||'완료'}</em></div>`).join(''):'<div class="wi-e">첫 WNG 발생 시 생성됩니다.</div>'}
    <div class="wi-h" style="margin-top:10px"><span>현재 ON</span><b>${on.length}개</b></div><div class="wi-on">${on.length?on.map(n=>`<span style="--rc:${RANKC[wRank(n)]}">${wLbl(n)}</span>`).join(''):'<span class="mute">없음</span>'}</div>`;
 }
+document.addEventListener('click',e=>{ if(e.target.closest('#wvpX')){ if(WG.edit) wEditCancel(); else wvHide(); return; } });
 document.addEventListener('click',e=>{ const b=e.target.closest('.ctplay'); if(!b) return; const c=WG.cols[+b.dataset.ct]; if(!c||!c.lines) return;
   cpOpen(c.meta); c.lines.forEach(([w,t])=>{ const el=cpLine(w,w==='agent'?'e-Care 상담원':'홍길동 고객님'); if(el) el.textContent=t; });
   const p=$('#callPane'); p.classList.add('ended'); const st=$('#cpSt'); if(st) st.textContent=`${hhmm(c.t)} 통화 기록 · Group ${w3(c.g.id)}`; const tm=$('#cpT'); if(tm) tm.textContent='기록'; });
 function wToast(t){ const e=$('#wvToast'); if(!e) return; e.textContent=t; e.classList.remove('show'); void e.offsetWidth; e.classList.add('show'); }
 
 /* --- side: 256 bitmap + TSP rules --- */
+function wvShow(mode){ const p=$('#wvPanel'); if(!p) return; const was=p.hidden; p.hidden=false; p.dataset.mode=mode; $('#wvpT').textContent=mode==='edit'?'WNG 직접 구성 · 256':'콜센터 웹 · CCW'; if(was) setTimeout(wScroll,60); }
+function wvHide(){ const p=$('#wvPanel'); if(p&&!p.hidden){ p.hidden=true; setTimeout(wScroll,60); } }
 function wSide(){
-  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">VDP → TSP · WNG 256</span><span class="chip mute" id="wBitN">ON 0</span></header>
+  const pb=$('#wvpB'); if(!pb) return;
+  pb.innerHTML=`<section class="card" id="wvpEdit"><header class="card-h"><span class="eyebrow">VDP → TSP · WNG 256</span><span class="chip mute" id="wBitN">ON 0</span></header>
    <p class="wsub" id="wBitCap">매 Trigger마다 256개 WNG의 ON / OFF 전체 상태가 함께 들어옵니다.</p>
    <div class="bits" id="wBits"></div>
    <div class="wquick" id="wQuick"></div>
    <div class="blg"><span><i class="b" style="background:${RANKC.A}"></i>Rank A</span><span><i class="b" style="background:${RANKC.B}"></i>B</span><span><i class="b" style="background:${RANKC.C}"></i>C</span><span><i class="b onN"></i>발생</span><span><i class="b offN"></i>해제</span></div></section>
-  <section class="card"><header class="card-h"><span class="eyebrow">TSP 처리</span><span class="chip mute" id="wRuleT">대기</span></header>
-   <ul class="diag wrules">${WRULES.map((r,i)=>`<li id="wr${i}"><span class="st"></span><div><b>${r[0]}</b><small>${r[1]}</small></div></li>`).join('')}</ul></section>
   <div id="wCcw"></div>`;
   wBits();
 }
@@ -2589,7 +2635,7 @@ function wBits(rec){
   const cap=$('#wBitCap'); if(cap) cap.innerHTML=ed?'<b>직접 구성 중</b> · 칸이나 아래 버튼을 눌러 ON / OFF를 바꾼 뒤 조작 패널에서 전송하세요.':'매 Trigger마다 256개 WNG의 ON / OFF 전체 상태가 함께 들어옵니다. Rank는 TSP에서 매핑합니다.';
 }
 function wRule(i,cls){ const e=$('#wr'+i); if(e) e.className=cls||''; }
-side.addEventListener('click',e=>{ const b=e.target.closest('[data-bit]'); if(!b||!WG.edit||PROJECT!=='wng') return; const n=+b.dataset.bit; WG.edit.has(n)?WG.edit.delete(n):WG.edit.add(n); tone(1200,.04,'triangle',.02); wBits(); renderDock(); });
+document.addEventListener('click',e=>{ const b=e.target.closest('#wvPanel [data-bit]'); if(!b||!WG.edit||PROJECT!=='wng') return; const n=+b.dataset.bit; WG.edit.has(n)?WG.edit.delete(n):WG.edit.add(n); tone(1200,.04,'triangle',.02); wBits(); renderDock(); });
 
 /* --- flow --- */
 async function wHop(run,e,color,dur){ fEdge(e,'live'); flowSend(e,dur,color); if(!await live(run,dur)) return false; fEdge(e,'on'); return true; }
@@ -2614,6 +2660,7 @@ async function wTrigger(run,np,o={}){
   const rec={kind:'trig',t:simMs(),list,neu,g,created,on,dms,msg,inCall,mm:mmS.length?{front:mmS[0],ghost:mmS.slice(1)}:null,gsa:[...neu].sort((a,b)=>b-a),mid:neu.length?neu[neu.length-1]:null,rv:new Set()};
   WG.cur=next; WG.prev=stat; rec.idx=WG.cols.length; WG.cols.push(rec);
   const sum=wDiffFrom(list);
+  if(!inCall&&!WG.edit) wvHide();
   wRenderAll(); wScroll(); if(!inCall) wFlowClear();
   for(let i=0;i<WRULES.length;i++) wRule(i,'');
   const rt=$('#wRuleT'); if(rt) rt.textContent=hhmm(rec.t)+' Trigger';
@@ -2678,8 +2725,8 @@ function wCcwConsult(g,type,stt,fresh){
   box.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">CCW · 11.2.1.1 e-Care 고객 응대</span><span class="chip ${stt==='컨택 중'?'amber':stt==='이관 완료'?'':'mute'}" id="wCst">${stt}</span></header>
    <div class="wbar"><span>전화 타입 <b>${out?'아웃바운드 콜':'인바운드 콜'}</b></span><span>WorkFlow <b style="color:${g.col}">Group ${w3(g.id)}</b></span></div>
    <div class="wstates">${(()=>{const fin=stt==='상담 완료'?'상담 완료':'이관 완료', L=['컨택 전','컨택 중',fin], ci=L.indexOf(stt); return L.map((s,i)=>`<span class="${i===ci?'on':i<ci?'done':''}">${s}</span>`).join('');})()}</div>
-   ${wCards(g,fresh)}<div class="script" id="wTx"></div></section>`;
-  const z=side.closest('.zone-body'); if(z) z.scrollTop=z.scrollHeight;
+   ${wCards(g,fresh)}</section>`;
+  const z=$('#wvpB'); if(z) z.scrollTop=0;
 }
 async function wContact(run,type,auto){
   const re=type==='re', out=type==='out'; const g=re?wLastClosed():wOpen(); if(!g) return false;
@@ -2705,7 +2752,7 @@ async function wContact(run,type,auto){
    <div class="ccw-r"><span>고객명</span><b>홍길동</b></div><div class="ccw-r"><span>WorkFlow</span><b>Group ${w3(g.id)}</b></div>
    <div class="cbtn" id="wccBtn">${ICON.tel}${out?'전화 걸기':'전화 받기'}</div></div>
    <div class="ccw-note">${out?'25분간 인바운드 콜 없음 → 유휴 상담사에게 자동 배정. 05:00 안에 [전화 걸기].':type==='gsa'?'고객 휴대폰에서 전화 연결 요청 → 상담 이력의 컨택 전 건에서 [고객 응대 시작].':re?'완료건 인지 → 상담 이력 [이력상세보기] → 추가 메모.':'차량 MM에서 전화 연결 요청 → 경고 정보와 함께 인바운드 안내 팝업.'}</div></section>`;
-  { const z=side.closest('.zone-body'); if(z) z.scrollTop=z.scrollHeight; }
+  wvShow('ccw'); { const z=$('#wvpB'); if(z) z.scrollTop=0; }
   sfx.ring();
   if(out){ let t=300; for(let i=0;i<8;i++){ if(!await live(run,170)) return false; t-=3; const e=$('#wccT'); if(e) e.textContent='잔여 시간 '+mmss(t); } }
   else if(!await live(run,1400)) return false;
@@ -2774,18 +2821,18 @@ async function wAuto(){
   if(run===token){ setPhase('wngIdle'); fCap('<b>자동 재생 완료</b> · 이어서 컨택하거나 WNG를 직접 구성해 보세요'); }
 }
 async function wContactAct(type){ const run=++token; await wContact(run,type,false); if(run===token) setPhase('wngIdle'); }
-function wEditStart(){ if(!LAY.flow) setFlow(true); WG.edit=new Set(WG.cur); setPhase('wngEdit'); wBits(); fCap('<b>직접 구성</b> · 정보 흐름 패널의 256칸에서 WNG를 눌러 ON / OFF를 바꾼 뒤 [이 상태로 Trigger 전송]'); const z=side.closest('.zone-body'); if(z) z.scrollTop=0; }
+function wEditStart(){ WG.edit=new Set(WG.cur); setPhase('wngEdit'); wBits(); wvShow('edit'); fCap('<b>직접 구성</b> · 오른쪽 256칸이나 번호 버튼으로 WNG ON / OFF를 바꾼 뒤 [이 상태로 Trigger 전송]'); const z=$('#wvpB'); if(z) z.scrollTop=0; }
 async function wSend(){
   if(!WG.edit) return; const on=[...WG.edit].sort((a,b)=>a-b);
   if(setEq(WG.edit,WG.cur)){ fCap('바뀐 WNG가 없습니다. 칸을 눌러 ON / OFF를 바꿔 주세요.'); tone(300,.15,'square',.03); return; }
-  WG.edit=null; const run=++token; setPhase('wngBusy'); wBits();
+  WG.edit=null; const run=++token; setPhase('wngBusy'); wBits(); wvHide();
   const np={t:simMs()+5*MIN,on,src:'edit'}, g=wOpen();
   if(wDue(g,np.t)){ await wContact(run,'out',false); if(run!==token) return; }
   await wTrigger(run,np); if(run===token) setPhase('wngIdle');
 }
-function wEditCancel(){ WG.edit=null; wBits(); setPhase('wngIdle'); }
+function wEditCancel(){ WG.edit=null; wBits(); wvHide(); setPhase('wngIdle'); }
 function wngEnter(){
-  wInit(); cpClose(); clockTo(9,58); WG.step=0;
+  wInit(); cpClose(); clockTo(9,58); WG.step=0; const wp=$('#wvPanel'); if(wp) wp.hidden=true;
   wSide(); wRenderAll(); setPhase('wngIdle'); vehUI('WNG 대기','');
   fCap('WNG는 매 Trigger마다 256개 전체 상태로 VDP → TSP에 들어옵니다. <b>다음 Trigger</b>로 10:00 첫 메시지를 보내 보세요.');
 }
@@ -2800,7 +2847,7 @@ Object.assign(DOCK,{
   wngBusy:()=>[info('WNG 메시지 처리 중')],
   wngAuto:()=>[info('기획 시나리오 자동 재생 중 · 초기화(R)로 멈춤')],
   wngCall:()=>[info('고객과 상담원이 통화 중'),...(WG.inCall&&!WG.inCall.used?[btn('wngInCall','상담 중 신규 WNG 발생','같은 Group에 추가 · 카드 NEW','T','amber','warn')]:[])],
-  wngEdit:()=>[{lbl:'오른쪽 256칸에서 ON / OFF 선택'},btn('wngSend','이 상태로 Trigger 전송',WG.edit?wDiff([...WG.edit]):'','T','teal','down'),btn('wngEditX','취소','','Q','neutral','reset')]
+  wngEdit:()=>[{lbl:'오른쪽 패널에서 ON / OFF 선택'},btn('wngSend','이 상태로 Trigger 전송',WG.edit?wDiff([...WG.edit]):'','T','teal','down'),btn('wngEditX','취소','','Q','neutral','reset')]
 });
 Object.assign(ACT,{
   wngNext:()=>wNextAct(), wngAuto:()=>wAuto(), wngEdit:()=>wEditStart(), wngSend:()=>wSend(), wngEditX:()=>wEditCancel(),
