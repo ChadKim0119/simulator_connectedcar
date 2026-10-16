@@ -452,7 +452,7 @@ body.wng .wng-only{display:block!important}
 .wv-heads b{font-size:12.5px}
 .wv-heads small{font-size:10.5px;line-height:1.4;color:var(--muted)}
 .wr{height:var(--h);padding:7px 10px;border-bottom:1px solid rgba(150,185,220,.08);overflow:hidden;position:relative;z-index:1}
-.r-time{--h:56px}.r-msg{--h:136px;background:rgba(255,178,30,.045)}.r-tsp{--h:32px}.r-mm{--h:82px}.r-gsa{--h:88px}.r-mid{--h:36px}.r-dms{--h:110px;background:rgba(46,230,207,.045)}
+.r-time{--h:56px}.r-msg{--h:136px;background:rgba(255,178,30,.045)}.r-tsp{--h:32px}.r-mm{--h:82px}.r-gsa{--h:102px}.r-dms{--h:118px;background:rgba(46,230,207,.045)}
 .wcol{width:192px;flex:none;border-right:1px solid rgba(150,185,220,.08);position:relative}
 .wcol.cur{background:rgba(89,168,255,.045)}
 .wcol::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--gc);opacity:.9;z-index:2}
@@ -487,12 +487,16 @@ body.wng .wng-only{display:block!important}
 .gsac{position:relative;width:132px;min-height:64px;border-radius:10px;background:#f2a66b;border:2px solid #e07b2f;padding:6px 7px 20px;display:flex;flex-direction:column;gap:4px;margin-left:4px}
 .gsac small{font-size:10px;color:#3b1d00;text-align:center}
 .gsac.none{background:rgba(242,166,107,.12);border-style:dashed;display:grid;place-items:center;color:#f2a66b;font-size:16px;padding:6px}
-.gsar{background:#fff;color:#141a22;border:1.5px solid #4a5363;border-radius:5px;font:700 11px var(--f-mono);padding:2px 6px;text-align:center}
+.gsar{background:#fff;color:#141a22;border:1.5px solid #4a5363;border-radius:5px;font:700 11px/1.3 var(--f-mono);padding:1px 6px;text-align:center}
 .midv{font:700 13px var(--f-mono);color:#e9eef5}.midv.mute{color:#5b6677;font-weight:600}
 .dmsh{font-size:10.5px;font-weight:700;color:var(--teal);margin-bottom:2px}
 .dmsl{font:600 11px/1.45 var(--f-mono);color:#d7e0ea}
 .dmsid{margin-top:5px;font:700 10.5px/1.45 var(--f-mono);color:#fff}
 .dmsnone b{display:block;color:var(--alert);font-size:13px}
+.dmsl.sub{font:500 10.5px var(--f-body);color:#aab5c4}
+.dmson{margin-top:4px;font:600 10.5px var(--f-mono);color:#7d8a9c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctcol{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mmc.none,.gsac.none{font:600 12.5px var(--f-body)!important;letter-spacing:.02em}
 .dmsnone small{display:block;margin-top:3px;font-size:10.5px;line-height:1.45;color:#aab5c4}
 .ctype{background:#0a1019;padding:4px 2px;border-radius:6px}
 .ctype b{display:block;font-size:12px;color:#fff;line-height:1.35}
@@ -557,7 +561,7 @@ body.wng .wng-only{display:block!important}
   .dock.gs.wng .act{min-height:40px;padding:5px 10px 5px 6px;gap:8px}
   .dock.gs.wng .act .ic{width:28px;height:28px}
   .dock.gs.wng .act .k{display:none}
-  .r-time{--h:50px}.r-msg{--h:132px}.r-tsp{--h:30px}.r-mm{--h:72px}.r-gsa{--h:78px}.r-mid{--h:32px}.r-dms{--h:102px}
+  .r-time{--h:50px}.r-msg{--h:132px}.r-tsp{--h:30px}.r-mm{--h:72px}.r-gsa{--h:94px}.r-dms{--h:104px}
   .mmst{height:60px}.mmc{top:9px;height:48px}.mmc.gh{top:calc(1px - var(--o)*4px)}.gsac{min-height:56px;padding-bottom:18px}
   .wv-foot{display:none}
 }
@@ -806,7 +810,7 @@ body.wng #btnLayout,body.wng #stageBtn,body.wng #stageRail{display:none!importan
           <div class="wv-board" id="wvBoard"><div class="wv-grid" id="wvGrid"></div></div>
           <aside class="wvp" id="wvPanel" hidden><div class="wvp-h"><span class="eyebrow" id="wvpT">패널</span><button class="cp-x" id="wvpX" title="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="wvp-b" id="wvpB"></div></aside>
         </div>
-        <div class="wv-foot"><span class="lg"><span style="--c:#8f9bad">기존 정보 유지</span><span style="--c:#59a8ff">On으로 변경 발생</span><span style="--c:#ff5fa8">Off로 변경 발생</span><span style="--c:#a78bfa">[유지]</span></span><span><i class="q" style="margin:0 4px 0 0">?</i>기획서에 '?'로 표시된 항목 · Group 종료 조건(컨택 완료)은 가정</span></div>
+        <div class="wv-foot"><span class="lg"><span style="--c:#a78bfa">기존 정보를 계속 유지</span><span style="--c:#59a8ff">On으로 변경 발생</span><span style="--c:#ff5fa8">Off로 변경 발생</span></span><span><i class="q" style="margin:0 4px 0 0">?</i>기획서에 '?'로 표시된 항목 · Group 종료 조건(컨택 완료)은 가정</span></div>
         <div class="wv-toast" id="wvToast"></div>
       </div>
       <div class="lapse" id="lapse" hidden>
@@ -901,6 +905,12 @@ body.wng #btnLayout,body.wng #stageBtn,body.wng #stageRail{display:none!importan
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.1.1',date:'2026-10-17',name:'WNG 도식 개정 반영',notes:[
+    'DMS: VDP에서 전송된 포맷(256개 전체 상태)을 그대로 전송하고 GROUP ID · MSG ID를 추가. 매 Trigger마다 MSG ID +1 (모두 해제된 10:15도 전송)',
+    'GSA: 해당 Trigger에서 On으로 변경 발생한 WNG로 교체 (재발생 포함, 번호 순)',
+    'MM · GSA에 표출할 정보가 없으면 "no show up" 표시, MID 행 삭제',
+    '범례를 도식과 맞춤: 보라 = 기존 정보 계속 유지, 파랑 = On 변경 발생, 분홍 = Off 변경 발생'
+  ]},
   {v:'0.1.0',date:'2026-10-16',name:'통화 패널 고정 · 플로팅',notes:[
     '고객 통화 패널이 모든 시뮬레이션에서 항상 떠 있도록 변경 (자동으로 닫히거나 사라지지 않음)',
     '패널을 머리 부분으로 끌어 원하는 위치로 이동, 접기 · 펼치기 가능 (위치 · 상태 기억)',
@@ -2571,15 +2581,15 @@ const MIN=60000, SLA25=25*MIN;
 const setEq=(a,b)=>a.size===b.size&&[...a].every(x=>b.has(x));
 const WPLAN=[
   {h:10,m:0,on:[1,2]},{h:10,m:10,on:[2,3]},{h:10,m:15,on:[]},{h:10,m:20,on:[3,4,5]},
-  {h:10,m:40,on:[]},{h:10,m:50,on:[1,6]},{h:11,m:0,on:[1,6,256]}
+  {h:10,m:40,on:[1,6]},{h:10,m:50,on:[1,6,256]},{h:11,m:0,on:[6,256]}
 ];
 const WRULES=[
   ['VDP → TSP · 256개 전체 상태 수신','매 Trigger마다 ON/OFF 전체 목록이 함께 들어옴'],
   ['Rank 매핑 (TSP)','WNG 코드별 Rank A · B · C'],
   ['발생 · 해제 · 유지 판정','직전 메시지와 비교해 변화만 표시'],
   ['Group ID (WorkFlow ID)','첫 발생 시 생성 · 컨택 완료 후 새 발생이면 신규 (가정)'],
-  ['MM · GSA · MID 표출','TSP 제어가 아닌 MM 로직 · 그룹 안에서 처음 발생한 WNG만'],
-  ['TSP → DMS','ON 된 정보만 전송 · MSG ID +1 · 없으면 전송 없음']
+  ['MM · GSA 표출','TSP 제어가 아닌 MM 로직 · 변경 발생 없으면 no show up'],
+  ['TSP → DMS','VDP 포맷 그대로 + GROUP ID · MSG ID(+1) 추가']
 ];
 const STEPS_WNG=['VDP → TSP','TSP 판정','채널 표출','DMS 전송','컨택'];
 const WG={};
@@ -2603,7 +2613,7 @@ const gTxt=g=>g.status==='open'?`WNG 수신 중 · 아웃바운드 ${hhmm(g.t0+S
 
 /* --- board --- */
 const WROWS=[['time','타임라인',''],['msg','타이밍별 WNG 메시지','VDP → TSP · 256개 전체 상태<br>Rank는 TSP에서 매핑'],['tsp','TSP 판정',''],
-  ['mm','MM','마지막 정보만 팝업 단일 표출<br>MM 로직 · TSP 제어 아님'],['gsa','GSA','신규 발생 메시지로 교체<br>MM 로직 · TSP 제어 아님'],['mid','MID','계기판'],['dms','DMS 수신 WNG','TSP → DMS · ON 된 정보만']];
+  ['mm','MM','마지막 정보만 팝업 단일 표출<br>MM 로직 · TSP 제어 아님'],['gsa','GSA','신규 발생 메시지로 교체<br>MM 로직 · TSP 제어 아님'],['dms','DMS 수신 WNG 메시지','TSP → DMS<br>VDP 포맷 그대로 + GROUP · MSG ID']];
 const Q='<i class="q" title="기획서에 \'?\'로 표시된 항목 · 확인 필요">?</i>';
 function wMsgLines(rec){
   let lines=rec.list.filter(x=>x.n<=6), extra=rec.list.filter(x=>x.n>6);
@@ -2619,8 +2629,7 @@ function wCell(rec,row){
     if(row==='time') return `<div class="wt ct"><b>${hhmm(rec.t)}</b><span class="ctl">Contact</span><span class="gid" style="color:${g.col}">[Group ID : ${w3(g.id)}]</span></div>`;
     if(row==='msg') return `<div class="ctype"><b>${T[0]}</b><small>${T[1]}</small></div>`;
     if(row==='tsp') return `<span class="chip ${rec.res==='이관 완료'?'':rec.res==='컨택 중'?'amber':'mute'}">${rec.res}</span>`;
-    if(row==='mm') return rec.type==='mm'||rec.type==='re'?'<div class="ctn">고객 → 콜센터</div>':'';
-    if(row==='mid') return rec.lines&&rec.lines.length&&rec.res!=='컨택 중'?`<button class="ctplay" data-ct="${rec.idx}">통화 내용 보기</button>`:'';
+    if(row==='mm') return `<div class="ctcol">${rec.type==='mm'||rec.type==='re'?'<div class="ctn">고객 → 콜센터</div>':''}${rec.lines&&rec.lines.length&&rec.res!=='컨택 중'?`<button class="ctplay" data-ct="${rec.idx}">통화 내용 보기</button>`:''}</div>`;
     if(row==='gsa') return rec.type==='gsa'?'<div class="ctn">고객 → 콜센터</div>':rec.type==='out'?'<div class="ctn">상담원 → 고객 휴대폰</div>':'';
     if(row==='dms') return rec.res==='이관 완료'?'<div class="ctn ok">상담 메모 → DMS<br>이관 완료</div>':rec.res==='컨택 중'?'':'<div class="ctn">DMS 전송 없음<br>(콜센터 내부 메모)</div>';
     return '';
@@ -2628,15 +2637,14 @@ function wCell(rec,row){
   if(row==='time') return `<div class="wt"><b>${hhmm(rec.t)}</b><span class="trg">Trigger${rec.inCall?' · 상담 중':''}</span><span class="br"></span>${rec.created?`<span class="newg" style="--gc:${g.col}">신규 Group ID ${w3(g.id)}</span>`:g?`<span class="gid" style="color:${g.col}">Group ${w3(g.id)}</span>`:'<span class="gid">열린 Group 없음</span>'}</div>`;
   if(row==='msg') return wMsgLines(rec);
   if(row==='tsp'){ const a=rec.list.filter(x=>x.st==='onN').length, b=rec.list.filter(x=>x.st==='offN').length;
-    return `<div class="wtsp"><span>발생 ${a}</span><span>해제 ${b}</span><span class="${rec.neu.length?'hi':''}">신규 표출 ${rec.neu.length}</span></div>`; }
-  if(row==='mm'){ if(!rec.mm) return `<div class="mmst"><div class="mmc none">?</div></div>`; const amb=rec.neu.length>1;
+    return `<div class="wtsp"><span>발생 ${a}</span><span>해제 ${b}</span>${rec.msg?`<span class="hi">MSG ${w3(rec.msg)}</span>`:''}</div>`; }
+  if(row==='mm'){ if(!rec.mm) return `<div class="mmst"><div class="mmc none">no show up</div></div>`; const amb=rec.neu.length>1;
     return `<div class="mmst">${rec.mm.ghost.slice(0,2).map((n,j)=>`<div class="mmc gh" style="--o:${j}">${wLbl(n)}${amb?Q:''}</div>`).join('')}<div class="mmc">${wLbl(rec.mm.front)}${amb?Q:''}<span class="cta">CTA</span></div></div>`; }
-  if(row==='gsa'){ if(!rec.gsa.length) return `<div class="gsac none">?</div>`; const s=rec.gsa.slice(0,3);
+  if(row==='gsa'){ if(!rec.gsa.length) return `<div class="gsac none">no show up</div>`; const s=rec.gsa.slice(0,3);
     return `<div class="gsac">${s.map(n=>`<div class="gsar">${wLbl(n)}</div>`).join('')}${rec.gsa.length>3?`<small>외 ${rec.gsa.length-3}</small>`:''}<span class="cta">CTA</span></div>`; }
-  if(row==='mid') return rec.mid?`<div class="midv">${w3(rec.mid)} ${Q}</div>`:'<div class="midv mute">Nothing</div>';
   if(row==='dms'){
-    if(rec.dms){ const s=rec.dms.slice(0,4); return `<div class="dmsh">ON 된 정보만 전송</div>${s.map(n=>`<div class="dmsl">${wLbl(n)}</div>`).join('')}${rec.dms.length>4?`<div class="dmsl">외 ${rec.dms.length-4}</div>`:''}<div class="dmsid">GROUP ID = ${w3(g.id)}<br>MSG ID = ${w3(rec.msg)}</div>`; }
-    return g?'<div class="dmsnone"><b>정보 전송 없음</b><small>DMS 요청에 따라 적용 예정<br>10/14일 기준</small></div>':'<div class="dmsnone"><b>전송 없음</b><small>열린 Group 없음<br>(컨택 완료 후 해제만 발생)</small></div>';
+    if(rec.msg){ const on=rec.on; return `<div class="dmsh">VDP에서 전송된 포맷 그대로 전송</div><div class="dmsl sub">아래 내용을 추가하여 전송</div><div class="dmsid">GROUP ID = ${w3(g.id)}<br>MSG ID = ${w3(rec.msg)}</div><div class="dmson">${on.length?`ON ${on.length}건 · ${on.slice(0,4).map(w3).join(' · ')}${on.length>4?' …':''}`:'ON 없음 · 전체 OFF 상태 전송'}</div>`; }
+    return g?'<div class="dmsnone"><b>정보 전송 없음</b></div>':'<div class="dmsnone"><b>전송 없음</b><small>열린 Group 없음<br>(컨택 완료 후 해제만 발생)</small></div>';
   }
   return '';
 }
@@ -2711,9 +2719,9 @@ async function wTrigger(run,np,o={}){
   const neu=g?onN.filter(n=>!g.shown.has(n)):[];
   if(g) neu.forEach(n=>{g.shown.add(n);g.order.push(n);});
   const on=[...next].sort((a,b)=>a-b);
-  let dms=null,msg=null; if(g&&on.length){ g.msg++; msg=g.msg; dms=on; }
+  let dms=null,msg=null; if(g){ g.msg++; msg=g.msg; dms=on; }
   const mmS=[...neu].sort((a,b)=>RORD[wRank(a)]-RORD[wRank(b)]||b-a);
-  const rec={kind:'trig',t:simMs(),list,neu,g,created,on,dms,msg,inCall,mm:mmS.length?{front:mmS[0],ghost:mmS.slice(1)}:null,gsa:[...neu].sort((a,b)=>b-a),mid:neu.length?neu[neu.length-1]:null,rv:new Set()};
+  const rec={kind:'trig',t:simMs(),list,neu,g,created,on,dms,msg,inCall,mm:mmS.length?{front:mmS[0],ghost:mmS.slice(1)}:null,gsa:[...onN].sort((a,b)=>a-b),rv:new Set()};
   WG.cur=next; WG.prev=stat; rec.idx=WG.cols.length; WG.cols.push(rec);
   const sum=wDiffFrom(list);
   if(!inCall&&!WG.edit) wvHide();
@@ -2737,19 +2745,19 @@ async function wTrigger(run,np,o={}){
   if(!await live(run,900)) return false;
   // 3. channels
   WG.step=3; renderSteps(); wRule(4,'run');
-  if(neu.length){
-    fCap(`<b>표출</b> · MM은 마지막 정보만 단일 팝업, GSA는 신규 발생 메시지로 교체, MID 표출 — <b>TSP 제어가 아닌 MM 로직</b>`);
-    await Promise.all([wHop(run,'wm','#a78bfa',700),wHop(run,'wg','#a78bfa',700),wHop(run,'wi','#a78bfa',700)]); if(run!==token) return false;
-    ['mm','gsa','mid'].forEach(k=>fNode(k,'done'));
-  } else fCap(`<b>표출</b> · ${onN.length?'그룹 안에서 이미 표출된 WNG의 재발생':'새로 발생한 WNG 없음'} → MM · GSA · MID 표출 미정 (기획서 '?')`);
-  wReveal(rec,'mm'); if(!await live(run,260)) return false; wReveal(rec,'gsa'); if(!await live(run,260)) return false; wReveal(rec,'mid'); wRule(4,'done');
+  if(onN.length){
+    fCap(`<b>표출</b> · MM은 마지막 정보만 단일 팝업${neu.length?'':' (그룹에서 이미 표출된 WNG → no show up)'}, GSA는 On 발생 메시지(${onN.map(w3).join(' · ')})로 교체 — <b>TSP 제어가 아닌 MM 로직</b>`);
+    await Promise.all([wHop(run,'wm','#a78bfa',700),wHop(run,'wg','#a78bfa',700)]); if(run!==token) return false;
+    ['mm','gsa'].forEach(k=>fNode(k,'done'));
+  } else fCap(`<b>표출</b> · On으로 변경 발생한 WNG 없음 → MM · GSA <b>no show up</b>`);
+  wReveal(rec,'mm'); if(!await live(run,260)) return false; wReveal(rec,'gsa'); wRule(4,'done');
   if(!await live(run,700)) return false;
   // 4. DMS
   WG.step=4; renderSteps(); wRule(5,'run');
-  if(dms){ if(!await wHop(run,'wd','#2ee6cf',750)) return false; fNode('dms','done');
-    fCap(`<b>TSP → DMS</b> · ON 된 정보만 전송 (${dms.map(w3).join(' · ')}) · GROUP ID ${w3(g.id)} · MSG ID ${w3(msg)}`);
-    addLog(`DMS 전송 · GROUP ${w3(g.id)} · MSG ${w3(msg)} · ${dms.length}건`,'teal'); }
-  else { fCap(g?'<b>DMS</b> · ON 된 정보 없음 → <b>정보 전송 없음</b> (DMS 요청에 따라 적용 예정 · 10/14일 기준)':'<b>DMS</b> · 열린 Group 없음 → 전송 없음'); addLog('DMS 전송 없음 · ON 정보 없음','amber'); }
+  if(msg){ if(!await wHop(run,'wd','#2ee6cf',750)) return false; fNode('dms','done');
+    fCap(`<b>TSP → DMS</b> · VDP에서 전송된 포맷 그대로 전송 + <b>GROUP ID ${w3(g.id)} · MSG ID ${w3(msg)}</b> 추가 (ON ${on.length}건)`);
+    addLog(`DMS 전송 · VDP 포맷 그대로 · GROUP ${w3(g.id)} · MSG ${w3(msg)}`,'teal'); }
+  else { fCap('<b>DMS</b> · 열린 Group 없음 → 전송 없음 (가정)'); addLog('DMS 전송 없음 · 열린 Group 없음','amber'); }
   wReveal(rec,'dms'); wRule(5,'done'); fNode('tsp','done'); wHead(); wInfo();
   vehUI(g?`Group ${w3(g.id)} · ${gTxt(g)}`:'WNG 대기',g&&g.status!=='closed'?'amber':'');
   return true;
