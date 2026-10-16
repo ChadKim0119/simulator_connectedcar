@@ -405,6 +405,38 @@ button{font:inherit;color:inherit}
 }
 .dl li small.closed{color:#b45309}
 #tags.far .tag:not(.hero):not(.region){opacity:0}
+/* v0.0.6 CCW + status */
+.ccwpop{border-radius:10px;background:#f3f5f8;color:#141a22;padding:12px 14px;margin-top:4px}
+.ccw-h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;font-weight:800;margin-bottom:8px}
+.ccw-t{font:700 11.5px var(--f-mono);padding:3px 7px;border-radius:5px;background:#e3e8ef;color:#141a22;font-variant-numeric:tabular-nums}
+.ccw-t.red{background:#e60012;color:#fff}
+.ccw-r{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:3px 0;color:#4b5563}
+.ccw-r b{color:#141a22;text-align:right}
+.ccw-note{margin-top:8px;font-size:12px;line-height:1.55;color:#aab5c4}
+.ccw-li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;background:var(--panel-hi);font-size:12.5px}
+.ccw-li .cbtn{margin:0;padding:6px 9px}
+.memo{margin-top:12px}
+.memo .stp{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start;padding:8px 10px;border-radius:8px;background:var(--panel-hi);margin-top:6px;font-size:12.5px;opacity:.45;transition:opacity .3s}
+.memo .stp.on,.memo .stp.done{opacity:1}
+.memo .stp .n{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);display:grid;place-items:center;font:700 10px var(--f-mono)}
+.memo .stp.done .n{background:var(--teal);border-color:var(--teal);color:#06121a}
+.memo .stp small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px;line-height:1.45}
+.sclist{margin-top:5px;display:grid;gap:3px}
+.sclist div{display:grid;grid-template-columns:14px 1fr auto;gap:6px;align-items:center;font-size:11.5px;color:#c3ccd8}
+.sclist i{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35)}
+.sclist .sel i{background:var(--teal);border-color:var(--teal)}
+.sclist em{font-style:normal;font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(46,230,207,.14);color:var(--teal)}
+.sclist em.off{background:rgba(255,255,255,.06);color:var(--muted)}
+.stat{margin-top:10px;display:grid;gap:7px}
+.stat .sr{display:grid;grid-template-columns:76px 1fr;gap:8px;align-items:start}
+.stat .sl{font-size:11px;color:var(--muted);padding-top:3px}
+.stat .sc{display:flex;flex-wrap:wrap;gap:3px}
+.stat .sc span{font-size:10.5px;padding:2px 6px;border-radius:5px;background:rgba(255,255,255,.04);color:#5d6878;white-space:nowrap}
+.stat .sc span.done{color:#8fd9cf;background:rgba(46,230,207,.08)}
+.stat .sc span.on{color:#06121a;background:var(--teal);font-weight:700}
+.stat .sc span.on.red{background:var(--alert);color:#fff}
+.stat .sc .na{background:transparent;color:#5d6878}
+.gs .stat{display:none}
 /* project switch + GS */
 .gs .ec-only{display:none!important}
 .gs-only{display:none!important}
@@ -561,6 +593,7 @@ button{font:inherit;color:inherit}
       <section class="card flow">
         <div id="flowSvg"></div>
         <div class="fcap" id="flowCap">차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.</div>
+        <div class="stat" id="statBox"></div>
         <div class="legend" id="legend"><span><i style="background:var(--alert)"></i>고장 신호</span><span><i style="background:var(--blue)"></i>진단 데이터</span><span><i style="background:var(--teal)"></i>경고 정보 배포 · 통화</span></div>
       </section>
       <div id="side"></div>
@@ -610,6 +643,14 @@ button{font:inherit;color:inherit}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.0.6',date:'2026-10-16',name:'e-Care UI 시나리오(화면정의서) 반영',notes:[
+    '콜센터 웹 진입 경로 3가지: MM 콜 → 전화 수신 팝업 · 일반 전화 → 상담 이력에서 응대 시작 · 25분 경과 → 유휴 상담사 자동 배정 경고 알림 팝업(05:00 타임아웃)',
+    '25분 아웃바운드 예외: 3회 발신 실패(재시도 2회 · 후처리 5분) → SMS 자동 발송, 유휴 상담사 없음 → SMS 콜백 문자 후 자동 할당',
+    '상담 메모 → 서비스센터로 전달(기본 ON) → 서비스센터 선택(선호 1 + 근거리 4, 업무중/업무종료) → 상담내역 확인 → DMS 전송 · 이관 완료',
+    '처리 상태 표시: 콜센터(컨택 전 · 컨택 중 · 상담 완료 · 이관 완료) · 긴급 출동(신고접수 · 출동 · 도착 · 출동완료) · 서비스센터 DMS 8단계',
+    '경고 등급 표기(WNG category 긴급 · 경고)와 운전 가능 여부(Vehicle condition) 표시',
+    'GS: Service Flag에 Valet(MVNO) 추가, 프로비저닝 정책 엔진(국가 · 차종 · 계약 조건) 판정 단계 표시'
+  ]},
   {v:'0.0.5',date:'2026-10-16',name:'화면 계위 정리 · 야간 딜러 대응',notes:[
     '시뮬레이션 화면과 조작 패널을 한 덩어리로 붙이고, 선택할 차례에 조작 패널이 강조되도록 변경',
     '현재 단계 설명을 시뮬레이션 화면 하단 자막 하나로 통일, 화면 상단에 차량 상태와 최근 이벤트 표시',
@@ -1342,8 +1383,8 @@ function sideIdle(){
   </ul></section>`;
 }
 const DIAG={
-  severe:{chip:'<span class="chip red">심각</span>',title:'브레이크 시스템 이상',cls:'',risk:'높음 · 즉시 정차',act:'고객 연락 · 긴급출동 검토',code:'C1241'},
-  maint:{chip:'<span class="chip amber">정비</span>',title:'엔진 점검 경고 (배출가스 계통)',cls:'amber',risk:'보통 · 주행 가능',act:'고객이 딜러에 직접 연락 · 입고 예약',code:'P0420'}
+  severe:{cond:'주행 불가',grade:'긴급',chip:'<span class="chip red">긴급 · 주행 불가</span>',title:'브레이크 시스템 이상',cls:'',risk:'높음 · 즉시 정차',act:'고객 연락 · 긴급출동 검토',code:'C1241'},
+  maint:{cond:'주행 가능',grade:'경고',chip:'<span class="chip amber">경고 · 주행 가능</span>',title:'엔진 점검 경고 (배출가스 계통)',cls:'amber',risk:'보통 · 주행 가능',act:'고객이 딜러에 직접 연락 · 입고 예약',code:'P0420'}
 };
 function sideDiag(){
   const d=DIAG[scenario];
@@ -1417,7 +1458,7 @@ function lamps(sev){ $('#lampBrake').className='lamp'+(sev==='severe'?' red':'')
 function hazard(on){S.hazard=on;$('#lampHaz').className='lamp'+(on?' haz':'');}
 
 /* ================= scenario ================= */
-const G={flags:{tm:0,dk:0,ott:0,hs:0},done:new Set(),mm:{view:'home'},ph:{view:'home'},opw:[],devTags:[],unlock:0,hs:false};
+const G={flags:{tm:0,dk:0,ott:0,hs:0,valet:0},done:new Set(),mm:{view:'home'},ph:{view:'home'},opw:[],devTags:[],unlock:0,hs:false};
 const S={dealer:PREF,dlist:[],callLink:null,hazard:false,status:'normal',load:null,beam:null,callT0:0,eta:null,slaT0:0,slaStop:0,lapse:null,ff:1,callLive:false,callDir:1,phoneTag:null};
 const SLA_MS=25*60*1000;
 const live=(run,ms)=>new Promise(r=>setTimeout(()=>r(run===token),ms));
@@ -1518,10 +1559,10 @@ async function warnFlow(sc){
   addLog(severe?'차량 HU 팝업 · 앱 알림 · 즉시 정차 권고':'차량 HU 팝업 · 앱 알림 · 점검 권장',severe?'red':'amber');
   if(severe){
     S.slaT0=simMs(); S.slaStop=0; $('#slaBox').hidden=false; $('#slaL').textContent='SLA · 고객 연락 대기';
-    addLog('SLA 시작 · 25분 내 고객 연락 대기','amber');
+    addLog('SLA 시작 · 25분 내 고객 연락 대기','amber'); setStat('cc','컨택 전');
     fCap('<b>⑥</b> 알림 완료 · SLA 25분 동안 고객 연락을 기다립니다');
   } else {
-    addLog('정비 경고 · 콜센터 상담원 대응 없음 · 고객이 딜러에 직접 연락','amber');
+    addLog('정비 경고 · 콜센터 상담원 대응 없음 · 고객이 딜러에 직접 연락','amber'); setStat('sc','컨택대기');
     fCap('<b>⑥</b> 알림 완료 · 고객이 HU나 앱에서 서비스센터로 직접 연락합니다');
   }
   if(!await live(run,500)) return;
@@ -1529,6 +1570,92 @@ async function warnFlow(sc){
   focus(severe?mid(carPos,V3(CENTER.x,10,CENTER.z)):mid(carPos,V3(PREF.bx,6,PREF.bz)),62);
 }
 
+const STAT_DEF=[['cc','콜센터',['컨택 전','컨택 중','상담 완료','이관 완료']],['em','긴급 출동',['신고접수','출동','도착','출동완료']],['sc','서비스센터',['컨택대기','컨택','예약','입고','정비','정비완료','고객인도','종결']]];
+function renderStat(){
+  const b=$('#statBox'); if(!b) return; const st=S.stat||{};
+  b.innerHTML=STAT_DEF.map(([k,l,steps])=>{
+    const cur=st[k]; let list=steps;
+    if(k==='cc') list=['컨택 전','컨택 중',cur==='상담 완료'?'상담 완료':'이관 완료'];
+    const ci=list.indexOf(cur);
+    const chips=cur?list.map((x,i)=>`<span class="${i<ci?'done':i===ci?'on'+(k==='em'?' red':''):''}">${x}</span>`).join(''):`<span class="na">${k==='cc'&&scenario==='maint'?'대응 대상 아님 (정비)':'—'}</span>`;
+    return `<div class="sr"><span class="sl">${l}</span><span class="sc">${chips}</span></div>`;}).join('');
+}
+function setStat(k,v){ S.stat=S.stat||{}; S.stat[k]=v; renderStat(); }
+async function ccwStep(o,run){
+  const d=DIAG[scenario], kind=o.dir==='out'?'out':(o.via==='hu'?'mm':'mobile');
+  focus(mid(carPos,V3(CENTER.x,20,CENTER.z)),58);
+  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">콜센터 웹 · ${kind==='out'?'CCW-EC-100_P2':kind==='mm'?'CCW-EC-100_P1':'CCW-EC-100_P3'}</span><span class="chip ${kind==='out'?'red':''}">${kind==='out'?'자동 배정 · 아웃바운드':kind==='mm'?'MM 인바운드':'일반 전화'}</span></header>
+   <div class="ccwpop"><div class="ccw-h"><span>${kind==='out'?'고객 차량에서 경고 발생':'전화가 왔습니다.'}</span>${kind==='out'?'<span class="ccw-t" id="ccwT">잔여 시간 05:00</span>':''}</div>
+   ${kind!=='mobile'?`<div class="ccw-r"><span>경고등명</span><b>${d.title}</b></div><div class="ccw-r"><span>운전 가능 여부</span><b>${d.cond}</b></div>`:''}
+   ${kind==='out'?`<div class="ccw-r"><span>최초 감지</span><b>${hms(S.slaT0||simMs()).slice(0,5)}</b></div>`:''}
+   <div class="ccw-r"><span>고객명</span><b>홍길동</b></div><div class="ccw-r"><span>${kind==='out'?'연락처':'차량번호'}</span><b>${kind==='out'?'010-****-1234':'12가 3456'}</b></div>
+   <div class="cbtn" id="ccwBtn">${ICON.tel}${kind==='out'?'전화 걸기':'전화 받기'}</div></div>
+   <div class="ccw-note" id="ccwNote">${kind==='out'?'25분간 인바운드 콜 없음 → 유휴 상담사에게 자동 배정(라운드로빈). 05:00 안에 [전화 걸기], 1분 미만이면 빨간색 · 알림음.':kind==='mm'?'차량 MM에서 전화 연결 요청 → [전화 받기] 시 건 인계 후 e-Care 고객 응대 화면으로 이동':'고객 휴대폰 일반 전화 → [전화 받기]는 통화만 연결, 상담 이력 목록에서 해당 건을 찾아 응대를 시작'}</div></section>`;
+  addLog(kind==='out'?'유휴 상담사 자동 배정 · 경고 알림 팝업':kind==='mm'?'콜센터 웹 · MM 전화 수신 팝업':'콜센터 웹 · 일반 전화 수신 팝업');
+  fCap(kind==='out'?'<b>⑦</b> 25분 경과 → <b>유휴 상담사 자동 배정</b> · 콜센터 웹 경고 알림 팝업 (05:00 타임아웃)':kind==='mm'?'<b>⑦</b> 차량 MM 전화 → 콜센터 웹 <b>전화 수신 안내 팝업</b>':'<b>⑦</b> 고객 휴대폰 일반 전화 → 콜센터 웹 <b>전화 수신 안내 팝업 (일반 전화)</b>');
+  sfx.ring(); setStat('cc','컨택 전');
+  if(kind==='out'){ let t=300; for(let i=0;i<8;i++){ if(!await live(run,180)) return false; t-=3; const e=$('#ccwT'); if(e) e.textContent='잔여 시간 '+mmss(t); } }
+  else if(!await live(run,1500)) return false;
+  if(!await pressBtn('ccwBtn',run)) return false;
+  if(kind==='mobile'){
+    $('#ccwNote').innerHTML=`<div style="margin-bottom:6px">e-Care 상담 이력 · 컨택 전 건</div><div class="ccw-li"><span class="chip amber">컨택 전</span><b>${d.title}</b><span class="cbtn alt" id="ccwStart">고객 응대 시작</span></div>`;
+    if(!await live(run,1100)) return false; if(!await pressBtn('ccwStart',run)) return false;
+  }
+  setStat('cc','컨택 중');
+  addLog(kind==='out'?'상담원 [전화 걸기] · CTI 발신':kind==='mm'?'상담원 [전화 받기] · 건 인계 → 고객 응대':'상담원 [전화 받기] → 상담 이력에서 [고객 응대 시작]');
+  return true;
+}
+const SC5=()=>{const near=[['강남 서비스센터',1.6],['용산 서비스센터',3.1],['송파 서비스센터',4.4],['분당 서비스센터',7.8]];return [[PREF.name,1.2,true],...near.map(([n,k])=>[n,k,false])];};
+async function memoSeq(run,opt){
+  const failed=opt&&opt.failed, n=night();
+  const box=document.createElement('section'); box.className='card'; box.id='memoCard';
+  box.innerHTML=`<header class="card-h"><span class="eyebrow">상담 메모 · CCW-EC-101_P3</span><span class="chip mute" id="memoChip">작성 중</span></header>
+  <div class="memo">
+   <div class="stp" id="ms0"><span class="n">1</span><div><b>상담 메모</b><small>제목 "긴급건 상담_홍길동_${new Date(simMs()).toISOString().slice(0,10)}" · 전화 타입 ${opt&&opt.dir==='out'||failed?'아웃바운드 콜':'인바운드 콜'}${failed?' · 3회 발신 실패':''}<br>서비스 센터로 상담 메모 전달 <b style="color:var(--teal)">ON</b></small></div></div>
+   <div class="stp" id="ms1"><span class="n">2</span><div><b>서비스센터 선택</b><small>선호 센터 1 + 마지막 수신 위치 기준 근거리 4</small><div class="sclist">${SC5().map(([nm,km,p],i)=>`<div class="${i===0?'sel':''}"><i></i><span>${nm}${p?' · 선호':''}</span><em class="${n?'off':''}">${n?'업무종료':'업무중'}</em></div>`).join('')}</div></div></div>
+   <div class="stp" id="ms2"><span class="n">3</span><div><b>상담내역 확인 → 전송</b><small>딜러가 연락드릴 고객 정보 · 경고 유형 · 선택 센터 · 요청 사항</small></div></div>
+  </div>`;
+  side.appendChild(box);
+  const z=side.closest('.zone-body'); if(z) z.scrollTop=z.scrollHeight;
+  for(let i=0;i<3;i++){ const el=$('#ms'+i); if(!el||run!==token) return; el.classList.add('on'); if(!await live(run,1100)) return; el.classList.remove('on'); el.classList.add('done'); }
+  fNode('web','act'); const id=fLink('web','dms','live'); flowSend(id,1300,'#2ee6cf');
+  await packet(V3(CENTER.x,44,CENTER.z),PREF.top,0x2ee6cf,1300,'상담 메모 → DMS'); if(run!==token) return;
+  fLink('web','dms','on'); fNode('web','done'); fNode('dms','done');
+  setStat('cc',failed?'상담 완료':'이관 완료'); setStat('sc','컨택대기');
+  const c=$('#memoChip'); if(c){c.textContent=failed?'상담 완료':'이관 완료';c.className='chip';}
+  addLog(`상담 메모 DMS 전송 · ${PREF.name} 컨택대기${n?' (업무종료 · 다음 영업일 컨택)':''}`,'teal');
+}
+async function noAnswerFlow(run){
+  const o={party:'center',dir:'out',via:'phone'};
+  if(!await ccwStep(o,run)) return;
+  sideCall(o); setPhase('call');
+  killFX(S.beam); S.beam=makeBeam(V3(CENTER.x,44,CENTER.z),phonePos,0x2ee6cf);
+  for(let i=0;i<3;i++){
+    const cst=$('#cst'); if(cst){cst.textContent=`발신 ${i+1}/3 · 호출 중`; cst.className='chip amber';}
+    $('#pC').classList.add('ringing'); sfx.ring(); addLog(`CTI 발신 ${i+1}/3`);
+    fCap(`<b>⑧</b> 아웃바운드 발신 ${i+1}/3 · 고객 응답 없음`);
+    if(!await live(run,2400)) return; $('#pC').classList.remove('ringing');
+    if(cst){cst.textContent='연결 실패';cst.className='chip red';} addLog(`발신 ${i+1}/3 연결 실패`,'red'); sfx.breach();
+    if(i<2){ fCap(`<b>⑧</b> 연결 실패 → <b>후처리 중</b> · 5분 카운트다운 후 [전화 재연결] (재시도 ${i+1}/2)`);
+      await timeLapse(simMs()+5*60*1000,1600,run,{note:`후처리 중 · 재시도 ${i+1}/2 대기`,mode:'clock'}); if(run!==token) return; endLapse(); }
+  }
+  S.beam.fade=1;
+  fCap('<b>⑨</b> 재시도 2회(총 3회) 실패 → <b>SMS 자동 발송</b> → 상담 메모 작성 · DMS 전송 → 상담 완료');
+  await packet(V3(CENTER.x,44,CENTER.z),phonePos,0x59a8ff,1200,'SMS 자동 발송'); if(run!==token) return;
+  addLog('3회 발신 실패 · SMS 자동 발송','amber');
+  await memoSeq(run,{failed:true}); if(run!==token) return;
+  fCap('<b>완료</b> · 상담 완료(3회 발신 실패) · 서비스센터가 컨택대기 상태로 이어받습니다');
+  vehUI('상담 완료 · 딜러 컨택대기','amber'); sfx.done();
+  if(!await live(run,1800)) return; setPhase('done'); sideDone();
+}
+async function noAgentFlow(run){
+  fCap('<b>⑦</b> 유휴 상담사 없음 → 고객에게 <b>SMS 콜백 문자</b> 발송');
+  addLog('유휴 상담사 없음 · SMS 콜백 문자 발송','amber');
+  await packet(V3(CENTER.x,44,CENTER.z),phonePos,0x59a8ff,1200,'SMS · 콜백 안내'); if(run!==token) return;
+  await timeLapse(simMs()+4*60*1000,1800,run,{note:'유휴 상담사 대기 · 발생 시 자동 할당',mode:'clock'}); if(run!==token) return; endLapse();
+  addLog('유휴 상담사 발생 · 자동 할당','teal');
+  await callFlow({party:'center',dir:'out',via:'phone'},run);
+}
 function timeLapse(targetMs,realMs,run,opts){
   return new Promise(res=>{
     const el=$('#lapse'); el.hidden=false; el.className='lapse'; stage.classList.add('ff'); $('#clockBox').classList.add('fast');
@@ -1560,6 +1687,13 @@ async function noCallFlow(){
   sfx.breach(); addLog('SLA 25분 경과 · 고객 연락 없음','red');
   pulseAt(V3(CENTER.x,.3,CENTER.z),0xff4552,10);
   if(!await live(run,1500)) return; endLapse();
+  const c=await gsAsk(run,'25분 경과 후 상황',[
+    {k:'ok',t:'상담원 배정 · 고객 응답',s:'자동 배정 → 전화 걸기 → 통화',c:'teal',ic:'tel'},
+    {k:'fail',t:'고객 미응답 3회',s:'재시도 2회 → SMS 자동 발송',c:'amber',ic:'clock'},
+    {k:'busy',t:'유휴 상담사 없음',s:'SMS 콜백 문자 → 자동 할당',c:'neutral',ic:'msg'}]);
+  if(c==null){ setPhase('awaitCall'); sideAwait(); return; }
+  if(c==='fail') return noAnswerFlow(run);
+  if(c==='busy') return noAgentFlow(run);
   addLog('상담원 → 고객 휴대폰 선제 콜아웃');
   await callFlow({party:'center',dir:'out',via:'phone'},run);
 }
@@ -1625,6 +1759,7 @@ async function pickDealerFlow(i){
 function typeText(el,text,run){return new Promise(res=>{let i=0;const step=()=>{if(run!==token)return res();i++;el.textContent=text.slice(0,i);const z=side.closest('.zone-body');if(z)z.scrollTop=z.scrollHeight;if(i<text.length)setTimeout(step,reduce?0:26);else res();};step();});}
 async function callFlow(o,run){
   const toDealer=o.party==='dealer', d=S.dealer;
+  if(o.party==='center'){ setPhase('busy'); if(!await ccwStep(o,run)) return; }
   setPhase('call'); sideCall(o);
   const far=toDealer?d.top.clone():V3(CENTER.x,44,CENTER.z);
   const cust=o.via==='hu'?carTop:phonePos;
@@ -1636,11 +1771,10 @@ async function callFlow(o,run){
   S.callLink=fLink(a,b,'live'); fNode(a,'act'); fNode(b,'act'); S.callLive=true; S.callDir=o.dir==='out'?-1:1;
   const src=o.via==='hu'?'차량 HU':'e-Care 앱';
   fCap(o.dir==='out'?(toDealer?`<b>⑩</b> <b>${d.name}</b> → 고객 휴대폰 · 다음 영업일 콜백`:'<b>⑦</b> 콜센터 → <b>고객 휴대폰</b> · SLA 초과 선제 콜아웃'):toDealer?`<b>⑧</b> <b>${src}</b> → <b>${d.name}</b> · 딜러 직접 통화`:`<b>⑦</b> <b>${src}</b> → 콜센터 · SLA 이내 고객 전화`);
-  const recv=o.dir==='out'?$('#pC'):$('#pA'); recv.classList.add('ringing');
+  const recv=o.dir==='out'?$('#pC'):$('#pA'); const skipRing=o.party==='center'&&o.dir==='in';
   vehUI(o.dir==='out'?'휴대폰 수신 중':'발신 중',scenario==='severe'?'red':'amber');
-  sfx.ring();
-  if(!await live(run,2500)) return;
-  recv.classList.remove('ringing'); S.beam.connected=true; sfx.connect();
+  if(!skipRing){ recv.classList.add('ringing'); sfx.ring(); if(!await live(run,2500)) return; recv.classList.remove('ringing'); }
+  S.beam.connected=true; sfx.connect(); if(toDealer) setStat('sc','컨택');
   const cst=$('#cst'); cst.textContent='통화 연결'; cst.className='chip';
   S.callT0=performance.now(); vehUI('통화 중','');
   if(S.phoneTag) setTag(S.phoneTag,'<span class="d"></span>고객 휴대폰<small>통화 중</small>');
@@ -1673,16 +1807,16 @@ async function dispatchFlow(){
   sideDispatch(); S.eta={m:truckM,total:truckM.end};
   S.route=ribbon(path,0xff4552); S.pin=pin(tgt,0xff4552);
   fNode('web','act'); fCap('<b>⑨</b> 콜센터 웹 → 긴급출동 7호차 배정');
-  addLog('긴급출동 요청 · 7호차 배정','red');
+  addLog('긴급출동 요청 · 7호차 배정','red'); setStat('em','신고접수');
   focus(mid(truckPos,carPos),Math.max(46,truckM.len*.42));
   await packet(V3(CENTER.x,44,CENTER.z),()=>truckPos().add(V3(0,4,0)),0xff4552,1200,'DISPATCH → 출동 7호차'); if(run!==token) return;
-  S.beacon=true; sfx.siren(); truckM.target=15;
+  S.beacon=true; sfx.siren(); truckM.target=15; setStat('em','출동'); memoSeq(run,{});
   const st=$('#dst'); if(st) st.textContent='이동 중';
   addLog('출동 차량 출발'); fNode('web','done');
   focus(mid(truckPos,carPos),50); S.followDispatch=true;
   await new Promise(r=>{truckM.onArrive=r;}); if(run!==token) return;
   S.followDispatch=false; killFX(S.route); killFX(S.pin);
-  addLog('현장 도착 · 고객 차량 확인','teal'); fCap('<b>⑩</b> 출동 차량 현장 도착');
+  addLog('현장 도착 · 고객 차량 확인','teal'); setStat('em','도착'); fCap('<b>⑩</b> 출동 차량 현장 도착');
   setPhase('arrived'); sideArrived(); focus(mid(truckPos,carPos),30); vehUI('출동 차량 도착','');
 }
 function dmsSend(label){
@@ -1706,7 +1840,7 @@ async function towFlow(){
 }
 async function reserveFlow(){
   const run=++token; setPhase('service'); const d=S.dealer;
-  addLog(`${d.name} 입고 예약 확정 · DMS 등록`,'teal'); fNode('dms','act');
+  addLog(`${d.name} 입고 예약 확정 · DMS 등록`,'teal'); setStat('sc','예약'); fNode('dms','act');
   fCap(`<b>⑩</b> ${d.name} <b>DMS</b>에 입고 예약과 진단 정보 등록`);
   focus(V3(d.bx,8,d.bz),40); pulseAt(V3(d.bx,.3,d.bz),0x2ee6cf,10);
   if(!await live(run,1400)) return; fNode('dms','done');
@@ -1721,11 +1855,13 @@ async function reserveFlow(){
 function finish(msg){
   killFX(S.route); killFX(S.pin); S.beacon=false; S.eta=null;
   addLog(msg,'teal'); sfx.done(); fCap('<b>완료</b> · 경고 감지부터 서비스센터 입고까지 연결되었습니다');
+  if(scenario==='severe') setStat('em','출동완료'); setStat('sc','입고');
   pulseAt(V3(S.dealer.bx,.3,S.dealer.bz-9),0x2ee6cf,10);
   lamps(null); vehUI('케어 완료','');
   setPhase('done'); sideDone(); focus(V3(S.dealer.bx*.5,0,S.dealer.bz*.5),70);
 }
 function reset(silent){
+  S.stat={}; renderStat();
   token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false; S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
   scenario=null; S.status='normal'; hazard(false); lamps(null); flowReset(); removeTag(S.phoneTag); S.phoneTag=null;
   S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=baseOffset;
@@ -1746,7 +1882,7 @@ const ACT={
 
 /* ================= GS · Global South ================= */
 const PLAN_NAME={base:'세이프티 베이직',ott:'세이프티 베이직 + OTT',all:'세이프티 베이직 + OTT + Hotspot'};
-const FLAG_NAME={tm:'텔레매틱스',dk:'Digital Key',ott:'OTT',hs:'Wi-Fi Hotspot'};
+const FLAG_NAME={tm:'텔레매틱스',dk:'Digital Key',ott:'OTT',hs:'Wi-Fi Hotspot',valet:'Valet'};
 const flagStr=f=>{const on=Object.keys(FLAG_NAME).filter(k=>f[k]).map(k=>FLAG_NAME[k]);return on.length?on.join(' · ')+' ON':'전체 OFF';};
 const GPOS={tsc:()=>NODE.vdp.pos.clone(),tmc:()=>NODE.tmc.pos.clone(),tsp:()=>NODE.vep.pos.clone(),net:()=>NODE.net.pos.clone(),veh:carTop,app:phonePos,ccw:()=>V3(CENTER.x,44,CENTER.z),dms:()=>PREF.top.clone()};
 const hexc=n=>'#'+n.toString(16).padStart(6,'0');
@@ -1804,7 +1940,7 @@ function sideGs(){
 }
 function gsEnter(){
   (G.devTags||[]).forEach(removeTag);
-  Object.assign(G,{flags:{tm:0,dk:0,ott:0,hs:0},plan:null,dkReg:false,ver:'2.4.1',done:new Set(),mm:{view:'home'},ph:{view:'home'},hs:false,devN:0,devTags:[],carLabel:null,opw:[],ask:null,unlock:0});
+  Object.assign(G,{flags:{tm:0,dk:0,ott:0,hs:0,valet:0},plan:null,dkReg:false,ver:'2.4.1',done:new Set(),mm:{view:'home'},ph:{view:'home'},hs:false,devN:0,devTags:[],carLabel:null,opw:[],ask:null,unlock:0});
   carM.setPath([[9,15],[21,15]],false); carM.s=6; carM.lane=0; carM.target=0; carM.speed=0; carM.place(true);
   setPhase('gsHub'); sideGs(); renderFlags(); vehUI('주차 중',''); focus(carPos,58);
 }
@@ -1816,7 +1952,7 @@ async function gsProv(){
     {k:'ott',t:'+ OTT',s:'OTT 부가서비스 (DCM 망)',c:'teal',ic:'play'},
     {k:'all',t:'+ OTT + Wi-Fi Hotspot',s:'부가서비스 2종',c:'teal',ic:'wifi'}]);
   if(plan==null){gsBack();return;}
-  const want={tm:1,dk:1,ott:plan!=='base'?1:0,hs:plan==='all'?1:0};
+  const want={tm:1,dk:1,ott:plan!=='base'?1:0,hs:plan==='all'?1:0,valet:G.flags.valet||0};
   flowReset(); G.carLabel='프로비저닝 중';
   G.ph={view:'sub',plan}; renderGsDev();
   fCap('<b>①</b> 고객 Local App에서 요금제 선택 · 약관 동의'); gsCam('app','tsp');
@@ -1824,7 +1960,7 @@ async function gsProv(){
   addLog(`Local App · ${PLAN_NAME[plan]} 가입 · 약관 동의`,'teal');
   if(!await hop(run,'app','tsp','가입 · 약관 동의')) return;
   opwLog(`서비스 가입 접수 · ${PLAN_NAME[plan]}`);
-  fCap('<b>②</b> TSP → TSC · 차량 <b>Service Capability</b> 확인'); gsCam('tsp','tsc');
+  fCap('<b>②</b> OPW 정책 엔진(국가 · 차종 · 계약 조건)으로 프로비저닝 가능 여부 판정 → TSC · 차량 <b>Service Capability</b> 확인'); gsCam('tsp','tsc'); addLog('정책 엔진 판정 · 국가 · 차종 · 계약 조건 충족');
   if(!await hop(run,'tsp','tsc','Capability 확인',0x59a8ff)) return;
   if(!await hop(run,'tsc','tsp','지원: DK · OTT · Hotspot',0x59a8ff,1100)) return;
   addLog('Service Capability 확인 · 지원 서비스 응답');
@@ -1977,7 +2113,7 @@ async function gsPop(){
 }
 async function gsOpw(){
   const run=++token; setPhase('gsBusy');
-  const k=await gsAsk(run,'OPW · 이 차량의 Flag 제어',['dk','ott','hs'].map(x=>({k:x,t:`${FLAG_NAME[x]} ${G.flags[x]?'OFF':'ON'}`,s:`현재 ${G.flags[x]?'ON':'OFF'}`,c:G.flags[x]?'neutral':'teal',ic:'sliders'})));
+  const k=await gsAsk(run,'OPW · 이 차량의 Flag 제어',['dk','ott','hs','valet'].map(x=>({k:x,t:`${FLAG_NAME[x]} ${G.flags[x]?'OFF':'ON'}`,s:`현재 ${G.flags[x]?'ON':'OFF'}`,c:G.flags[x]?'neutral':'teal',ic:'sliders'})));
   if(k==null){gsBack();return;}
   const on=G.flags[k]?0:1; flowReset(); G.carLabel='Flag 변경 중';
   fCap(`<b>①</b> OPW 운영자가 이 차량의 <b>${FLAG_NAME[k]}</b> Flag를 ${on?'ON':'OFF'}`); gsCam('ccw','tsp'); addLog(`OPW · ${FLAG_NAME[k]} Flag ${on?'ON':'OFF'} 요청`);
@@ -1998,7 +2134,7 @@ async function gsCancelSvc(){
   fCap('<b>②</b> 해지 시 <b>모든 Service Flag OFF</b> · TSP → TSC → 차량'); gsCam('tsc','veh');
   if(!await hop(run,'tsp','tsc','프로비저닝 · 전체 OFF')) return;
   if(!await hop(run,'tsc','veh','MQTT · Flag OFF')) return;
-  G.flags={tm:0,dk:0,ott:0,hs:0}; G.plan=null; G.dkReg=false; renderFlags(); renderGsDev();
+  G.flags={tm:0,dk:0,ott:0,hs:0,valet:0}; G.plan=null; G.dkReg=false; renderFlags(); renderGsDev();
   if(!await hop(run,'tsp','ccw','해지 이력',0x2ee6cf,1000)) return;
   opwLog('서비스 해지 · 모든 Flag OFF'); addLog('모든 Service Flag OFF','amber'); focus(carPos,58); gsBack();
 }
@@ -2052,8 +2188,8 @@ function frame(){
   updateCam(dt);
   // tags
   const st=S.status;
-  const cs={drive:'주행 중',warn:st==='severe'?'경고 · 감속 중':'경고 감지',diagnose:'경고 정보 전달 중',awaitCall:st==='severe'?'정차 · 고객 연락 대기':'주행 중 · 고객 연락 대기',lapse:'고객 연락 대기',busy:'고객 연락 중',pickDealer:'딜러 선택 중',call:'통화 중',awaitAction:st==='severe'?'정차 · 비상등':'주행 중 · 경고',dispatch:'출동 대기',arrived:'출동 차량 도착',tow:'견인 중',service:'서비스센터로 이동',done:'케어 완료',intro:'주행 중'}[phase];
-  setTag(carTag,`<span class="d"></span>${PROJECT==='gs'?(G.carLabel||'주차 · 24 DCM'):cs}<small>12가 3456</small>`,'hero '+(phase==='done'||phase==='arrived'||phase==='tow'?'':st==='severe'?'red':st==='maint'?'amber':''));
+  const cs={drive:'주행 중',warn:st==='severe'?'경고 · 감속 중':'경고 감지',diagnose:'경고 정보 전달 중',awaitCall:st==='severe'?'정차 · 고객 연락 대기':'주행 중 · 고객 연락 대기',lapse:'고객 연락 대기',busy:'고객 연락 중',pickDealer:'딜러 선택 중',gsAsk:'고객 연락 대기',gsBusy:'처리 중',nightWait:'딜러 콜백 대기',call:'통화 중',awaitAction:st==='severe'?'정차 · 비상등':'주행 중 · 경고',dispatch:'출동 대기',arrived:'출동 차량 도착',tow:'견인 중',service:'서비스센터로 이동',done:'케어 완료',intro:'주행 중'}[phase];
+  setTag(carTag,`<span class="d"></span>${PROJECT==='gs'?(G.carLabel||'주차 · 24 DCM'):(cs||'처리 중')}<small>12가 3456</small>`,'hero '+(phase==='done'||phase==='arrived'||phase==='tow'?'':st==='severe'?'red':st==='maint'?'amber':''));
   const tstate=(phase==='dispatch'&&S.beacon)?`출동 7호차 <small>ETA ${mmss(truckM.remaining()*1.9)}</small>`:phase==='tow'?'출동 7호차 <small>견인 중</small>':'출동 7호차 <small>대기</small>';
   setTag(truckTag,`<span class="d"${S.beacon||phase==='tow'?'':' style="background:#7d8a9c;animation:none"'}></span>${tstate}`,'truck');
   cam.updateMatrixWorld();
