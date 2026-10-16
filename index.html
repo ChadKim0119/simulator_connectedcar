@@ -351,6 +351,60 @@ button{font:inherit;color:inherit}
 .fn.skip rect{stroke-dasharray:4 3;opacity:.45}
 .fn.skip text{opacity:.45}
 .fe.skip{stroke-dasharray:3 4;opacity:.35}
+/* hierarchy v0.0.5 */
+#app{--infoW:282px;--stageW:minmax(0,1fr);--flowW:372px;grid-template-columns:var(--infoW) var(--stageW) var(--flowW)}
+@media (min-width:1181px){
+  #app.infoClosed{--infoW:52px}
+  #app.flowFocus{--stageW:minmax(0,1fr);--flowW:minmax(0,1.35fr);grid-template-areas:"top top top" "info flow stage" "info flow ctrl";grid-template-columns:var(--infoW) minmax(0,1.35fr) minmax(0,1fr)}
+  #app.flowFocus .zone-flow .zone-body{flex-direction:row;align-items:flex-start}
+  #app.flowFocus .zone-flow .flow{flex:1.45;min-width:0;position:sticky;top:0}
+  #app.flowFocus #side{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+  #app.flowFocus .flow svg{max-height:66vh}
+  #app.flowFocus .fn .t{font-size:11px}
+}
+.zone-stage{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-color:rgba(150,185,220,.28)}
+.zone-ctrl{margin-top:-6px;border-top-left-radius:4px;border-top-right-radius:4px;transition:border-color .3s,box-shadow .3s}
+.zone-ctrl.turn{border-color:rgba(46,230,207,.6);box-shadow:0 0 0 1px rgba(46,230,207,.22),0 -8px 34px rgba(46,230,207,.14)}
+.zone-ctrl.turn .zone-h .zl{color:var(--teal)}
+.zone-ctrl .zone-h .zk{min-width:7.5em}
+.zone-ctrl:not(.turn) .dock{opacity:.78}
+.zone-info,.zone-flow{border-color:rgba(150,185,220,.1)}
+.zone-info .zone-h,.zone-flow .zone-h{background:transparent}
+.step{font-size:12px;padding:6px 10px}
+.stchip{font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;background:rgba(46,230,207,.14);color:var(--teal);white-space:nowrap}
+.stchip.red{background:rgba(255,69,82,.16);color:var(--alert)}
+.stchip.amber{background:rgba(255,178,30,.15);color:var(--amber)}
+.ticker{font-size:12px;color:#aab5c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.ticker time{font:500 11px var(--f-mono);color:var(--muted);margin-right:8px}
+.tbtn{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#c3ccd8;border-radius:7px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.tbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tbtn:hover{border-color:var(--line-2)}
+.tbtn[aria-pressed="true"]{color:var(--teal);border-color:rgba(46,230,207,.5)}
+.subtitle{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);max-width:min(720px,calc(100% - 140px));padding:10px 18px;border-radius:10px;background:rgba(5,8,13,.86);border:1px solid rgba(150,185,220,.22);font-size:14.5px;line-height:1.5;text-align:center;color:#dfe6ef;pointer-events:none;box-shadow:0 12px 30px rgba(0,0,0,.45);text-wrap:balance}
+.subtitle b{color:#fff}
+.subtitle:empty{display:none}
+.subtitle.fresh{animation:subIn .45s ease-out}
+@keyframes subIn{from{transform:translate(-50%,8px);opacity:.3}}
+#app.flowFocus .subtitle{display:none}
+#app:not(.flowFocus) .fcap{display:none}
+.hint{top:12px;bottom:auto}
+.zoom button[aria-pressed="true"]{background:rgba(46,230,207,.18);color:var(--teal)}
+.drawer-btn{margin-left:auto;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:transparent;color:#aab5c4;display:grid;place-items:center;cursor:pointer}
+.drawer-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rail{display:none}
+@media (min-width:1181px){
+  #app.infoClosed .zone-info>.zone-h,#app.infoClosed .zone-info>.zone-body{display:none}
+  #app.infoClosed .rail{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;padding:12px 0;border:0;background:transparent;color:#aab5c4;cursor:pointer}
+  #app.infoClosed .rail:hover{background:rgba(255,255,255,.03)}
+  .rail .rv{writing-mode:vertical-rl;font:600 11px var(--f-display);letter-spacing:.24em;color:var(--muted);text-transform:uppercase}
+  .rail .rk{writing-mode:vertical-rl;font-size:12.5px;font-weight:600;color:#c3ccd8}
+  .rail .rn{font:700 11px var(--f-mono);padding:4px 6px;border-radius:6px;background:var(--panel-hi);color:var(--ink)}
+  .rail .rd{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px currentColor}
+  .rail .rd.red{background:var(--alert)} .rail .rd.amber{background:var(--amber)}
+  .rail svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+}
+.dl li small.closed{color:#b45309}
+#tags.far .tag:not(.hero):not(.region){opacity:0}
 /* project switch + GS */
 .gs .ec-only{display:none!important}
 .gs-only{display:none!important}
@@ -444,7 +498,8 @@ button{font:inherit;color:inherit}
   </header>
 
   <aside class="zone zone-info" aria-label="정보 영역">
-    <div class="zone-h"><span class="zd" style="background:var(--blue)"></span><span class="zl">Information</span><span class="zk">차량 · 이벤트</span></div>
+    <div class="zone-h"><span class="zd" style="background:var(--blue)"></span><span class="zl">Information</span><span class="zk">차량 · 이벤트</span><button class="drawer-btn" id="drawerBtn" aria-expanded="true" title="접기"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button></div>
+    <button class="rail" id="railBtn" title="차량 · 이벤트 펼치기"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span class="rv">Information</span><span class="rk">차량 · 이벤트</span><span class="rd" id="railDot"></span><span class="rn" id="railN">0</span></button>
     <div class="zone-body">
       <section class="card">
         <header class="card-h"><span class="eyebrow">Vehicle</span><span class="chip" id="vehState">연결 대기</span></header>
@@ -472,7 +527,7 @@ button{font:inherit;color:inherit}
   </aside>
 
   <main class="zone zone-stage" aria-label="시뮬레이션 화면">
-    <div class="zone-h"><span class="zd" style="background:var(--teal)"></span><span class="zl">Simulation</span><span class="zk">시뮬레이션 화면</span><span class="zr" id="viewLbl">자동 카메라</span></div>
+    <div class="zone-h"><span class="zd" style="background:var(--teal)"></span><span class="zl">Simulation</span><span class="stchip" id="stState">연결 대기</span><span class="ticker" id="ticker"></span><span class="zr" id="viewLbl" style="margin-left:0">자동 카메라</span><button class="tbtn" id="btnLayout" aria-pressed="false" title="레이아웃 전환 (L)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/></svg><span id="layoutLbl">정보 흐름 크게</span></button></div>
     <div class="stage" id="stage">
       <canvas id="scene" aria-label="e-Care 3D 시뮬레이션"></canvas>
       <div class="vignette"></div>
@@ -484,15 +539,17 @@ button{font:inherit;color:inherit}
         </div>
         <div>
           <div class="lapse-k" id="lapseK">TIME-LAPSE</div>
-          <div class="lapse-t"><b id="lapseT">00:00</b><span>/ 25:00</span></div>
+          <div class="lapse-t"><b id="lapseT">00:00</b><span id="lapseTo">/ 25:00</span></div>
           <div class="lapse-d" id="lapseD">경고 알림 후 고객 연락 대기</div>
         </div>
       </div>
       <div class="hint">휠 확대·축소 · 드래그 이동</div>
+      <div class="subtitle" id="subtitle"></div>
       <div class="zoom" role="group" aria-label="화면 확대 축소">
         <button id="zIn" title="확대 (+)"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
         <div class="zp" id="zPct">100%</div>
         <button id="zOut" title="축소 (-)"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        <button id="zLock" aria-pressed="false" title="지도 고정 (G)"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
         <button id="zFit" title="자동 카메라로 복귀 (0)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button>
       </div>
     </div>
@@ -511,7 +568,7 @@ button{font:inherit;color:inherit}
   </aside>
 
   <footer class="zone zone-ctrl" aria-label="조작 패널">
-    <div class="zone-h"><span class="zl">Control</span><span class="zk">조작 패널</span></div>
+    <div class="zone-h"><span class="zl">Control</span><span class="zk" id="ctrlHint">조작 패널</span></div>
     <div class="dock" id="dock" role="toolbar" aria-label="시나리오 조작"></div>
   </footer>
 
@@ -553,6 +610,15 @@ button{font:inherit;color:inherit}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.0.5',date:'2026-10-16',name:'화면 계위 정리 · 야간 딜러 대응',notes:[
+    '시뮬레이션 화면과 조작 패널을 한 덩어리로 붙이고, 선택할 차례에 조작 패널이 강조되도록 변경',
+    '현재 단계 설명을 시뮬레이션 화면 하단 자막 하나로 통일, 화면 상단에 차량 상태와 최근 이벤트 표시',
+    '차량 · 이벤트 패널을 서랍(펼치기 · 접기)으로 변경, 기본은 접힘',
+    '레이아웃 전환: 시뮬레이션 중심 / 정보 흐름 크게',
+    '지도 고정 버튼, 최대 15%까지 축소',
+    'GS 차량을 공원 위 주차 패드에 배치',
+    '낮 / 밤에 맞춰 시계 변경, 밤에는 딜러 영업 종료: 정비 연락은 요청 접수 → 다음 날 09:00 딜러 콜백, 야간 견인은 입고 보관'
+  ]},
   {v:'0.0.4',date:'2026-10-16',name:'GS · Global South 시나리오',notes:[
     '첫 화면과 상단에서 e-Care / GS 프로젝트 전환',
     'GS 서비스 가입 · 프로비저닝: Capability 확인 → 현재 Flag 조회 → TSC(MQTT) → 차량 Flag ON → OPW 이력',
@@ -673,7 +739,11 @@ const treeGeo=new THREE.ConeGeometry(1.3,3.4,7), treeMat=new THREE.MeshStandardM
 const trunkGeo=new THREE.CylinderGeometry(.18,.22,1,6), trunkMat=new THREE.MeshStandardMaterial({color:0x2b2a26});
 function park(cx,cz){
   const p=new THREE.Mesh(new THREE.BoxGeometry(21,.45,21),parkMat); p.position.set(cx,.22,cz); p.receiveShadow=true; scene.add(p);
+  const plaza=cx===15&&cz===15;
+  if(plaza){ const pad=new THREE.Mesh(new THREE.BoxGeometry(12,.06,8),new THREE.MeshStandardMaterial({color:0x2a3444,roughness:.8})); pad.position.set(cx,.48,cz); pad.receiveShadow=true; scene.add(pad);
+    for(const dz of [-2.6,2.6]){const l=new THREE.Mesh(new THREE.BoxGeometry(8,.02,.18),new THREE.MeshBasicMaterial({color:0x8a96a8}));l.position.set(cx,.52,cz+dz);scene.add(l);} }
   for(let i=0;i<13;i++){ const x=cx+(R()-.5)*17, z=cz+(R()-.5)*17, s=.7+R()*.6;
+    if(plaza&&Math.hypot(x-cx,z-cz)<8){continue;}
     const t=new THREE.Mesh(treeGeo,treeMat); t.position.set(x,.45+1+1.7*s,z); t.scale.setScalar(s); t.castShadow=true; scene.add(t);
     const tr=new THREE.Mesh(trunkGeo,trunkMat); tr.position.set(x,.95,z); scene.add(tr); }
 }
@@ -708,7 +778,7 @@ const DEALERS=[
 DEALERS.forEach(d=>{
   d.x=d.bx; d.z=d.bz-15; d.top=V3(d.bx,12,d.bz+1); d.km='-';
   building(d.bx,d.bz+1,20,9,13);
-  const sign=new THREE.Mesh(new THREE.BoxGeometry(20.2,1,13.2),signMat(0x2ee6cf,1.4)); sign.position.set(d.bx,8.6,d.bz+1); scene.add(sign);
+  const sign=new THREE.Mesh(new THREE.BoxGeometry(20.2,1,13.2),signMat(0x2ee6cf,1.4)); sign.position.set(d.bx,8.6,d.bz+1); scene.add(sign); d.sign=sign;
   const canopy=new THREE.Mesh(new THREE.BoxGeometry(14,.4,5),new THREE.MeshStandardMaterial({color:0xd8dee6,roughness:.5})); canopy.position.set(d.bx,5,d.bz-7.5); canopy.castShadow=true; scene.add(canopy);
   for(const x of [d.bx-6,d.bx+6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.4,4.6,.4),roofMat);p.position.set(x,2.7,d.bz-9);scene.add(p);}
 });
@@ -896,7 +966,9 @@ function addTag(html,getPos,cls,color){
 function setTag(t,html,cls){ if(t.html!==html){t.el.innerHTML=html;t.html=html;} if(cls!==undefined&&t.cls!==cls){t.el.className='tag '+cls;t.cls=cls;} }
 function removeTag(t){if(!t)return;const i=tags.indexOf(t);if(i>=0)tags.splice(i,1);t.el.remove();}
 const T_CENTER=addTag('<span class="d" style="background:var(--red)"></span>e-Care 상담센터<small>콜센터 웹</small>',CENTER.top.clone().add(V3(0,4,0)));
-DEALERS.forEach(d=>addTag(`<span class="d"></span>${d.name}<small>${d.pref?'선호 딜러 · DMS':'DMS'}</small>`,d.top.clone()));
+DEALERS.forEach(d=>{d.tag=addTag('',d.top.clone());});
+const night=()=>dayTarget<.5;
+function updDealers(){DEALERS.forEach(d=>{const n=night();setTag(d.tag,`<span class="d"${n?' style="background:#7d8a9c;box-shadow:none"':''}></span>${d.name}<small>${d.pref?'선호 딜러 · ':''}DMS${n?' · 영업 종료':''}</small>`);d.sign.material.emissiveIntensity=n?.12:1.4;});}
 const T_DEPOT=addTag('<span class="d" style="background:var(--alert)"></span>긴급출동 센터',V3(45,10,-47));
 const T_VDP=addTag('<span class="d"></span>VDP · 일본<small>GLOBAL</small>',NODE.vdp.pos.clone().add(V3(0,9,0)),'node vdp');
 const T_VEP=addTag('<span class="d"></span>VEP · 한국<small>LOCAL</small>',NODE.vep.pos.clone().add(V3(0,9,0)),'node vep');
@@ -991,14 +1063,17 @@ function pin(pos,color){
 const view={target:V3(0,0,0),size:110,yaw:Math.PI/4,pitch:.6};
 const goal={get:()=>V3(0,0,0),size:110};
 const pan=V3(0,0,0); let userZoom=1;
-function focus(get,size){ view.target.add(pan); pan.set(0,0,0); goal.get=fn(get); goal.size=size; updViewLbl(); }
+let camLock=false;
+function focus(get,size){ goal.get=fn(get); goal.size=size; if(camLock) return; view.target.add(pan); pan.set(0,0,0); updViewLbl(); }
 function frameHop(a,b){const A=fn(a)(),B=fn(b)();const m=A.clone().add(B).multiplyScalar(.5);m.y*=.4;focus(m,clamp(A.distanceTo(B)*.6+18,40,135));}
-function updZoom(){ $('#zPct').textContent=Math.round(100/userZoom)+'%'; updViewLbl(); }
-function updViewLbl(){ const manual=userZoom!==1||pan.lengthSq()>0.01; $('#viewLbl').textContent=manual?`수동 보기 · ${Math.round(100/userZoom)}%`:'자동 카메라'; }
-function zoomBy(f){ userZoom=clamp(userZoom*f,.3,2.6); updZoom(); }
+function updZoom(){ $('#zPct').textContent=Math.round(100/userZoom)+'%'; $('#tags').classList.toggle('far',userZoom>2.4); updViewLbl(); }
+function updViewLbl(){ const manual=userZoom!==1||pan.lengthSq()>0.01; $('#viewLbl').textContent=camLock?`지도 고정 · ${Math.round(100/userZoom)}%`:manual?`수동 보기 · ${Math.round(100/userZoom)}%`:'자동 카메라'; }
+function setLock(on){ camLock=on; $('#zLock').setAttribute('aria-pressed',on); updViewLbl(); }
+$('#zLock').addEventListener('click',()=>setLock(!camLock));
+function zoomBy(f){ userZoom=clamp(userZoom*f,.3,100/15); updZoom(); }
 $('#zIn').addEventListener('click',()=>zoomBy(1/1.25));
 $('#zOut').addEventListener('click',()=>zoomBy(1.25));
-$('#zFit').addEventListener('click',()=>{userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();});
+$('#zFit').addEventListener('click',()=>{setLock(false);userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();});
 stage.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(e.deltaY*.0012));},{passive:false});
 let drag=null;
 stage.addEventListener('pointerdown',e=>{ if(e.button!==0||e.target.closest('.zoom')) return; drag={x:e.clientX,y:e.clientY,id:e.pointerId}; stage.setPointerCapture(e.pointerId); stage.classList.add('drag'); });
@@ -1014,7 +1089,7 @@ let W=1,H=1;
 function resize(){W=stage.clientWidth;H=stage.clientHeight;renderer.setSize(W,H,false);}
 new ResizeObserver(resize).observe(stage); resize();
 function updateCam(dt){
-  const tg=goal.get(); view.target.lerp(tg,1-Math.exp(-dt*2.4)); view.size+=(goal.size-view.size)*(1-Math.exp(-dt*1.8));
+  if(!camLock){ const tg=goal.get(); view.target.lerp(tg,1-Math.exp(-dt*2.4)); view.size+=(goal.size-view.size)*(1-Math.exp(-dt*1.8)); }
   const tgt=view.target.clone().add(pan);
   const d=V3(Math.cos(view.pitch)*Math.sin(view.yaw),Math.sin(view.pitch),Math.cos(view.pitch)*Math.cos(view.yaw));
   cam.position.copy(tgt).addScaledVector(d,400); cam.lookAt(tgt);
@@ -1047,7 +1122,15 @@ function applyTheme(k){
   grid.material.opacity=lerp(n.grid,d.grid,k); fill.intensity=lerp(n.fill,d.fill,k);
   const hl=lerp(.5,.12,k); if(hero.hl) hero.hl.material.opacity=hl; truck.hl.material.opacity=hl*.9;
 }
-function setDay(on){ dayTarget=on?1:0; $('#btnDay').setAttribute('aria-pressed',on); $('#btnNight').setAttribute('aria-pressed',!on); stage.classList.toggle('day',on); }
+function setDay(on,keepClock){ dayTarget=on?1:0; $('#btnDay').setAttribute('aria-pressed',on); $('#btnNight').setAttribute('aria-pressed',!on); stage.classList.toggle('day',on);
+  if(!keepClock&&(phase==='intro'||phase==='drive'||phase==='gsHub')) clockTo(on?14:22,10);
+  updDealers(); if(phase==='awaitCall'&&scenario==='maint') sideAwait(); if(phase==='drive'||phase==='awaitCall') addLog(on?'낮 · 딜러 영업 중':'밤 · 딜러 영업 종료 (09:00 오픈)'); }
+function setLayout(flow){ const app=$('#app'); app.classList.toggle('flowFocus',flow); $('#btnLayout').setAttribute('aria-pressed',flow); $('#layoutLbl').textContent=flow?'시뮬레이션 중심':'정보 흐름 크게'; try{localStorage.setItem('ecareLayout',flow?'flow':'sim');}catch(e){} }
+$('#btnLayout').addEventListener('click',()=>setLayout(!$('#app').classList.contains('flowFocus')));
+function setDrawer(open){ const app=$('#app'); app.classList.toggle('infoClosed',!open); $('#drawerBtn').setAttribute('aria-expanded',open); try{localStorage.setItem('ecareDrawer',open?'1':'0');}catch(e){} }
+$('#drawerBtn').addEventListener('click',()=>setDrawer(false));
+$('#railBtn').addEventListener('click',()=>setDrawer(true));
+(function(){let l='sim',d='0';try{l=localStorage.getItem('ecareLayout')||'sim';d=localStorage.getItem('ecareDrawer')||'0';}catch(e){} setLayout(l==='flow'); setDrawer(d==='1');})();
 $('#btnDay').addEventListener('click',()=>setDay(true));
 $('#btnNight').addEventListener('click',()=>setDay(false));
 
@@ -1069,7 +1152,8 @@ $('#btnSound').addEventListener('click',e=>{muted=!muted;e.currentTarget.setAttr
 $('#btnFull').addEventListener('click',()=>{const d=document;try{if(d.fullscreenElement){d.exitFullscreen().catch(()=>{});}else{const p=$('#app').requestFullscreen&&$('#app').requestFullscreen();if(p&&p.catch)p.catch(()=>{});}}catch(e){}});
 
 /* ================= simulated clock ================= */
-let simOffset=0;
+let simOffset=0, baseOffset=0;
+function clockTo(h,m){ const d=new Date(simMs()); d.setHours(h,m,0,0); simOffset+=d.getTime()-simMs(); baseOffset=simOffset; if(typeof $==='function'&&$('#clock')) $('#clock').textContent=hms(simMs()); }
 const simMs=()=>Date.now()+simOffset;
 const hms=ms=>{const d=new Date(ms);return [d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');};
 const mmss=sec=>{sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');};
@@ -1139,7 +1223,7 @@ function flowTick(){ const now=performance.now();
 }
 function fNode(id,cls){const g=document.getElementById('fn-'+id);if(g)g.setAttribute('class','fn '+(cls||''));}
 function fEdge(id,cls){const p=document.getElementById('fe-'+id);if(p)p.setAttribute('class','fe '+(cls||''));}
-function fCap(html){$('#flowCap').innerHTML=html;}
+function fCap(html){$('#flowCap').innerHTML=html;const st=$('#subtitle');if(st){st.innerHTML=html;st.classList.remove('fresh');void st.offsetWidth;st.classList.add('fresh');}}
 function flowReset(){$('#flinks').innerHTML='';Object.keys(FN).forEach(k=>fNode(k,''));Object.keys(FE).forEach(k=>fEdge(k,''));FPK.splice(0).forEach(f=>f.c.remove());S.callLive=false;fCap(PROJECT==='gs'?'GS 서비스는 Service Provisioning으로 차량 기능을 켜고 끕니다. 조작 패널에서 서비스를 골라 보세요.':'차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.');}
 
 /* ================= UI ================= */
@@ -1198,7 +1282,8 @@ const DOCK={
   ].filter(Boolean),
   gsBusy:()=>[info('자동 진행 중')],
   gsAsk:()=>G.ask?[{lbl:G.ask.title},...G.ask.opts.map((o,i)=>btn('gsopt'+i,o.t,o.s,String(i+1),o.c,o.ic,o.dis)),btn('gsAskCancel','취소','','Q','neutral','reset')]:[],
-  pickDealer:()=>S.dlist.map((d,i)=>btn('dealer'+i,d.name,`${d.pref?'선호 딜러 · ':'근처 · '}${d.km} km`,String(i+1),d.pref?'teal':'neutral','tel')),
+  pickDealer:()=>S.dlist.map((d,i)=>btn('dealer'+i,d.name,night()?`영업 종료 · 연락 요청 남기기`:`${d.pref?'선호 딜러 · ':'근처 · '}${d.km} km`,String(i+1),d.pref?'teal':'neutral','tel')),
+  nightWait:()=>[btn('nightMorning','다음 날 09:00까지 진행','타임랩스 · 딜러 영업 시작 후 콜백','M','teal','clock')],
   lapse:()=>[info('타임랩스 · 시간이 빠르게 흐르는 중')],
   call:()=>[info(S.dealer&&scenario==='maint'?`고객과 ${S.dealer.name} 어드바이저가 통화 중입니다`:'고객과 상담원이 통화 중입니다')],
   awaitAction:()=>scenario==='severe'?[btn('dispatch','긴급 출동','현재 위치로 출동 차량 배정','E','red','siren')]:[btn('reserve','정비 예약 확정',`${S.dealer.name} 입고 · DMS 등록`,'S','teal','cal')],
@@ -1214,6 +1299,8 @@ function renderDock(){
   let h=items.map(it=>it.info?`<div class="info"><span class="spin"></span>${it.info}</div>`:it.lbl?`<div class="dlabel">${it.lbl}</div>`:
     `<button class="act act-${it.color}${it.dis?' dis':''}" data-act="${it.act}" data-key="${it.key}" aria-disabled="${!!it.dis}"><span class="ic">${ICON[it.icon]}</span><span><b>${it.title}</b><small>${it.sub}</small></span><span class="k">${it.key}</span></button>`).join('');
   if(phase!=='drive'&&phase!=='done'&&phase!=='intro') h+=`<span class="sp"></span><button class="act ghost" data-act="restart" data-key="R" title="초기화 (R)"><span class="ic">${ICON.reset}</span><span><b>초기화</b></span></button>`;
+  const turn=items.some(it=>it.act&&!it.dis);
+  const zc=document.querySelector('.zone-ctrl'); zc.classList.toggle('turn',turn); $('#ctrlHint').textContent=turn?'선택하세요':'자동 진행 중';
   $('#dock').innerHTML=h;
 }
 $('#dock').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;if(b.classList.contains('dis')){gsNeed();return;}if(a.startsWith('gsopt')){gsPick(+a.slice(5));return;}ACT[a]();});
@@ -1224,6 +1311,7 @@ document.addEventListener('keydown',e=>{
   if(phase==='intro'){ if(k==='ENTER'||k===' '){e.preventDefault();start('ecare');} return; }
   if(k==='+'||k==='='){zoomBy(1/1.25);return;} if(k==='-'||k==='_'){zoomBy(1.25);return;} if(k==='0'){$('#zFit').click();return;}
   if(k==='N'){setDay(dayTarget<.5);return;}
+  if(k==='L'){$('#btnLayout').click();return;} if(k==='G'){setLock(!camLock);return;} if(k==='I'){setDrawer($('#app').classList.contains('infoClosed'));return;}
   const b=document.querySelector(`#dock [data-key="${k}"]`); if(b){e.preventDefault();b.click();}
 });
 function setPhase(p){phase=p;renderSteps();renderDock();}
@@ -1236,6 +1324,7 @@ function addLog(text,kind=''){
   const li=document.createElement('li'); li.className=kind; li.innerHTML=`<time>${LOG[LOG.length-1].t}</time><span>${text}</span>`; ol.prepend(li);
   while(ol.children.length>12) ol.lastChild.remove();
   $('#logCount').textContent=LOG.length+'건';
+  const tk=$('#ticker'); if(tk) tk.innerHTML=`<time>${LOG[LOG.length-1].t}</time>${text}`; const rn=$('#railN'); if(rn) rn.textContent=LOG.length;
 }
 setInterval(()=>{ if(!S.lapse) $('#clock').textContent=hms(simMs()); },500); $('#clock').textContent=hms(simMs());
 
@@ -1271,7 +1360,7 @@ function sideDiag(){
 function diagStep(i,state,dur){const li=$('#dg'+i);if(!li)return;li.className=state;const em=li.querySelector('.bar em');if(state==='run'){em.style.transitionDuration=dur+'ms';requestAnimationFrame(()=>requestAnimationFrame(()=>{em.style.width='100%';}));}else em.style.width='100%';}
 function devHTML(){
   const sv=scenario==='severe', d=DIAG[scenario];
-  const hu=`<div><div class="devcap">차량 HU</div><div class="hu"><div class="hu-bar"><span>e-CARE</span><span>${hms(simMs()).slice(0,5)}</span></div><div class="pop ${sv?'':'amber'}"><div class="k">e-CARE · ${sv?'긴급':'정비'}</div><b>${d.title}</b><p>${sv?'즉시 안전한 곳에 정차하고 비상등을 켜세요.':'주행은 가능합니다. 가까운 시일 내 점검을 받으세요.'}</p><div class="cbtn" id="huBtn">${ICON.tel}전화하기</div><div class="cnote">${sv?'→ e-Care 콜센터':'→ 선호 딜러 '+PREF.name}</div></div></div></div>`;
+  const hu=`<div><div class="devcap">차량 HU</div><div class="hu"><div class="hu-bar"><span>e-CARE</span><span>${hms(simMs()).slice(0,5)}</span></div><div class="pop ${sv?'':'amber'}"><div class="k">e-CARE · ${sv?'긴급':'정비'}</div><b>${d.title}</b><p>${sv?'즉시 안전한 곳에 정차하고 비상등을 켜세요.':'주행은 가능합니다. 가까운 시일 내 점검을 받으세요.'}</p><div class="cbtn" id="huBtn">${ICON.tel}전화하기</div><div class="cnote">${sv?'→ e-Care 콜센터 (24시간)':'→ 선호 딜러 '+PREF.name+(night()?' · 영업 종료':'')}</div></div></div></div>`;
   return `<div class="devs">${hu}<div><div class="devcap">e-Care 앱</div><div class="ph"><div class="ph-in" id="phIn">${phoneHome()}</div></div></div></div>`;
 }
 function phoneHome(){
@@ -1279,18 +1368,18 @@ function phoneHome(){
   return `<div class="ph-h"><span class="e">e</span>-Care</div><div class="ph-card ${sv?'':'amber'}"><div class="k">${sv?'긴급 알림':'정비 알림'}</div><b>${d.title}</b>${sv?'즉시 정차 권고':'점검 권장 · 주행 가능'}</div><div class="cbtn ${sv?'':'alt'}" id="appBtn">${ICON.tel}${sv?'콜센터 전화하기':'서비스센터 찾기'}</div><div class="cnote">${sv?'긴급 경고에서만 제공':'선호 · 근처 딜러 목록'}</div>`;
 }
 function phoneDealers(){
-  return `<div class="ph-h">서비스센터 선택</div><ul class="dl">${S.dlist.map((x,i)=>`<li id="dl${i}" style="animation-delay:${i*.08}s"><div><b>${x.name}${x.pref?'<i>선호</i>':''}</b><small>${x.km} km</small></div><span class="tel">${ICON.tel}</span></li>`).join('')}</ul>`;
+  return `<div class="ph-h">서비스센터 선택</div><ul class="dl">${S.dlist.map((x,i)=>`<li id="dl${i}" style="animation-delay:${i*.08}s"><div><b>${x.name}${x.pref?'<i>선호</i>':''}</b><small${night()?' class="closed"':''}>${x.km} km${night()?' · 영업 종료':''}</small></div><span class="tel">${ICON.tel}</span></li>`).join('')}</ul>`;
 }
 function sideAwait(){
   const sv=scenario==='severe', d=DIAG[scenario];
   side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Customer Screens</span>${d.chip}</header>
   <h3>경고 알림 표시</h3><p>${sv?'차량 HU와 e-Care 앱에 긴급 경고가 표시되고, 콜센터 웹과 DMS에도 같은 정보가 등록되었습니다.':'차량 HU와 e-Care 앱에 정비 경고가 표시되고, 선호 딜러 DMS에 정보가 등록되었습니다.'}</p>
   ${devHTML()}
-  <div class="rule">${sv?'<b>SLA</b> · 경고 발생 후 <b>25분</b> 안에 고객이 콜센터로 전화하지 않으면 상담원이 고객 휴대폰으로 먼저 전화합니다.':'<b>정비 경고</b> · 콜센터 상담원이 대응하지 않습니다. 고객이 HU나 앱에서 서비스센터로 직접 연락합니다.'}</div></section>`;
+  <div class="rule">${sv?'<b>SLA</b> · 경고 발생 후 <b>25분</b> 안에 고객이 콜센터로 전화하지 않으면 상담원이 고객 휴대폰으로 먼저 전화합니다.':'<b>정비 경고</b> · 콜센터 상담원이 대응하지 않습니다. 고객이 HU나 앱에서 서비스센터로 직접 연락합니다.'+(night()?'<br><b>야간</b> · 딜러 영업시간(09:00~18:00)이 아니므로 연락 요청을 남기면 다음 영업일 아침에 딜러가 먼저 전화합니다.':'')}</div></section>`;
 }
 function sideCall(o){
   const toDealer=o.party==='dealer';
-  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${o.dir==='out'?'SLA Call-out':toDealer?'Dealer Call':'Inbound Call'}</span><span class="chip amber" id="cst">${o.dir==='out'?'고객 휴대폰 호출 중':toDealer?S.dealer.name+' 수신 중':'콜센터 수신 중'}</span></header>
+  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${o.dir==='out'?(toDealer?'Dealer Callback':'SLA Call-out'):toDealer?'Dealer Call':'Inbound Call'}</span><span class="chip amber" id="cst">${o.dir==='out'?'고객 휴대폰 호출 중':toDealer?S.dealer.name+' 수신 중':'콜센터 수신 중'}</span></header>
   <div class="parties">
    <div class="party" id="pA"><div class="av ag">${ICON.agent}</div><div><b>${toDealer?S.dealer.name+' 어드바이저':'e-Care 상담원'}</b><small>${toDealer?'DMS · 차량 경고 정보 연동':'콜센터 웹 · 차량 진단 정보 연동'}</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
    <div class="linkrow"><span id="ctime">00:00</span></div>
@@ -1323,7 +1412,7 @@ function sideDone(){
   <p>경고 감지부터 서비스센터 입고까지 한 흐름으로 이어졌습니다.</p>
   <ol style="margin-top:12px">${rows}</ol></section>`;
 }
-function vehUI(state,cls){const c=$('#vehState');c.textContent=state;c.className='chip '+(cls||'');}
+function vehUI(state,cls){const c=$('#vehState');c.textContent=state;c.className='chip '+(cls||'');const t=$('#stState');if(t){t.textContent=state;t.className='stchip '+(cls||'');}const r=$('#railDot');if(r)r.className='rd '+(cls||'');}
 function lamps(sev){ $('#lampBrake').className='lamp'+(sev==='severe'?' red':''); $('#lampEngine').className='lamp'+(sev==='maint'?' amber':''); }
 function hazard(on){S.hazard=on;$('#lampHaz').className='lamp'+(on?' haz':'');}
 
@@ -1338,6 +1427,12 @@ const SCRIPT={
   app:[['cust','앱에서 브레이크 경고 알림을 보고 전화드렸어요.'],['agent','e-Care 상담센터입니다. 고객님 차량의 진단 정보가 이미 접수되어 있습니다.'],['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?'],['cust','네, 갓길에 세웠어요.'],['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.']]
 };
 function scriptFor(o){
+  if(o.party==='dealer'&&o.dir==='out'){ const n=S.dealer.name; return [
+    ['agent',`안녕하세요, ${n} 서비스 어드바이저입니다. 어젯밤 남기신 연락 요청과 e-Care 경고 정보를 확인했습니다.`],
+    ['cust','네, 엔진 점검 경고가 떠서 남겼어요.'],
+    ['agent','배출가스 계통 점검이 필요합니다. 주행은 가능하니 오늘 편하신 시간에 입고해 주세요.'],
+    ['cust','오후 3시쯤 갈게요.'],
+    ['agent','오후 3시로 예약해 드렸습니다. 진단 정보로 부품도 미리 준비해 두겠습니다.']]; }
   if(o.party==='dealer'){ const n=S.dealer.name; return [
     o.via==='hu'?['cust','차량 화면에 엔진 점검 경고가 떠서 전화하기 버튼을 눌렀어요.']:['cust','앱에서 서비스센터를 골라 전화드렸어요. 엔진 점검 경고가 떴어요.'],
     ['agent',`${n} 서비스 어드바이저입니다. e-Care로 전달된 차량 경고 정보를 DMS에서 확인했습니다.`],
@@ -1437,9 +1532,10 @@ async function warnFlow(sc){
 function timeLapse(targetMs,realMs,run,opts){
   return new Promise(res=>{
     const el=$('#lapse'); el.hidden=false; el.className='lapse'; stage.classList.add('ff'); $('#clockBox').classList.add('fast');
-    $('#lapseK').textContent=`TIME-LAPSE · 실제 ${realMs/1000}초 = ${Math.round((targetMs-simMs())/60000)}분`;
-    $('#lapseD').textContent=opts.note;
-    S.ff=10; S.lapse={t0:performance.now(),ms:realMs,from:simOffset,to:simOffset+(targetMs-simMs()),res,run,lastTick:0};
+    const mins=Math.round((targetMs-simMs())/60000);
+    $('#lapseK').textContent=`TIME-LAPSE · 실제 ${realMs/1000}초 = ${mins>=120?'약 '+Math.round(mins/60)+'시간':mins+'분'}`;
+    $('#lapseD').textContent=opts.note; $('#lapseTo').textContent=opts.mode==='clock'?'→ '+hms(targetMs).slice(0,5):'/ 25:00';
+    S.ff=10; S.lapse={t0:performance.now(),ms:realMs,from:simOffset,to:simOffset+(targetMs-simMs()),res,run,lastTick:0,mode:opts.mode||'sla'};
   });
 }
 function endLapse(){ $('#lapse').hidden=true; stage.classList.remove('ff'); $('#clockBox').classList.remove('fast'); S.ff=1; S.lapse=null; }
@@ -1472,9 +1568,37 @@ function dealerKm(){
   DEALERS.forEach(d=>{const p=roadPath(c,{x:d.x,z:d.z});let L=0;for(let i=1;i<p.length;i++)L+=dist2(p[i],p[i-1]);d.km=(L*.025+.4).toFixed(1);});
   S.dlist=[PREF,...DEALERS.filter(d=>!d.pref).sort((a,b)=>a.km-b.km)];
 }
+async function nightRequest(via,run){
+  const d=S.dealer; setPhase('busy');
+  const a=via==='hu'?'hu':'app', src=via==='hu'?carTop:phonePos;
+  const id=fLink(a,'dms','live'); fNode(a,'act'); fNode('dms','act'); flowSend(id,1300,'#8794a7');
+  fCap(`<b>⑧</b> ${d.name} <b>영업시간 외</b> · ARS 안내 후 연락 요청을 DMS에 접수`);
+  addLog(`${d.name} 영업 종료 · ARS 안내`,'amber');
+  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">After Hours · ARS</span><span class="chip mute">영업 종료</span></header>
+  <h3>${d.name}</h3><div class="script"><div class="bub agent"><span class="who">ARS</span>지금은 영업시간(09:00~18:00)이 아닙니다. 연락 요청을 남기시면 다음 영업일에 서비스 어드바이저가 먼저 연락드립니다.</div></div>
+  <ul class="checks"><li style="animation-delay:.6s">연락 요청 접수 · ${via==='hu'?'차량 HU':'e-Care 앱'}</li><li style="animation-delay:1.1s">e-Care 경고 정보와 함께 DMS 등록</li><li style="animation-delay:1.6s">다음 영업일 09:00 딜러 콜백 예정</li></ul></section>`;
+  focus(mid(carPos,V3(d.bx,6,d.bz)),60);
+  await packet(src,d.top.clone(),0x8794a7,1300,'연락 요청 (영업시간 외)'); if(run!==token) return;
+  fLink(a,'dms','on'); fNode(a,'done'); fNode('dms','done'); pulseAt(V3(d.bx,.3,d.bz),0x8794a7,8);
+  addLog(`DMS · ${d.name} 연락 요청 접수 · 다음 영업일 콜백`,'teal');
+  fCap(`<b>⑨</b> 다음 영업일 09:00에 ${d.name}가 고객에게 먼저 전화합니다`);
+  setPhase('nightWait');
+}
+async function nightMorningFlow(){
+  const run=++token; setPhase('lapse'); const d=S.dealer;
+  const t=new Date(simMs()); if(t.getHours()>=9) t.setDate(t.getDate()+1); t.setHours(9,0,0,0);
+  S.themeRate=.22; setDay(true,true);
+  await timeLapse(t.getTime(),5000,run,{note:'밤 → 다음 날 아침 · 딜러 영업시간 대기',mode:'clock'}); S.themeRate=0; if(run!==token) return;
+  $('#lapse').classList.add('ok'); $('#lapseD').textContent=`09:00 · ${d.name} 영업 시작`;
+  addLog(`다음 날 09:00 · ${d.name} 영업 시작`,'teal');
+  if(!await live(run,1200)) return; endLapse();
+  addLog(`${d.name} → 고객 휴대폰 콜백`);
+  await callFlow({party:'dealer',dir:'out',via:'phone'},run);
+}
 async function huDealerFlow(){
   const run=++token; setPhase('busy'); S.dealer=PREF;
   if(!await pressBtn('huBtn',run)) return;
+  if(night()){ await nightRequest('hu',run); return; }
   addLog(`고객 → ${PREF.name} 전화 · 차량 HU 팝업 (선호 딜러)`,'teal');
   await callFlow({party:'dealer',dir:'in',via:'hu'},run);
 }
@@ -1494,6 +1618,7 @@ async function pickDealerFlow(i){
   const li=$('#dl'+i); if(li) li.classList.add('sel');
   pulseAt(V3(d.bx,.3,d.bz),0x2ee6cf,10); tone(1500,.06,'triangle',.03);
   if(!await live(run,900)) return;
+  if(night()){ await nightRequest('app',run); return; }
   addLog(`고객 → ${d.name} 전화 · e-Care 앱`,'teal');
   await callFlow({party:'dealer',dir:'in',via:'app'},run);
 }
@@ -1510,7 +1635,7 @@ async function callFlow(o,run){
   const a=o.via==='hu'?'hu':'app', b=toDealer?'dms':'web';
   S.callLink=fLink(a,b,'live'); fNode(a,'act'); fNode(b,'act'); S.callLive=true; S.callDir=o.dir==='out'?-1:1;
   const src=o.via==='hu'?'차량 HU':'e-Care 앱';
-  fCap(o.dir==='out'?'<b>⑦</b> 콜센터 → <b>고객 휴대폰</b> · SLA 초과 선제 콜아웃':toDealer?`<b>⑧</b> <b>${src}</b> → <b>${d.name}</b> · 딜러 직접 통화`:`<b>⑦</b> <b>${src}</b> → 콜센터 · SLA 이내 고객 전화`);
+  fCap(o.dir==='out'?(toDealer?`<b>⑩</b> <b>${d.name}</b> → 고객 휴대폰 · 다음 영업일 콜백`:'<b>⑦</b> 콜센터 → <b>고객 휴대폰</b> · SLA 초과 선제 콜아웃'):toDealer?`<b>⑧</b> <b>${src}</b> → <b>${d.name}</b> · 딜러 직접 통화`:`<b>⑦</b> <b>${src}</b> → 콜센터 · SLA 이내 고객 전화`);
   const recv=o.dir==='out'?$('#pC'):$('#pA'); recv.classList.add('ringing');
   vehUI(o.dir==='out'?'휴대폰 수신 중':'발신 중',scenario==='severe'?'red':'amber');
   sfx.ring();
@@ -1577,7 +1702,7 @@ async function towFlow(){
   sideService('tow'); S.eta={m:truckM,total:truckM.end};
   focus(truckPos,48); vehUI('견인 이동 중','');
   await new Promise(r=>{truckM.onArrive=r;}); if(run!==token) return;
-  finish('견인 입고 완료 · 정비 착수');
+  finish(night()?'야간 견인 입고 · 보관 후 다음 날 09:00 정비 착수':'견인 입고 완료 · 정비 착수');
 }
 async function reserveFlow(){
   const run=++token; setPhase('service'); const d=S.dealer;
@@ -1603,7 +1728,7 @@ function finish(msg){
 function reset(silent){
   token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false; S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
   scenario=null; S.status='normal'; hazard(false); lamps(null); flowReset(); removeTag(S.phoneTag); S.phoneTag=null;
-  S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=0;
+  S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=baseOffset;
   carM.active=true; carM.setPath(LOOP,true); carM.s=18; carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
   truckM.setPath([[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],false); truckM.speed=truckM.target=0; truckM.onArrive=null; truckM.place(true);
   if(PROJECT==='gs'){ gsEnter(); if(!silent) addLog('시나리오 초기화'); return; }
@@ -1615,7 +1740,7 @@ const ACT={
   huCall:()=>custCallFlow('hu'), appCall:()=>custCallFlow('app'), noCall:()=>noCallFlow(),
   huDealer:()=>huDealerFlow(), appDealer:()=>appDealerFlow(),
   dealer0:()=>pickDealerFlow(0), dealer1:()=>pickDealerFlow(1), dealer2:()=>pickDealerFlow(2),
-  dispatch:()=>dispatchFlow(), tow:()=>towFlow(), reserve:()=>reserveFlow(), restart:()=>reset(),
+  dispatch:()=>dispatchFlow(), tow:()=>towFlow(), reserve:()=>reserveFlow(), restart:()=>reset(), nightMorning:()=>nightMorningFlow(),
   gsProv, gsKey, gsUnlock, gsOtt, gsHs, gsOta, gsPop, gsOpw, gsCancel:gsCancelSvc, gsAskCancel
 };
 
@@ -1680,7 +1805,7 @@ function sideGs(){
 function gsEnter(){
   (G.devTags||[]).forEach(removeTag);
   Object.assign(G,{flags:{tm:0,dk:0,ott:0,hs:0},plan:null,dkReg:false,ver:'2.4.1',done:new Set(),mm:{view:'home'},ph:{view:'home'},hs:false,devN:0,devTags:[],carLabel:null,opw:[],ask:null,unlock:0});
-  carM.target=0; carM.speed=0; carM.lane=4.4;
+  carM.setPath([[9,15],[21,15]],false); carM.s=6; carM.lane=0; carM.target=0; carM.speed=0; carM.place(true);
   setPhase('gsHub'); sideGs(); renderFlags(); vehUI('주차 중',''); focus(carPos,58);
 }
 
@@ -1886,14 +2011,16 @@ function frame(){
   // time-lapse
   if(S.lapse){ const L=S.lapse, k=clamp((performance.now()-L.t0)/L.ms,0,1); simOffset=lerp(L.from,L.to,k);
     $('#clock').textContent=hms(simMs());
-    const el=(simMs()-S.slaT0)/1000, p=clamp(el*1000/SLA_MS,0,1);
+    if(L.mode==='clock'){ $('#lapseT').textContent=hms(simMs()).slice(0,5); $('#lapseArc').setAttribute('stroke-dashoffset',(169.6*(1-k)).toFixed(1)); $('#lapseArc').setAttribute('stroke','#2ee6cf'); }
+    else { const el=(simMs()-S.slaT0)/1000, p=clamp(el*1000/SLA_MS,0,1);
     $('#lapseT').textContent=mmss(el); $('#lapseArc').setAttribute('stroke-dashoffset',(169.6*(1-p)).toFixed(1));
-    $('#lapseArc').setAttribute('stroke',p<.6?'#2ee6cf':p<.9?'#ffb21e':'#ff4552');
+    $('#lapseArc').setAttribute('stroke',p<.6?'#2ee6cf':p<.9?'#ffb21e':'#ff4552'); }
     if(performance.now()-L.lastTick>180&&k<1){L.lastTick=performance.now();sfx.tick();}
     if(k>=1&&L.res){const r=L.res;L.res=null;S.ff=1;r();}
   }
   const ndt=dt*S.ff;
-  carM.update(dt); truckM.update(dt); npcs.forEach(m=>m.update(ndt));
+  const gsPark=PROJECT==='gs';
+  carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); npcs.forEach(m=>m.update(ndt));
   if(S.load){
     S.load.t+=dt; const k=clamp(S.load.t/1.6,0,1), e=ease(k);
     truck.g.updateMatrixWorld(); const bed=truck.g.localToWorld(truck.bedLocal.clone());
@@ -1902,7 +2029,7 @@ function frame(){
     hero.g.rotation.y=S.load.rot+d*e;
   }
   // day/night
-  if(Math.abs(dayK-dayTarget)>.001){ dayK+=clamp(dayTarget-dayK,-dt*.9,dt*.9); if(Math.abs(dayK-dayTarget)<.002) dayK=dayTarget; applyTheme(dayK); }
+  if(Math.abs(dayK-dayTarget)>.001){ const tr=S.themeRate||.9; dayK+=clamp(dayTarget-dayK,-dt*tr,dt*tr); if(Math.abs(dayK-dayTarget)<.002) dayK=dayTarget; applyTheme(dayK); }
   // hero visuals
   if(G.unlock>0) G.unlock-=dt;
   if(G.hs){G.hsT=(G.hsT||0)+dt;if(G.hsT>.9){G.hsT=0;pulseAt(carPos().setY(.3),0x59a8ff,5);}}
@@ -1942,7 +2069,7 @@ function frame(){
   renderer.render(scene,cam);
   requestAnimationFrame(frame);
 }
-renderSteps(); renderDock(); sideIdle(); updZoom(); applyTheme(0);
+clockTo(22,10); updDealers(); renderSteps(); renderDock(); sideIdle(); updZoom(); applyTheme(0);
 focus(V3(-10,0,-10),105);
 requestAnimationFrame(frame);
 })();
