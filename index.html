@@ -366,9 +366,10 @@ button{font:inherit;color:inherit}
 @media (max-width:1180px){#stageBtn{display:none}}
 /* ---------- floating call pane (v0.1.0) ---------- */
 .callpane{position:fixed;left:0;top:0;width:min(380px,calc(100vw - 16px));z-index:15;display:flex;flex-direction:column;border-radius:14px;background:#070b12;border:1px solid rgba(46,230,207,.4);box-shadow:0 20px 50px rgba(0,0,0,.6);overflow:hidden;cursor:default}
-.callpane.open{height:calc(100vh - 20px);height:calc(100dvh - 20px)}
+.callpane.open{height:calc(100vh - 20px)}
+body.wng .callpane{display:none!important}
 .callpane.drag{opacity:.92;box-shadow:0 26px 60px rgba(0,0,0,.7),0 0 0 2px rgba(46,230,207,.5);user-select:none}
-.callpane.anim{transition:left .3s ease,top .3s ease,height .3s ease}
+.callpane.anim{transition:height .28s ease}
 .cp-h{display:flex;align-items:center;gap:10px;padding:9px 9px 9px 8px;border-bottom:1px solid var(--line);background:rgba(46,230,207,.07);cursor:grab;touch-action:none;user-select:none}
 .callpane.drag .cp-h{cursor:grabbing}
 .cp-grip{width:14px;height:22px;flex:none;background-image:radial-gradient(circle,#5b6677 1.3px,transparent 1.6px);background-size:7px 7px;background-position:0 1px;opacity:.9}
@@ -493,6 +494,15 @@ body.wng .wng-only{display:block!important}
 .dmsl{font:600 11px/1.45 var(--f-mono);color:#d7e0ea}
 .dmsid{margin-top:5px;font:700 10.5px/1.45 var(--f-mono);color:#fff}
 .dmsnone b{display:block;color:var(--alert);font-size:13px}
+.wcall{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:9px;background:var(--panel-hi);border:1px solid var(--line)}
+.wcall.live{background:rgba(46,230,207,.1);border-color:rgba(46,230,207,.45)}
+.wcall b{display:block;font-size:13px}.wcall small{display:block;font-size:11px;color:var(--muted)}
+.wcall .t{font:700 16px var(--f-mono);font-variant-numeric:tabular-nums;color:#fff}
+.wcall .bars{display:flex;align-items:center;gap:3px;height:20px}
+.wcall .bars i{width:3px;height:100%;border-radius:2px;background:var(--teal);transform-origin:center;animation:wbar .8s ease-in-out infinite}
+.wcall .bars i:nth-child(2){animation-delay:.15s}.wcall .bars i:nth-child(3){animation-delay:.3s}.wcall .bars i:nth-child(4){animation-delay:.45s}.wcall .bars i:nth-child(5){animation-delay:.6s}
+.wcall .bars.off i{animation:none;transform:scaleY(.3);background:#5b6677}
+@keyframes wbar{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
 .dmsl.sub{font:500 10.5px var(--f-body);color:#aab5c4}
 .dmson{margin-top:4px;font:600 10.5px var(--f-mono);color:#7d8a9c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ctcol{display:flex;flex-direction:column;align-items:center;gap:6px}
@@ -905,6 +915,11 @@ body.wng #btnLayout,body.wng #stageBtn,body.wng #stageRail{display:none!importan
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.1.2',date:'2026-10-17',name:'통화 패널 높이 · WNG 짧은 통화',notes:[
+    '통화 패널을 펼쳤을 때 아래 끝이 조작 패널 아래선까지만 내려오도록 맞춤 (화면 밖으로 넘치지 않음)',
+    'WNG 시뮬레이션에서는 통화 패널을 없앰',
+    'WNG 컨택 통화는 실제 3초 동안 짧게 진행 (콜센터 웹 화면에 통화 중 표시 · 통화 시간)'
+  ]},
   {v:'0.1.1',date:'2026-10-17',name:'WNG 도식 개정 반영',notes:[
     'DMS: VDP에서 전송된 포맷(256개 전체 상태)을 그대로 전송하고 GROUP ID · MSG ID를 추가. 매 Trigger마다 MSG ID +1 (모두 해제된 10:15도 전송)',
     'GSA: 해당 Trigger에서 On으로 변경 발생한 WNG로 교체 (재발생 포함, 번호 순)',
@@ -2519,6 +2534,7 @@ function cpPlace(anim){
   CP.x=clamp(CP.x,8,Math.max(8,W-w-8)); CP.y=clamp(CP.y,8,Math.max(8,H-h-8));
   p.classList.toggle('anim',!!anim); p.classList.toggle('open',CP.open);
   p.style.left=CP.x+'px'; p.style.top=(CP.open?10:CP.y)+'px';
+  if(CP.open){ const c=document.querySelector('.zone-ctrl'), r=c&&c.getBoundingClientRect(); let bot=H-10; if(r&&r.height&&r.bottom>60&&r.bottom<=H) bot=r.bottom; p.style.height=Math.max(160,Math.round(bot-10))+'px'; } else p.style.height='';
   if(anim) setTimeout(()=>p.classList.remove('anim'),320);
 }
 function cpToggle(v,manual){ if(manual) CP.manual=!(v==null?!CP.open:v); CP.open=v==null?!CP.open:v; cpPlace(true); cpSave(); if(CP.open){ const b=$('#cpBody'); if(b) b.scrollTop=b.scrollHeight; } }
@@ -2534,6 +2550,7 @@ function cpToggle(v,manual){ if(manual) CP.manual=!(v==null?!CP.open:v); CP.open
   $('#cpMin').addEventListener('click',e=>{e.stopPropagation();cpToggle(null,true);});
   $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML; CP.n=0; $('#cpN').textContent='0줄'; if(!CP.t0){ $('#cpSt').textContent='대기 중'; $('#cpPv').textContent='통화 대기 중'; $('#cpT').textContent=''; } });
   addEventListener('resize',()=>cpPlace(false));
+  try{ new ResizeObserver(()=>{ if(CP.open) cpPlace(false); }).observe(document.querySelector('.zone-ctrl')); }catch(e){}
   cpPlace(false);
 })();
 function cpOpen(o){
@@ -2823,22 +2840,18 @@ async function wContact(run,type,auto){
   if(!await pressBtn('wccBtn',run)) return false;
   addLog(out?'상담원 [전화 걸기] · CTI 발신':'상담원 [전화 받기] · 고객 응대 화면','teal');
   wCcwConsult(g,type,'컨택 중');
-  // call
-  c.meta={kind:out?'Outbound · 25분 SLA':re?'Re-contact · 추가 상담':type==='gsa'?'Inbound · GSA 앱':'Inbound · MM',title:`e-Care 상담원 ↔ 홍길동 고객님`,agent:'e-Care 상담원',cust:out||type==='gsa'?'고객 휴대폰':'차량 MM · 핸즈프리',dir:out?'out':'in'}; c.lines=[];
-  c.callId=cpOpen({kind:out?'Outbound · 25분 SLA':re?'Re-contact · 추가 상담':type==='gsa'?'Inbound · GSA 앱':'Inbound · MM',title:`e-Care 상담원 ↔ 홍길동 고객님`,agent:'e-Care 상담원',cust:out||type==='gsa'?'고객 휴대폰':'차량 MM · 핸즈프리',dir:out?'out':'in'});
-  if(out){ $('#callPane').classList.add('ring'); sfx.ring(); if(!await live(run,1800)) return false; $('#callPane').classList.remove('ring'); }
-  sfx.connect(); cpLive(); WG.inCall={g,run,used:false,type}; setPhase('wngCall');
-  fLink(out?'ccw':src,out?src:'ccw','live');
-  for(const [who,text] of wScript(type,g)){
-    if(run!==token) return false;
-    const tx=$('#wTx'), bb=document.createElement('div'); bb.className='bub '+who; bb.innerHTML=`<span class="who">${who==='agent'?'상담원':'고객'}</span><span class="tt"></span>`; if(tx) tx.appendChild(bb);
-    const t2=cpLine(who,who==='agent'?'e-Care 상담원':'홍길동 고객님'); c.lines.push([who,text]);
-    await typeText([bb.querySelector('.tt'),t2],text,run);
-    if(!await live(run,900+text.length*18)) return false;
-  }
-  WG.inCall=null; cpEnd('통화 종료'); if(phase==='wngCall') setPhase('wngBusy');
+  // call — 짧은 통화 시뮬레이션 (실제 3초)
+  setPhase('wngCall'); sfx.connect();
+  fLink(out?'ccw':src,out?src:'ccw','live'); flowSend(lk,900,'#2ee6cf');
+  const callMin=out?4:3, T0=performance.now();
+  wCallStrip(true,out);
+  vehUI('통화 중','amber');
+  fCap(`<b>통화 중</b> · ${out?'상담원 → 고객 휴대폰':'고객 → 상담원'} · 경고 ${g.order.length}건 안내 · 서비스센터 점검 권유`);
+  while(performance.now()-T0<3000){ if(run!==token) return false; const k=Math.min(1,(performance.now()-T0)/3000); const e=$('#wCallT'); if(e) e.textContent=mmss(k*callMin*60); if(!await live(run,90)) return false; }
+  simOffset+=callMin*MIN; sfx.done&&tone(660,.12,'sine',.04);
+  wCallStrip(false,out,mmss(callMin*60)); if(phase==='wngCall') setPhase('wngBusy');
   fLink(out?'ccw':src,out?src:'ccw','on'); fNode(src,'done');
-  addLog('통화 종료','teal');
+  addLog(`통화 종료 · ${callMin}분`,'teal');
   // memo
   let res;
   if(re){ res='상담 완료 (추가 메모)'; fCap(`<b>추가 메모</b> · Group ${w3(g.id)} 원본 상담은 유지하고 추가 메모를 누적 등록`); addLog(`Group ${w3(g.id)} 추가 메모 등록`,'teal'); if(!await live(run,1200)) return false; }
@@ -2865,6 +2878,13 @@ async function wInCallTrig(){
   WG.step=5; renderSteps();
   wCcwConsultKeep(ic.g,ic.type,n); wToast('신규 경고가 발생했습니다.'); addLog(`상담 중 신규 WNG ${w3(n)} → 고객 응대 화면 카드 추가`,'amber');
   fCap(`<b>상담 중 신규 WNG</b> · 같은 Group ${w3(ic.g.id)}에 추가 · 고객 응대 화면 경고 카드 자동 추가 (NEW 2초)`);
+}
+function wCallStrip(on,out,dur){
+  const card=document.querySelector('#wCcw .card'); if(!card) return;
+  let el=$('#wCall'); if(!el){ el=document.createElement('div'); el.id='wCall'; card.appendChild(el); }
+  el.className='wcall'+(on?' live':'');
+  el.innerHTML=on?`<span class="bars"><i></i><i></i><i></i><i></i><i></i></span><div><b>통화 중</b><small>${out?'상담원 → 고객 휴대폰':'고객 → 상담원'}</small></div><span class="t" id="wCallT">00:00</span>`
+    :`<span class="bars off"><i></i><i></i><i></i><i></i><i></i></span><div><b>통화 종료</b><small>경고 안내 · 서비스센터 점검 권유</small></div><span class="t">${dur}</span>`;
 }
 function wCcwConsultKeep(g,type,fresh){ const tx=$('#wTx'); const keep=tx?tx.innerHTML:''; wCcwConsult(g,type,'컨택 중',fresh); const t2=$('#wTx'); if(t2) t2.innerHTML=keep; setTimeout(()=>document.querySelectorAll('.wcard.fresh').forEach(e=>{e.classList.remove('fresh');const b=e.querySelector('.newb');if(b)b.remove();}),2000); }
 
@@ -2910,7 +2930,7 @@ Object.assign(DOCK,{
     return it; },
   wngBusy:()=>[info('WNG 메시지 처리 중')],
   wngAuto:()=>[info('기획 시나리오 자동 재생 중 · 초기화(R)로 멈춤')],
-  wngCall:()=>[info('고객과 상담원이 통화 중'),...(WG.inCall&&!WG.inCall.used?[btn('wngInCall','상담 중 신규 WNG 발생','같은 Group에 추가 · 카드 NEW','T','amber','warn')]:[])],
+  wngCall:()=>[info('고객과 상담원이 통화 중 · 3초')],
   wngEdit:()=>[{lbl:'오른쪽 패널에서 ON / OFF 선택'},btn('wngSend','이 상태로 Trigger 전송',WG.edit?wDiff([...WG.edit]):'','T','teal','down'),btn('wngEditX','취소','','Q','neutral','reset')]
 });
 Object.assign(ACT,{
