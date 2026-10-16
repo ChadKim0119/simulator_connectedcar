@@ -915,6 +915,12 @@ body.wng #btnLayout,body.wng #stageBtn,body.wng #stageRail{display:none!importan
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.1.3',date:'2026-10-17',name:'모두 OFF도 DMS 전달',notes:[
+    '모든 WNG가 OFF인 Trigger도 항상 DMS로 전달 (VDP 포맷 그대로 + GROUP ID · MSG ID)',
+    '열린 Group이 없으면(처음 또는 컨택 완료 후) 모두 OFF인 Trigger에서도 새 Group ID 생성, 열려 있으면 기존 Group ID 유지',
+    '기획 시나리오에 컨택 후 모두 OFF(10:40 → Group 002 생성) 단계 복원',
+    '25분 자동 아웃바운드 · 고객 전화는 Group에 경고가 한 번이라도 발생한 뒤부터 (기준 시각 = 첫 경고 발생)'
+  ]},
   {v:'0.1.2',date:'2026-10-17',name:'통화 패널 높이 · WNG 짧은 통화',notes:[
     '통화 패널을 펼쳤을 때 아래 끝이 조작 패널 아래선까지만 내려오도록 맞춤 (화면 밖으로 넘치지 않음)',
     'WNG 시뮬레이션에서는 통화 패널을 없앰',
@@ -2598,7 +2604,7 @@ const MIN=60000, SLA25=25*MIN;
 const setEq=(a,b)=>a.size===b.size&&[...a].every(x=>b.has(x));
 const WPLAN=[
   {h:10,m:0,on:[1,2]},{h:10,m:10,on:[2,3]},{h:10,m:15,on:[]},{h:10,m:20,on:[3,4,5]},
-  {h:10,m:40,on:[1,6]},{h:10,m:50,on:[1,6,256]},{h:11,m:0,on:[6,256]}
+  {h:10,m:40,on:[]},{h:10,m:50,on:[1,6]},{h:11,m:0,on:[1,6,256]}
 ];
 const WRULES=[
   ['VDP → TSP · 256개 전체 상태 수신','매 Trigger마다 ON/OFF 전체 목록이 함께 들어옴'],
@@ -2625,8 +2631,9 @@ function wPeek(){
   if(setEq(s,WG.cur)) s.add(pool.find(n=>!s.has(n)));
   WG.np={t:simMs()+10*MIN,on:[...s].sort((a,b)=>a-b),src:'rand'}; return WG.np;
 }
-const wDue=(g,t)=>g&&g.status==='open'&&t>=g.t0+SLA25;
-const gTxt=g=>g.status==='open'?`WNG 수신 중 · 아웃바운드 ${hhmm(g.t0+SLA25)}`:g.status==='contact'?'컨택 중':(g.res||'완료');
+const wSla=g=>(g.w0!=null?g.w0:g.t0)+SLA25;
+const wDue=(g,t)=>g&&g.status==='open'&&g.w0!=null&&t>=wSla(g);
+const gTxt=g=>g.status==='open'?(g.w0!=null?`WNG 수신 중 · 아웃바운드 ${hhmm(wSla(g))}`:'WNG 수신 중 · 경고 없음'):g.status==='contact'?'컨택 중':(g.res||'완료');
 
 /* --- board --- */
 const WROWS=[['time','타임라인',''],['msg','타이밍별 WNG 메시지','VDP → TSP · 256개 전체 상태<br>Rank는 TSP에서 매핑'],['tsp','TSP 판정',''],
@@ -2732,7 +2739,8 @@ async function wTrigger(run,np,o={}){
     const st=q&&!p?'onN':!q&&p?'offN':q?'onK':(WG.prev[n]==='offN'?'offK':'off'); stat[n]=st; list.push({n,st}); });
   const onN=list.filter(x=>x.st==='onN').map(x=>x.n);
   let g=wOpen(), created=false;
-  if(!g&&onN.length){ WG.gid++; g={id:WG.gid,t0:simMs(),status:'open',msg:0,shown:new Set(),order:[],contacts:[],col:GCOL[(WG.gid-1)%GCOL.length]}; WG.groups.push(g); created=true; }
+  if(!g){ WG.gid++; g={id:WG.gid,t0:simMs(),w0:null,status:'open',msg:0,shown:new Set(),order:[],contacts:[],col:GCOL[(WG.gid-1)%GCOL.length]}; WG.groups.push(g); created=true; }
+  if(onN.length&&g.w0==null) g.w0=simMs();
   const neu=g?onN.filter(n=>!g.shown.has(n)):[];
   if(g) neu.forEach(n=>{g.shown.add(n);g.order.push(n);});
   const on=[...next].sort((a,b)=>a-b);
@@ -2812,7 +2820,7 @@ function wCcwConsult(g,type,stt,fresh){
 async function wContact(run,type,auto){
   const re=type==='re', out=type==='out'; const g=re?wLastClosed():wOpen(); if(!g) return false;
   WG.step=5; renderSteps(); setPhase('wngBusy');
-  if(out){ const tgt=g.t0+SLA25; if(tgt>simMs()){ await timeLapse(tgt,1400,run,{note:`Group ${w3(g.id)} · 25분간 인바운드 콜 없음`,mode:'clock'}); if(run!==token) return false; endLapse(); }
+  if(out){ const tgt=wSla(g); if(tgt>simMs()){ await timeLapse(tgt,1400,run,{note:`Group ${w3(g.id)} · 25분간 인바운드 콜 없음`,mode:'clock'}); if(run!==token) return false; endLapse(); }
     addLog(`Group ${w3(g.id)} · 25분 경과 · 인바운드 없음 → 유휴 상담사 자동 배정`,'amber'); }
   else { await timeLapse(simMs()+2*MIN,700,run,{note:type==='gsa'?'고객이 GSA 앱 알림에서 [CTA] 전화':'고객이 MM 팝업에서 [CTA] 전화',mode:'clock'}); if(run!==token) return false; endLapse();
     addLog(type==='gsa'?'고객 · GSA 앱 [CTA] 전화':re?'고객 · MM 전화 (기존 완료건 재상담)':'고객 · MM 팝업 [CTA] 전화','amber'); }
@@ -2922,11 +2930,11 @@ function wngEnter(){
 }
 Object.assign(DOCK,{
   wngIdle:()=>{ const np=wPeek(), g=wOpen(), cl=wLastClosed(), due=wDue(g,np.t);
-    const it=[btn('wngNext','다음 Trigger',due?`${hhmm(g.t0+SLA25)} 25분 경과 → 자동 아웃바운드 먼저`:`${hhmm(np.t)} · ${wDiff(np.on)}`,'T','teal','down')];
+    const it=[btn('wngNext','다음 Trigger',due?`${hhmm(wSla(g))} 25분 경과 → 자동 아웃바운드 먼저`:`${hhmm(np.t)} · ${wDiff(np.on)}`,'T','teal','down')];
     if(WG.pi<WPLAN.length) it.push(btn('wngAuto','자동 재생',`남은 기획 시나리오 ${WPLAN.length-WG.pi}건`,'P','neutral','play'));
     it.push(btn('wngEdit','WNG 직접 구성','256개 중 ON / OFF 골라 전송','E','neutral','sliders'));
-    if(g&&g.status==='open') it.push(btn('wngMM','MM [CTA] 전화',`인바운드 · Group ${w3(g.id)}`,'M','amber','car'),btn('wngGSA','GSA 앱 [CTA] 전화','인바운드 · 고객 휴대폰','A','amber','tel'),btn('wng25','25분 경과',`자동 아웃바운드 · ${hhmm(g.t0+SLA25)}`,'C','red','clock'));
-    else if(cl) it.push(btn('wngRe','MM 전화 · 재상담',`완료된 Group ${w3(cl.id)} · 추가 메모`,'M','amber','car'));
+    if(g&&g.status==='open'&&g.w0!=null) it.push(btn('wngMM','MM [CTA] 전화',`인바운드 · Group ${w3(g.id)}`,'M','amber','car'),btn('wngGSA','GSA 앱 [CTA] 전화','인바운드 · 고객 휴대폰','A','amber','tel'),btn('wng25','25분 경과',`자동 아웃바운드 · ${hhmm(wSla(g))}`,'C','red','clock'));
+    else if(cl&&(!g||g.w0==null)) it.push(btn('wngRe','MM 전화 · 재상담',`완료된 Group ${w3(cl.id)} · 추가 메모`,'M','amber','car'));
     return it; },
   wngBusy:()=>[info('WNG 메시지 처리 중')],
   wngAuto:()=>[info('기획 시나리오 자동 재생 중 · 초기화(R)로 멈춤')],
