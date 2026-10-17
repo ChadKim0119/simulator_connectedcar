@@ -868,6 +868,16 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 #wngView .wt{row-gap:8px}
 #wngView .wt .newg{display:inline-flex;align-items:center;height:22px;padding:0 9px;line-height:1;white-space:nowrap}
 @media (max-height:860px){#wngView .r-time{--h:70px!important;padding-top:12px!important}}
+#wngView .wl.dots{display:flex;align-items:center;gap:6px;line-height:1.42}
+#wngView .wmid{margin-left:2px;padding:0 5px;height:14px;font-size:9.5px;line-height:12px}
+#wngView .wl.dots{height:15.6px}
+#wngView .r-msg{--h:146px!important}
+@media (max-height:860px){#wngView .r-msg{--h:142px!important}}
+#wngView .wmid.on{border-color:var(--won);color:var(--won)}
+#wngView .wmid.off{border-color:var(--woff);color:var(--woff)}
+#wngView .wmid.keep{border-color:var(--wkeep);color:var(--wkeep)}
+.wtip-m{max-height:220px;overflow:auto;scrollbar-width:thin}
+.wtip-m .wl{font:500 11.5px/1.6 var(--f-mono)}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
@@ -1038,6 +1048,10 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.1.8',date:'2026-10-17',name:'WNG 메시지 목록 고정 형식',notes:[
+    '타이밍별 WNG 메시지는 001~006과 256을 항상 표시하고, 그 사이(007~255)에 ON · 변경된 WNG가 있으면 "...." 옆에 "+N" 표시',
+    '"+N"을 누르면 가려진 WNG를 상태(on · off · 발생 · 유지)와 함께 툴팁으로 표시'
+  ]},
   {v:'0.1.7',date:'2026-10-17',name:'직접 구성 매트릭스 · Group 배지 자리',notes:[
     'WNG 직접 구성 매트릭스가 패널 밖으로 넘치지 않도록 수정 (가로는 패널 폭에 맞추고, 높이가 부족하면 칸 높이를 줄임)',
     '타임라인 행 높이를 늘리고 "신규 Group ID" 배지 위아래 여백 확보'
@@ -2788,13 +2802,15 @@ const WROWS=[['time','타임라인',''],['msg','타이밍별 WNG 메시지','VDP
   ['mm','MM','마지막 정보만 팝업 단일 표출<br>MM 로직 · TSP 제어 아님'],['gsa','GSA','신규 발생 메시지로 교체<br>MM 로직 · TSP 제어 아님']];
 const wMore=(list,shown,tt)=>list.length>shown?`<button class="wmore" data-tip="${list.join(',')}" data-tt="${tt}" title="전체 보기">+${list.length-shown}</button>`:'';
 const Q='<i class="q" title="기획서에 \'?\'로 표시된 항목 · 확인 필요">?</i>';
+const wLine=x=>{ const on=x.st==='onN'||x.st==='onK'; const tg=x.st==='onN'||x.st==='offN'?' [발생]':x.st==='onK'||x.st==='offK'?' [유지]':'';
+  return `<div class="wl ${x.st}">${wLbl(x.n)} - ${on?'on':'off'}${tg}</div>`; };
 function wMsgLines(rec){
-  let lines=rec.list.filter(x=>x.n<=6), extra=rec.list.filter(x=>x.n>6);
-  while(lines.length+extra.length>8){ const i=lines.findIndex(x=>x.st==='off'); if(i<0) break; lines.splice(i,1); }
-  let hid=[]; if(lines.length+extra.length>7){ const keep=Math.max(1,6-lines.length); hid=extra.slice(keep); extra=extra.slice(0,keep); }
-  const L=x=>{ const on=x.st==='onN'||x.st==='onK'; const tg=x.st==='onN'||x.st==='offN'?' [발생]':x.st==='onK'||x.st==='offK'?' [유지]':'';
-    return `<div class="wl ${x.st}">${wLbl(x.n)} - ${on?'on':'off'}${tg}</div>`; };
-  return lines.map(L).join('')+'<div class="wl dots">....</div>'+extra.map(L).join('')+(hid.length?`<div class="wl">${wMore(hid.map(x=>x.n),0,'그 외 ON · 변경 WNG').replace('+'+hid.length,'+'+hid.length+' 더보기')}</div>`:'');
+  const base=rec.list.filter(x=>x.n<=6);
+  const mid=rec.list.filter(x=>x.n>6&&x.n!==256&&x.st!=='off');
+  const last=rec.list.find(x=>x.n===256)||{n:256,st:'off'};
+  const tone=mid.some(x=>x.st==='onN')?'on':mid.some(x=>x.st==='offN')?'off':'keep';
+  const cue=mid.length?`<button class="wmore wmid ${tone}" data-tip="${mid.map(x=>x.n).join(',')}" data-st="${mid.map(x=>x.st).join(',')}" data-tt="007 ~ 255 · ON · 변경 WNG" title="가려진 WNG 보기">+${mid.length}</button>`:'';
+  return base.map(wLine).join('')+`<div class="wl dots">....${cue}</div>`+wLine(last);
 }
 function wCell(rec,row){
   const g=rec.g;
@@ -2837,7 +2853,8 @@ document.addEventListener('click',e=>{ const b=e.target.closest('.wfold'); if(!b
 function wTipShow(btn){
   const v=$('#wngView'); let t=$('#wTip'); if(!t){ t=document.createElement('div'); t.id='wTip'; t.className='wtip'; v.appendChild(t); }
   const list=btn.dataset.tip.split(',').filter(Boolean).map(Number);
-  t.innerHTML=`<div class="wtip-h"><span>${btn.dataset.tt||'WNG 목록'}</span><b>${list.length}건</b></div><div class="wtip-l">${list.map(n=>`<span class="wtc" style="--rc:${RANKC[wRank(n)]}">${wLbl(n)}</span>`).join('')}</div>`;
+  const sts=btn.dataset.st?btn.dataset.st.split(','):null;
+  t.innerHTML=`<div class="wtip-h"><span>${btn.dataset.tt||'WNG 목록'}</span><b>${list.length}건</b></div>`+(sts?`<div class="wtip-m">${list.map((n,i)=>wLine({n,st:sts[i]})).join('')}</div>`:`<div class="wtip-l">${list.map(n=>`<span class="wtc" style="--rc:${RANKC[wRank(n)]}">${wLbl(n)}</span>`).join('')}</div>`);
   t.hidden=false; const vr=v.getBoundingClientRect(), r=btn.getBoundingClientRect();
   let x=r.left-vr.left, y=r.bottom-vr.top+6; t.style.left='0px'; t.style.top='0px';
   const w=t.offsetWidth, h=t.offsetHeight; if(x+w>vr.width-8) x=vr.width-w-8; if(y+h>vr.height-8) y=r.top-vr.top-h-6;

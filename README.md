@@ -2,7 +2,7 @@
 
 발표용 e-Care 커넥티드 케어 3D 시뮬레이터입니다. 빌드 과정 없이 `index.html` 한 파일로 동작합니다 (Three.js r128을 cdnjs에서 불러옵니다).
 
-현재 버전: **v0.1.7** · 화면 왼쪽 위 e-Care 버튼을 누르면 버전 기록을 볼 수 있습니다. 버전은 0.0.1씩 올립니다 (`index.html`의 `VERSIONS` 배열).
+현재 버전: **v0.1.8** · 화면 왼쪽 위 e-Care 버튼을 누르면 버전 기록을 볼 수 있습니다. 버전은 0.0.1씩 올립니다 (`index.html`의 `VERSIONS` 배열).
 
 ## 화면 구성
 - **정보 영역 (왼쪽)** — 차량 상태, 경고등, SLA 타이머, 이벤트 로그
@@ -80,7 +80,7 @@
 
 | 행 | 규칙 |
 |---|---|
-| 타이밍별 WNG 메시지 (VDP → TSP) | 매 Trigger마다 256개 WNG의 ON / OFF 전체 상태 전송. 직전 메시지와 비교해 on [발생] · off [발생] · [유지] 표시. Rank(A · B · C)는 TSP에서 매핑 |
+| 타이밍별 WNG 메시지 (VDP → TSP) | 001~006과 256은 항상 표시하고, 그 사이(007~255)에 ON · 변경된 WNG가 있으면 "...." 옆 "+N"을 눌러 상태와 함께 확인. 매 Trigger마다 256개 WNG의 ON / OFF 전체 상태 전송. 직전 메시지와 비교해 on [발생] · off [발생] · [유지] 표시. Rank(A · B · C)는 TSP에서 매핑 |
 | MM | 마지막 정보만 팝업 단일 표출(그룹에서 처음 발생한 WNG 중 Rank 우선), TSP 제어가 아닌 MM 로직. 없으면 no show up |
 | GSA | 해당 Trigger에서 On으로 변경 발생한 WNG로 교체(번호 순, 재발생 포함). 없으면 no show up |
 | DMS (TSP → DMS) | VDP에서 받은 데이터 포맷(256개 전체 상태)을 그대로 전송하고 GROUP ID · MSG ID를 추가. 매 Trigger마다 MSG ID +1. 모든 WNG가 OFF여도 항상 전송 |
