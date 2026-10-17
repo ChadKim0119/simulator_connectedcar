@@ -860,6 +860,14 @@ body.wng .clock.jump{animation:ckJump 1.6s ease-out}
 #wngView .dmson{overflow:visible;text-overflow:clip;display:flex;align-items:center;gap:2px}
 body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 @keyframes ckFast{from{box-shadow:0 0 0 2px rgba(216,178,94,.18),0 0 14px rgba(216,178,94,.3)}to{box-shadow:0 0 0 5px rgba(216,178,94,.28),0 0 34px rgba(216,178,94,.6)}}
+#wngView .bits.m30{width:100%!important;grid-template-columns:repeat(6,minmax(0,1fr))}
+#wngView .bits.m30 .bit{min-width:0;aspect-ratio:var(--ar,1.25);overflow:hidden}
+#wngView .wvp-b{overflow-x:hidden}
+#wngView .bits.m30.tight .bit i{display:none}
+#wngView .r-time{--h:76px!important;padding-top:14px!important;padding-bottom:10px}
+#wngView .wt{row-gap:8px}
+#wngView .wt .newg{display:inline-flex;align-items:center;height:22px;padding:0 9px;line-height:1;white-space:nowrap}
+@media (max-height:860px){#wngView .r-time{--h:70px!important;padding-top:12px!important}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
@@ -1030,6 +1038,10 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.1.7',date:'2026-10-17',name:'직접 구성 매트릭스 · Group 배지 자리',notes:[
+    'WNG 직접 구성 매트릭스가 패널 밖으로 넘치지 않도록 수정 (가로는 패널 폭에 맞추고, 높이가 부족하면 칸 높이를 줄임)',
+    '타임라인 행 높이를 늘리고 "신규 Group ID" 배지 위아래 여백 확보'
+  ]},
   {v:'0.1.6',date:'2026-10-17',name:'WNG 색 정리 · 시간 강조 · 넘침 툴팁',notes:[
     '"자동 재생" → "지속 발생"',
     'WNG에서 시간이 흐를 때 우상단 SIM 시계를 강하게 강조 (타임랩스 중 발광 · 진행 후 "+10분" 배지)',
@@ -2878,10 +2890,11 @@ function wSide(){
 }
 function wFitBits(){
   const b=$('#wvpB'), bits=$('#wBits'), p=$('#wvPanel'); if(!b||!bits||!p||p.hidden||p.dataset.mode!=='edit') return;
-  const cap=$('#wBitCap'); bits.style.width=''; if(cap) cap.style.display='';
+  const cap=$('#wBitCap'); bits.style.width=''; bits.style.removeProperty('--ar'); if(cap) cap.style.display='';
   let over=b.scrollHeight-b.clientHeight;
-  if(over>0&&cap){ cap.style.display='none'; over=b.scrollHeight-b.clientHeight; }
-  for(let i=0;i<3&&over>0;i++){ bits.style.width=Math.max(150,bits.offsetWidth-over*1.3-2)+'px'; over=b.scrollHeight-b.clientHeight; }
+  const opt=[cap,$('#wHov'),document.querySelector('#wvpEdit .blg')]; opt.forEach(e=>{ if(e) e.style.display=''; }); bits.classList.remove('tight');
+  for(const e of opt){ if(over<=0) break; if(e){ e.style.display='none'; over=b.scrollHeight-b.clientHeight; } }
+  if(over>0){ const cw=(bits.clientWidth-25)/6, ch=cw/1.25, nh=Math.max(20,ch-over/5-1); bits.style.setProperty('--ar',(cw/nh).toFixed(3)); if(nh<34) bits.classList.add('tight'); }
 }
 addEventListener('resize',()=>wFitBits());
 function wBits(rec){
