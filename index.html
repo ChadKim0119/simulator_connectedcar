@@ -353,6 +353,24 @@ button{font:inherit;color:inherit}
 .fn.skip text{opacity:.45}
 .fe.skip{stroke-dasharray:3 4;opacity:.35}
 /* hierarchy v0.0.5 */
+/* v0.2.0: 정보 흐름 크게 → 통화 패널을 흐름도와 모니터링 사이에 고정 */
+.callpane.docked{position:relative;left:auto!important;top:auto!important;width:auto;height:auto!important;z-index:1;flex:1.1 1 0;min-width:280px;max-width:420px;align-self:stretch;box-shadow:none;border-color:rgba(46,230,207,.32);cursor:default}
+.callpane.docked .cp-h{cursor:default}
+.callpane.docked .cp-grip,.callpane.docked #cpMin{display:none}
+.callpane.docked .cp-body{display:flex!important}
+.callpane.docked .cp-f{display:flex!important}
+.callpane.docked .cp-who:not(:empty){display:flex!important}
+.callpane.docked .cp-tt .pv{display:none!important}
+.callpane.docked .cp-h{padding:8px 8px 8px 12px}
+.callpane.docked .cp-who{white-space:nowrap;overflow:hidden;font-size:11px;padding:6px 12px}
+.callpane.docked .cp-who .c{overflow:hidden;text-overflow:ellipsis}
+.callpane.docked .cp-body{padding:10px}
+.callpane.docked .cp-l .bx{font-size:13.5px;padding:8px 11px}
+#app.flowWide .zone-flow .zone-body:has(.callpane.docked) #side{min-width:250px}
+#app.flowWide .zone-flow .zone-body:has(.callpane.docked){overflow:hidden}
+#app.flowWide .zone-flow .zone-body:has(.callpane.docked) #side{align-self:stretch;overflow:auto;scrollbar-width:thin}
+#app.flowWide .zone-flow .zone-body:has(.callpane.docked) .flow{flex:1.3;align-self:stretch;overflow:auto;scrollbar-width:thin}
+#app.flowWide .zone-flow .zone-body:has(.callpane.docked) .flow svg{max-height:50vh}
 @media (min-width:1181px){
   #app.flowWide .zone-flow .zone-body{flex-direction:row;align-items:flex-start}
   #app.flowWide .zone-flow .flow{flex:1.45;min-width:0;position:sticky;top:0}
@@ -906,7 +924,18 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 .zone-flow .zone-body{gap:10px;padding:10px}
 .zone-flow .card{padding:11px 12px}
 .zone-flow .flow{top:-10px}
-#app:not(.flowWide) .flow svg{max-height:min(262px,32vh);margin:0 auto}
+#app:not(.flowWide) .flow svg{max-height:var(--fsvg,min(214px,26vh));margin:0 auto}
+#app:not(.flowWide) .stat{margin-top:6px;gap:3px}
+#app:not(.flowWide) .stat .sc{gap:2px}
+#app:not(.flowWide) .stat .sc span{font-size:9.5px;padding:1px 4px}
+#app:not(.flowWide) .legend{flex-wrap:nowrap;overflow:hidden;white-space:nowrap;margin-top:6px}
+.zone-flow.tight #side .card p,.zone-flow.tight #side .devcap,.zone-flow.tight #side .rule{display:none}
+.zone-flow.tight #side .card h3{margin-bottom:2px}
+.zone-flow.tight .legend{display:none}
+.log li.fit-x{display:none}
+#app:not(.flowWide) .sclist{grid-template-columns:1fr 1fr;column-gap:8px}
+#app:not(.flowWide) .sclist div{font-size:10.5px;gap:4px;grid-template-columns:10px 1fr auto}
+#app:not(.flowWide) .sclist em{font-size:9.5px}
 #app:not(.flowWide) .legend{font-size:10.5px;gap:4px 10px}
 #app:not(.flowWide) .legend i{width:11px;margin-right:4px}
 #app:not(.flowWide) #side .card h3{font-size:15.5px}
@@ -1172,6 +1201,13 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.0',date:'2026-10-18',name:'통화 기록 초기화 · 흐름도 압축 · 통화 패널 도킹',notes:[
+    '새 통화가 시작되면 지난 통화 기록을 지우고 새로 시작',
+    '펼쳐진 고객 통화 패널은 자동으로 접지 않음 (완료 연출 카드는 통화 패널을 피해서 표시)',
+    '서버 흐름도 행 간격을 줄이고 크기를 더 작게, 상태 표 · 범례 압축',
+    '정보 흐름 패널 자동 맞춤: 출동 · 현장 도착 · 상담 메모 · 완료 기록이 늘어나도 흐름도 높이 → 설명 문구 → 오래된 기록 순으로 줄여 세로 스크롤 없이 표시',
+    '"정보 흐름 크게" 화면에서는 떠 있던 고객 통화 패널이 서버 흐름도와 모니터링 카드 사이에 들어가 고정 (돌아가면 다시 떠 있는 패널)'
+  ]},
   {v:'0.1.9',date:'2026-10-18',name:'통화 패널 한/일 전환 · 터치 · 완료 연출',notes:[
     '고객 통화 패널 머리에 [한국어 | 日本語] 전환 버튼 · 지난 대화와 진행 중인 대화까지 즉시 바뀜 (선택 언어 기억)',
     '통화가 시작되면 접혀 있어도 고객 통화 패널을 자동으로 펼침',
@@ -1803,7 +1839,7 @@ function layCols(){
   const app=$('#app'), cs=getComputedStyle(app);
   const inner=app.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-20;
   const info=LAY.info?282:52, avail=inner-info;
-  if(LAY.stage&&LAY.flow) return `${info}px minmax(0,1fr) ${LAY.focus?Math.round(Math.max(372,avail*.6)):372}px`;
+  if(LAY.stage&&LAY.flow) return `${info}px minmax(0,1fr) ${LAY.focus?Math.round(Math.max(372,avail*(document.body.classList.contains('wng')?.6:.68))):372}px`;
   if(LAY.stage) return `${info}px minmax(0,1fr) 52px`;
   return `${info}px 52px minmax(0,1fr)`;
 }
@@ -1819,6 +1855,7 @@ function applyLayout(animate){
   app.classList.toggle('flowFocus',focus); app.classList.toggle('stageClosed',!E.stage); app.classList.toggle('flowWide',focus||!E.stage); app.classList.toggle('infoClosed',!E.info); app.classList.toggle('flowClosed',!E.flow);
   $('#btnLayout').setAttribute('aria-pressed',focus); $('#layoutLbl').textContent=focus?'시뮬레이션 크게':'정보 흐름 크게';
   try{localStorage.setItem('ecareLay',JSON.stringify(LAY));}catch(e){}
+  setTimeout(()=>{ cpDock(!wn&&!narrow&&app.classList.contains('flowWide')); fitFlowSoon(); },0);
   if(narrow||wn){ app.style.gridTemplateColumns=''; return; }
   const parse=()=>getComputedStyle(app).gridTemplateColumns.split(' ').map(parseFloat);
   const from=parse(), fin=layCols();
@@ -1916,11 +1953,16 @@ const FE_WNG={
   wi:'M60 162 C60 200 40 200 40 228'
 };
 let FN=FN_EC, FE=FE_EC;
+/* v0.2.0: 흐름도 행 간격 압축 (노드 크기는 그대로, 세로 326 → 282) */
+const FYK=[[0,0],[6,6],[28,24],[68,64],[84,76],[92,84],[108,100],[122,104],[162,144],[228,184],[272,228],[326,282]];
+const fy=y=>{ for(let i=1;i<FYK.length;i++){ const [a,b]=FYK[i-1],[c,d]=FYK[i]; if(y<=c) return +(b+(y-a)*(d-b)/(c-a)).toFixed(1); } return y-44; };
+const mapFN=src=>Object.fromEntries(Object.entries(src).map(([k,n])=>[k,Object.assign({},n,{y:fy(n.y)})]));
+const mapFE=src=>Object.fromEntries(Object.entries(src).map(([k,d])=>[k,d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g,(m,x,y)=>`${x} ${fy(+y)}`)]));
 function buildFlow(){
-  const gs=PROJECT==='gs', wn=PROJECT==='wng'; FN=gs?FN_GS:wn?FN_WNG:FN_EC; FE=gs?{}:wn?FE_WNG:FE_EC;
-  $('#flowSvg').innerHTML=`<svg viewBox="0 0 340 326" role="img" aria-label="정보 흐름도">
- <rect class="fband" x="6" y="6" width="328" height="78" rx="9"/><text class="fband-l" x="16" y="22">JAPAN · 글로벌</text>
- <rect class="fband" x="6" y="92" width="328" height="230" rx="9"/><text class="fband-l" x="16" y="108">KOREA · 로컬</text>
+  const gs=PROJECT==='gs', wn=PROJECT==='wng'; FN=mapFN(gs?FN_GS:wn?FN_WNG:FN_EC); FE=mapFE(gs?{}:wn?FE_WNG:FE_EC);
+  $('#flowSvg').innerHTML=`<svg viewBox="0 0 340 282" role="img" aria-label="정보 흐름도">
+ <rect class="fband" x="6" y="6" width="328" height="70" rx="9"/><text class="fband-l" x="16" y="20">JAPAN · 글로벌</text>
+ <rect class="fband" x="6" y="84" width="328" height="194" rx="9"/><text class="fband-l" x="16" y="99">KOREA · 로컬</text>
  ${Object.entries(FE).map(([k,d])=>`<path class="fe" id="fe-${k}" d="${d}"/>`).join('')}
  <g id="flinks"></g>
  ${Object.entries(FN).map(([k,n])=>`<g class="fn" id="fn-${k}"><rect x="${n.x-n.w/2}" y="${n.y-n.h/2}" width="${n.w}" height="${n.h}" rx="8"/><text class="t" x="${n.x}" y="${n.y-(n.h>40?3:2)}" text-anchor="middle">${n.t}</text><text class="s" x="${n.x}" y="${n.y+(n.h>40?12:11)}" text-anchor="middle">${n.s}</text></g>`).join('')}
@@ -1932,7 +1974,7 @@ buildFlow();
 function fPath(a,b){
   const A=FN[a],B=FN[b];
   if(A.y===B.y){
-    if(A.y>200){const y=A.y+A.h/2, cy=y+14+Math.abs(A.x-B.x)*.12; return `M${A.x} ${y} C${A.x} ${cy} ${B.x} ${cy} ${B.x} ${y}`;}
+    if(A.y>180){const y=A.y+A.h/2, cy=y+14+Math.abs(A.x-B.x)*.12; return `M${A.x} ${y} C${A.x} ${cy} ${B.x} ${cy} ${B.x} ${y}`;}
     const sg=B.x>A.x?1:-1; return `M${A.x+sg*A.w/2} ${A.y} L${B.x-sg*B.w/2} ${B.y}`;
   }
   const dn=B.y>A.y, y1=A.y+(dn?1:-1)*A.h/2, y2=B.y+(dn?-1:1)*B.h/2, m=(y1+y2)/2;
@@ -2632,11 +2674,16 @@ function celebrate(msg,kind){
     <div class="cb-tx"><div class="cb-k">CARE COMPLETE</div><div class="cb-t">케어 완료</div><div class="cb-s">${msg}</div></div>
     <div class="cb-st"><div><span>경고 감지 → 입고</span><b>${dur}</b></div><div><span>고객 통화</span><b>${S.calls||0}건</b></div><div><span>DMS 사전 전달</span><b class="ok">완료</b></div></div>
     <span class="cb-x" title="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span></div>`;
-  if(CP.open){ CP.auto=false; cpToggle(false); }
-  el.hidden=true; later(450,()=>{ el.hidden=false; el.classList.remove('out','in'); void el.offsetWidth; el.classList.add('in'); });
+  el.hidden=true; later(450,()=>{ celebrAvoid(el); el.hidden=false; el.classList.remove('out','in'); void el.offsetWidth; el.classList.add('in'); });
   const close=()=>{ if(el.hidden||el.classList.contains('out')) return; el.classList.add('out'); setTimeout(()=>{ el.hidden=true; el.classList.remove('in','out'); },460); };
   el.onclick=close; el.onpointerdown=e=>e.stopPropagation(); later(7600,close);
 }
+function celebrAvoid(el){ el.style.paddingLeft=el.style.paddingRight='';
+  const p=$('#callPane'); if(!p||p.classList.contains('docked')||PROJECT==='wng') return;
+  const a=p.getBoundingClientRect(), st=stage.getBoundingClientRect(); if(!a.width||a.bottom<st.top+st.height*.45) return;
+  const L=a.right-st.left, R=st.right-a.left;
+  if(a.left<st.left+st.width/2&&L>0) el.style.paddingLeft=Math.min(L+12,st.width*.6)+'px';
+  else if(R>0) el.style.paddingRight=Math.min(R+12,st.width*.6)+'px'; }
 function celebrHide(){ const el=$('#celebr'); if(el){ el.hidden=true; el.classList.remove('in','out'); } }
 function reset(silent){
   S.stat={}; renderStat();
@@ -2936,9 +2983,29 @@ function cpLang(l){ CPL=l==='ja'?'ja':'ko'; try{localStorage.setItem('ecareCpLan
   document.querySelectorAll('#callPane [data-ko]').forEach(e=>{ if(!e.classList.contains('typing')) e.textContent=e.dataset[CPL]; });
   if(CP.t0){ const e=$('#cpT'); if(e) e.textContent=mmss((performance.now()-CP.t0)/1000); }
   cpPvLine(); }
+/* v0.2.0: 정보 흐름 패널 자동 맞춤 — 흐름도 높이 → 설명 문구 → 오래된 기록 순으로 줄여 세로 스크롤 방지 */
+var fitQ=0;
+function fitFlow(){
+  const zf=document.querySelector('.zone-flow'), zb=zf&&zf.querySelector('.zone-body'), app=$('#app'); if(!zb) return;
+  zb.querySelectorAll('.log li.fit-x').forEach(li=>li.classList.remove('fit-x'));
+  if(app.classList.contains('flowWide')||zf.classList.contains('collapsed')||PROJECT==='wng'||innerWidth<=820){ zf.classList.remove('tight'); zf.style.removeProperty('--fsvg'); return; }
+  const base=Math.round(clamp(innerHeight*.26,150,214)), MIN=150, over=()=>zb.scrollHeight-zb.clientHeight;
+  zf.classList.remove('tight'); zf.style.setProperty('--fsvg',base+'px');
+  let o=over(); if(o<=0) return;
+  zf.style.setProperty('--fsvg',Math.max(MIN,base-o)+'px'); o=over(); if(o<=0) return;
+  zf.classList.add('tight'); o=over();
+  if(o<0){ const h=parseFloat(zf.style.getPropertyValue('--fsvg')); zf.style.setProperty('--fsvg',Math.min(base,h-o)+'px'); return; }
+  const lis=[...zb.querySelectorAll('.log li')]; for(let i=0;i<lis.length-3&&over()>0;i++) lis[i].classList.add('fit-x');
+}
+function fitFlowSoon(){ if(fitQ) return; fitQ=requestAnimationFrame(()=>{ fitQ=0; fitFlow(); }); }
+function cpDock(on){ const p=$('#callPane'); if(!p) return; const side=$('#side');
+  if(on){ if(!p.classList.contains('docked')){ side.parentNode.insertBefore(p,side); p.classList.add('docked'); p.classList.remove('anim','drag'); cpPlace(false); } }
+  else if(p.classList.contains('docked')){ p.classList.remove('docked'); $('#intro').parentNode.insertBefore(p,$('#intro')); cpPlace(false); }
+  const b=$('#cpBody'); if(b) b.scrollTop=b.scrollHeight; }
 function cpSave(){ try{localStorage.setItem('ecareCallPane',JSON.stringify({x:CP.x,y:CP.y,open:CP.open}));}catch(e){} }
 function cpPlace(anim){
-  const p=$('#callPane'); if(!p) return; const W=innerWidth, H=innerHeight, w=p.offsetWidth||380, h=(($('#cpHead')||{}).offsetHeight||56)+2;
+  const p=$('#callPane'); if(!p) return;
+  if(p.classList.contains('docked')){ p.style.left=p.style.top=p.style.height=''; return; } const W=innerWidth, H=innerHeight, w=p.offsetWidth||380, h=(($('#cpHead')||{}).offsetHeight||56)+2;
   if(CP.x==null){ const st=$('.stage').getBoundingClientRect(); CP.x=Math.round(st.left+12); CP.y=Math.round(st.top+12); }
   CP.x=clamp(CP.x,8,Math.max(8,W-w-8)); CP.y=clamp(CP.y,8,Math.max(8,H-h-8));
   p.classList.toggle('anim',!!anim); p.classList.toggle('open',CP.open);
@@ -2952,7 +3019,7 @@ function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.aut
   cpSet('#cpTitle','고객 통화'); cpSet('#cpPv','통화 대기 중'); cpSet('#cpSt','대기 중'); cpSet('#cpClr','기록 지우기'); cpSet('#cpN',{ko:'0줄',ja:'0行'});
   document.querySelectorAll('#cpLang button').forEach(b=>{ b.setAttribute('aria-pressed',b.dataset.l===CPL); b.addEventListener('click',e=>{ e.stopPropagation(); cpLang(b.dataset.l); }); });
   let d=null;
-  h.addEventListener('pointerdown',e=>{ if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('#cpMin,#cpLang')) return; d={sx:e.clientX,sy:e.clientY,x:CP.x,y:CP.y,moved:false,id:e.pointerId}; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointerdown',e=>{ if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('#cpMin,#cpLang')||p.classList.contains('docked')) return; d={sx:e.clientX,sy:e.clientY,x:CP.x,y:CP.y,moved:false,id:e.pointerId}; h.setPointerCapture(e.pointerId); });
   h.addEventListener('pointermove',e=>{ if(!d||e.pointerId!==d.id) return; const dx=e.clientX-d.sx, dy=e.clientY-d.sy;
     if(!d.moved&&Math.hypot(dx,dy)<5) return; d.moved=true; p.classList.add('drag');
     CP.x=d.x+dx; if(!CP.open) CP.y=d.y+dy; cpPlace(false); });
@@ -2960,19 +3027,21 @@ function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.aut
   h.addEventListener('pointerup',up); h.addEventListener('pointercancel',e=>{d=null;p.classList.remove('drag');});
   $('#cpMin').addEventListener('click',e=>{e.stopPropagation();cpToggle(null,true);});
   $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML(); CP.n=0; cpSet('#cpN',{ko:'0줄',ja:'0行'}); if(!CP.t0){ cpSet('#cpSt','대기 중'); CP.pvEl=null; cpSet('#cpPv','통화 대기 중'); cpSet('#cpT',''); } });
-  addEventListener('resize',()=>cpPlace(false));
+  addEventListener('resize',()=>{ cpPlace(false); fitFlowSoon(); });
+  try{ const ro=new ResizeObserver(fitFlowSoon); ro.observe($('#side')); ro.observe(document.querySelector('.zone-flow .zone-body')); ro.observe($('#statBox')); }catch(e){}
   try{ new ResizeObserver(()=>{ if(CP.open) cpPlace(false); }).observe(document.querySelector('.zone-ctrl')); }catch(e){}
   cpPlace(false);
 })();
 function cpOpen(o){
   const p=$('#callPane'), b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove();
   CP.id++; CP.t0=0; p.classList.remove('onair','ring');
-  CP.manual=false; if(!CP.open){ cpToggle(true); CP.auto=true; }   /* v0.1.9: 통화가 시작되면 항상 펼침 */
+  CP.manual=false; if(!CP.open) cpToggle(true);   /* 통화가 시작되면 항상 펼침 */
+  b.innerHTML='';   /* v0.2.0: 새 통화는 지난 기록을 지우고 새로 시작 */
   $('#cpKind').textContent=o.kind; cpSet('#cpTitle',o.title); cpSet('#cpT','호출');
   $('#cpWho').innerHTML=`<span class="a">${ICON.agent}<span class="w1"></span></span><span class="dir"></span><span class="c">${ICON.phone}<span class="w2"></span></span>`;
   cpSet('#cpWho .w1',o.agent); cpSet('#cpWho .dir',o.dir==='out'?'→ 발신':'← 수신'); cpSet('#cpWho .w2',o.cust);
   const sep=document.createElement('div'); sep.className='cp-sep flash'; sep.id='cpc-'+CP.id; sep.innerHTML=`<span><b>${o.kind}</b> · ${hms(simMs()).slice(0,5)}</span>`; b.appendChild(sep);
-  b.scrollTop=b.scrollHeight; cpSet('#cpSt','호출 중'); CP.pvEl=null; cpSet('#cpPv',{ko:`${o.kind} · 연결 중`,ja:`${o.kind}・接続中`});
+  cpCount(); b.scrollTop=b.scrollHeight; cpSet('#cpSt','호출 중'); CP.pvEl=null; cpSet('#cpPv',{ko:`${o.kind} · 연결 중`,ja:`${o.kind}・接続中`});
   return CP.id;
 }
 function cpLive(){ CP.t0=performance.now(); cpSet('#cpSt','통화 중'); $('#callPane').classList.add('onair'); }
@@ -2994,7 +3063,6 @@ function cpEnd(note){
   cpSet('#cpSt',note||'통화 종료');
   $('#cpBody').querySelectorAll('.cp-l.cur').forEach(x=>{x.classList.remove('cur');x.classList.add('past');});
   const tt=was?' '+mmss((performance.now()-was)/1000):''; cpSet('#cpT',{ko:'종료'+tt,ja:'終了'+tt});
-  if(CP.auto){ const id=CP.id; setTimeout(()=>{ if(CP.id===id&&!CP.t0&&CP.auto&&CP.open){ CP.auto=false; cpToggle(false); } },2800); }   /* 자동으로 펼친 경우 통화 종료 후 다시 접어 조작 버튼을 가리지 않음 */
 }
 function cpIdle(){ if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
 function cpShow(id){ cpToggle(true); const el=document.getElementById('cpc-'+id); if(el){ el.scrollIntoView({block:'start'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
