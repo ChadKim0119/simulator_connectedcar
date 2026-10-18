@@ -792,7 +792,7 @@ body.wng #btnLayout,body.wng #stageBtn,body.wng #stageRail{display:none!importan
 .wvp-h{display:flex;align-items:center;gap:8px;padding:9px 10px 9px 14px;border-bottom:1px solid var(--line)}
 .wvp-h .cp-x{margin-left:auto}
 .wvp-b{flex:1;min-height:0;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}
-.wvp[data-mode=ccw] #wvpEdit,.wvp[data-mode=edit] #wCcw{display:none}
+.wvp[data-mode=ccw] #wvpEdit,.wvp[data-mode=dealer] #wvpEdit,.wvp[data-mode=edit] #wCcw{display:none}
 @media (max-width:1100px){ .wvp{width:300px} }
 @media (max-width:820px){ .wv-main{flex-direction:column} .wvp{width:auto;max-height:50%} }
 
@@ -1201,6 +1201,11 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.1',date:'2026-10-18',name:'WNG B·C 딜러 직접 연결 · 통화 2초',notes:[
+    '현재 ON 경고에 A가 없고 B·C만 있으면 MM·GSA 전화는 딜러(또는 AI 콜)로 직접 연결',
+    '딜러 직접 통화는 통화 완료로 표시하며 콜센터 상담 메모·DMS 이관 단계를 거치지 않음',
+    'WNG 통화 연출의 실제 재생 시간을 2초로 단축'
+  ]},
   {v:'0.2.0',date:'2026-10-18',name:'통화 기록 초기화 · 흐름도 압축 · 통화 패널 도킹',notes:[
     '새 통화가 시작되면 지난 통화 기록을 지우고 새로 시작',
     '펼쳐진 고객 통화 패널은 자동으로 접지 않음 (완료 연출 카드는 통화 패널을 피해서 표시)',
@@ -3109,6 +3114,13 @@ function wPeek(){
   WG.np={t:simMs()+10*MIN,on:[...s].sort((a,b)=>a-b),src:'rand'}; return WG.np;
 }
 const wSla=g=>(g.w0!=null?g.w0:g.t0)+SLA25;
+// 현재 ON 경고를 기준으로 연결. 모두 해제된 경우에는 그룹의 경고 이력을 사용.
+function wDealerRoute(g){
+  const last=WG.cols.filter(c=>c.kind==='trig'&&c.g===g).slice(-1)[0];
+  const on=g===wOpen()?[...WG.cur]:(last?last.on:[]);
+  const codes=on.length?on:g.order;
+  return codes.length>0&&codes.every(n=>wRank(n)==='B'||wRank(n)==='C');
+}
 const wDue=(g,t)=>g&&g.status==='open'&&g.w0!=null&&t>=wSla(g);
 const gTxt=g=>g.status==='open'?(g.w0!=null?`WNG 수신 중 · 아웃바운드 ${hhmm(wSla(g))}`:'WNG 수신 중 · 경고 없음'):g.status==='contact'?'컨택 중':(g.res||'완료');
 
@@ -3130,13 +3142,13 @@ function wMsgLines(rec){
 function wCell(rec,row){
   const g=rec.g;
   if(rec.kind==='contact'){
-    const T={mm:['MM [CTA] 전화','인바운드 · 11.1.1.1 전화 수신 안내'],gsa:['GSA 앱 [CTA] 전화','인바운드 · 11.1.1.3 모바일 수신 안내'],out:['25분 경과 · 자동 아웃바운드','11.1.1.2 경고 알림 팝업 · 05:00'],re:['재상담 · MM 전화','완료건 → 이력상세보기 · 추가 메모']}[rec.type];
+    const T={mm:['MM [CTA] 전화','인바운드 · 11.1.1.1 전화 수신 안내'],gsa:['GSA 앱 [CTA] 전화','인바운드 · 11.1.1.3 모바일 수신 안내'],out:['25분 경과 · 자동 아웃바운드','11.1.1.2 경고 알림 팝업 · 05:00'],re:[rec.dealer?'재문의 · MM 전화':'재상담 · MM 전화','완료건 → 이력상세보기 · 추가 메모']}[rec.type];
     if(row==='time') return `<div class="wt ct"><b>${hhmm(rec.t)}</b><span class="ctl">Contact</span><span class="gid" style="color:${g.col}">[Group ID : ${w3(g.id)}]</span></div>`;
-    if(row==='msg') return `<div class="ctype"><b>${T[0]}</b><small>${T[1]}</small></div>`;
+    if(row==='msg') return `<div class="ctype"><b>${T[0]}</b><small>${rec.dealer?'딜러(또는 AI 콜) 직접 연결':T[1]}</small></div>`;
     if(row==='tsp') return `<span class="chip ${rec.res==='이관 완료'?'':rec.res==='컨택 중'?'amber':'mute'}">${rec.res}</span>`;
-    if(row==='mm') return `<div class="ctcol">${rec.type==='mm'||rec.type==='re'?'<div class="ctn">고객 → 콜센터</div>':''}${rec.lines&&rec.lines.length&&rec.res!=='컨택 중'?`<button class="ctplay" data-ct="${rec.idx}">통화 내용 보기</button>`:''}</div>`;
-    if(row==='gsa') return rec.type==='gsa'?'<div class="ctn">고객 → 콜센터</div>':rec.type==='out'?'<div class="ctn">상담원 → 고객 휴대폰</div>':'';
-    if(row==='dms') return rec.res==='이관 완료'?'<div class="ctn ok">상담 메모 → DMS<br>이관 완료</div>':rec.res==='컨택 중'?'':'<div class="ctn">DMS 전송 없음<br>(콜센터 내부 메모)</div>';
+    if(row==='mm') return `<div class="ctcol">${rec.type==='mm'||rec.type==='re'?`<div class="ctn">고객 → ${rec.dealer?'딜러(또는 AI 콜)':'콜센터'}</div>`:''}${rec.lines&&rec.lines.length&&rec.res!=='컨택 중'?`<button class="ctplay" data-ct="${rec.idx}">통화 내용 보기</button>`:''}</div>`;
+    if(row==='gsa') return rec.type==='gsa'?`<div class="ctn">고객 → ${rec.dealer?'딜러(또는 AI 콜)':'콜센터'}</div>`:rec.type==='out'?'<div class="ctn">상담원 → 고객 휴대폰</div>':'';
+    if(row==='dms') return rec.dealer?`<div class="ctn ${rec.res==='통화 완료'?'ok':''}">딜러(또는 AI 콜) 직접 ${rec.res==='통화 완료'?'통화 완료':'통화 중'}</div>`:rec.res==='이관 완료'?'<div class="ctn ok">상담 메모 → DMS<br>이관 완료</div>':rec.res==='컨택 중'?'':'<div class="ctn">DMS 전송 없음<br>(콜센터 내부 메모)</div>';
     return '';
   }
   if(row==='time') return `<div class="wt"><b>${hhmm(rec.t)}</b><span class="trg">Trigger${rec.inCall?' · 상담 중':''}</span><span class="br"></span>${rec.created?`<span class="newg" style="--gc:${g.col}">신규 Group ID ${w3(g.id)}</span>`:g?`<span class="gid" style="color:${g.col}">Group ${w3(g.id)}</span>`:'<span class="gid">열린 Group 없음</span>'}</div>`;
@@ -3204,7 +3216,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest('.ctplay'); if(!
 function wToast(t){ const e=$('#wvToast'); if(!e) return; e.textContent=t; e.classList.remove('show'); void e.offsetWidth; e.classList.add('show'); }
 
 /* --- side: 256 bitmap + TSP rules --- */
-function wvShow(mode){ const p=$('#wvPanel'); if(!p) return; const was=p.hidden; p.hidden=false; p.dataset.mode=mode; $('#wvpT').textContent=mode==='edit'?'WNG 직접 구성':'콜센터 웹 · CCW'; if(was) setTimeout(wScroll,60); requestAnimationFrame(wFitBits); }
+function wvShow(mode){ const p=$('#wvPanel'); if(!p) return; const was=p.hidden; p.hidden=false; p.dataset.mode=mode; $('#wvpT').textContent=mode==='edit'?'WNG 직접 구성':mode==='dealer'?'딜러 · AI 콜':'콜센터 웹 · CCW'; if(was) setTimeout(wScroll,60); requestAnimationFrame(wFitBits); }
 function wvHide(){ const p=$('#wvPanel'); if(p&&!p.hidden){ p.hidden=true; setTimeout(wScroll,60); } }
 function wSide(){
   const pb=$('#wvpB'); if(!pb) return;
@@ -3334,61 +3346,69 @@ function wCards(g,fresh){
   return `<div class="wcards"><div class="wch"><b>차량 경고 정보 총 ${g.order.length}건</b><span>최근 발생 ${hhmm(WG.cols.filter(c=>c.kind==='trig'&&c.g===g).slice(-1)[0].t)}</span></div>
    ${list.map(x=>`<div class="wcard ${x.n===fresh?'fresh':''}"><span class="no">#${x.i}</span><span class="rk" style="--rc:${RANKC[wRank(x.n)]}">${wRank(x.n)}</span><b>WNG ${w3(x.n)}</b>${x.n===fresh?'<span class="newb">NEW</span>':''}</div>`).join('')}</div>`;
 }
-function wCcwConsult(g,type,stt,fresh){
+function wCcwConsult(g,type,stt,fresh,dealer=false){
   const box=$('#wCcw'); if(!box) return;
   const out=type==='out';
-  box.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">CCW · 11.2.1.1 e-Care 고객 응대</span><span class="chip ${stt==='컨택 중'?'amber':stt==='이관 완료'?'':'mute'}" id="wCst">${stt}</span></header>
+  box.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${dealer?'딜러(또는 AI 콜) · 고객 직접 통화':'CCW · 11.2.1.1 e-Care 고객 응대'}</span><span class="chip ${stt==='컨택 중'?'amber':stt==='이관 완료'?'':'mute'}" id="wCst">${stt}</span></header>
    <div class="wbar"><span>전화 타입 <b>${out?'아웃바운드 콜':'인바운드 콜'}</b></span><span>WorkFlow <b style="color:${g.col}">Group ${w3(g.id)}</b></span></div>
-   <div class="wstates">${(()=>{const fin=stt==='상담 완료'?'상담 완료':'이관 완료', L=['컨택 전','컨택 중',fin], ci=L.indexOf(stt); return L.map((s,i)=>`<span class="${i===ci?'on':i<ci?'done':''}">${s}</span>`).join('');})()}</div>
+   <div class="wstates">${(()=>{const fin=dealer?'통화 완료':stt==='상담 완료'?'상담 완료':'이관 완료', L=dealer?['연결 중','컨택 중',fin]:['컨택 전','컨택 중',fin], ci=L.indexOf(stt); return L.map((s,i)=>`<span class="${i===ci?'on':i<ci?'done':''}">${s}</span>`).join('');})()}</div>
    ${wCards(g,fresh)}</section>`;
   const z=$('#wvpB'); if(z) z.scrollTop=0;
 }
 async function wContact(run,type,auto){
   const re=type==='re', out=type==='out'; const g=re?wLastClosed():wOpen(); if(!g) return false;
+  const dealer=!out&&wDealerRoute(g), target=dealer?'dms':'ccw';
   WG.step=5; renderSteps(); setPhase('wngBusy');
   if(out){ const tgt=wSla(g); if(tgt>simMs()){ await timeLapse(tgt,650,run,{note:`Group ${w3(g.id)} · 25분간 인바운드 콜 없음`,mode:'clock'}); if(run!==token) return false; endLapse(); }
     addLog(`Group ${w3(g.id)} · 25분 경과 · 인바운드 없음 → 유휴 상담사 자동 배정`,'amber'); }
   else { await timeLapse(simMs()+2*MIN,380,run,{note:type==='gsa'?'고객이 GSA 앱 알림에서 [CTA] 전화':'고객이 MM 팝업에서 [CTA] 전화',mode:'clock'}); if(run!==token) return false; endLapse();
-    addLog(type==='gsa'?'고객 · GSA 앱 [CTA] 전화':re?'고객 · MM 전화 (기존 완료건 재상담)':'고객 · MM 팝업 [CTA] 전화','amber'); }
+    addLog(type==='gsa'?'고객 · GSA 앱 [CTA] 전화':re?`고객 · MM 전화 (기존 완료건 ${dealer?'딜러 재문의':'재상담'})`:'고객 · MM 팝업 [CTA] 전화','amber'); }
   if(!re) g.status='contact';
-  const c={kind:'contact',t:simMs(),g,type,res:'컨택 중',rv:null}; c.idx=WG.cols.length; g.contacts.push(c); WG.cols.push(c); wRenderAll(); wScroll();
+  const c={kind:'contact',t:simMs(),g,type,dealer,res:'컨택 중',rv:null}; c.idx=WG.cols.length; g.contacts.push(c); WG.cols.push(c); wRenderAll(); wScroll();
   wFlowClear(); const src=type==='gsa'||out?'gsa':'mm';
-  const lk=out?fLink('ccw',src,'live'):fLink(src,'ccw','live'); flowSend(lk,1100,'#2ee6cf'); fNode('ccw','act'); fNode(src,'act');
-  vehUI(out?'아웃바운드 · 고객 호출':'고객 → 콜센터','amber');
-  fCap(out?`<b>Contact</b> · Group ${w3(g.id)} 생성 ${hhmm(g.t0)} + 25분 → 인바운드 없음 → <b>자동 아웃바운드</b> (11.1.1.2 경고 알림 팝업)`
+  const lk=out?fLink(target,src,'live'):fLink(src,target,'live'); flowSend(lk,1100,'#2ee6cf'); fNode(target,'act'); fNode(src,'act');
+  vehUI(out?'아웃바운드 · 고객 호출':dealer?'고객 → 딜러(또는 AI 콜)':'고객 → 콜센터','amber');
+  if(!dealer) fCap(out?`<b>Contact</b> · Group ${w3(g.id)} 생성 ${hhmm(g.t0)} + 25분 → 인바운드 없음 → <b>자동 아웃바운드</b> (11.1.1.2 경고 알림 팝업)`
     :re?`<b>Contact</b> · 컨택 완료된 Group ${w3(g.id)}에 재문의 → <b>추가 상담</b> (원본 유지 · 추가 메모)`
     :`<b>Contact</b> · 고객이 ${type==='gsa'?'GSA 앱':'MM 팝업'} [CTA]로 전화 → 콜센터 <b>인바운드</b> · Group ${w3(g.id)} 연결`);
   // popup
-  const first=g.order[0], scr=out?'CCW-EC-100_P2':type==='gsa'?'CCW-EC-100_P3':'CCW-EC-100_P1';
-  $('#wCcw').innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">콜센터 웹 · ${scr}</span><span class="chip ${out?'red':'amber'}">${out?'아웃바운드':'인바운드'}</span></header>
-   <div class="ccwpop"><div class="ccw-h"><span>${out?'고객 차량에서 경고 발생':'전화가 왔습니다.'}</span>${out?'<span class="ccw-t" id="wccT">잔여 시간 05:00</span>':''}</div>
-   ${type!=='gsa'?`<div class="ccw-r"><span>경고등명</span><b>WNG ${wLbl(first)}</b></div><div class="ccw-r"><span>묶음 ${g.order.length}건</span><b>순번 오름차순 최상단 1건</b></div>`:''}
-   ${out?`<div class="ccw-r"><span>최초 감지</span><b>${hhmm(g.t0)}</b></div>`:''}
-   <div class="ccw-r"><span>고객명</span><b>홍길동</b></div><div class="ccw-r"><span>WorkFlow</span><b>Group ${w3(g.id)}</b></div>
-   <div class="cbtn" id="wccBtn">${ICON.tel}${out?'전화 걸기':'전화 받기'}</div></div>
-   <div class="ccw-note">${out?'25분간 인바운드 콜 없음 → 유휴 상담사에게 자동 배정. 05:00 안에 [전화 걸기].':type==='gsa'?'고객 휴대폰에서 전화 연결 요청 → 상담 이력의 컨택 전 건에서 [고객 응대 시작].':re?'완료건 인지 → 상담 이력 [이력상세보기] → 추가 메모.':'차량 MM에서 전화 연결 요청 → 경고 정보와 함께 인바운드 안내 팝업.'}</div></section>`;
-  wvShow('ccw'); { const z=$('#wvpB'); if(z) z.scrollTop=0; }
-  sfx.ring();
-  if(out){ let t=300; for(let i=0;i<5;i++){ if(!await live(run,90)) return false; t-=3; const e=$('#wccT'); if(e) e.textContent='잔여 시간 '+mmss(t); } }
-  else if(!await live(run,450)) return false;
-  { const el=$('#wccBtn'); if(el){el.classList.remove('press');void el.offsetWidth;el.classList.add('press');} tone(1500,.06,'triangle',.03); if(!await live(run,380)) return false; }
-  addLog(out?'상담원 [전화 걸기] · CTI 발신':'상담원 [전화 받기] · 고객 응대 화면','teal');
-  wCcwConsult(g,type,'컨택 중');
-  // call — 짧은 통화 시뮬레이션 (실제 3초)
+  if(dealer){
+    fCap(`<b>딜러 직접 연결</b> · A 경고 없음 · 고객 ${type==='gsa'?'GSA 앱':'MM 팝업'} → 딜러(또는 AI 콜)`);
+    addLog('B·C 경고 · 고객 → 딜러(또는 AI 콜) 직접 연결','teal');
+    wvShow('dealer');
+  } else {
+    const first=g.order[0], scr=out?'CCW-EC-100_P2':type==='gsa'?'CCW-EC-100_P3':'CCW-EC-100_P1';
+    $('#wCcw').innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">콜센터 웹 · ${scr}</span><span class="chip ${out?'red':'amber'}">${out?'아웃바운드':'인바운드'}</span></header>
+     <div class="ccwpop"><div class="ccw-h"><span>${out?'고객 차량에서 경고 발생':'전화가 왔습니다.'}</span>${out?'<span class="ccw-t" id="wccT">잔여 시간 05:00</span>':''}</div>
+     ${type!=='gsa'?`<div class="ccw-r"><span>경고등명</span><b>WNG ${wLbl(first)}</b></div><div class="ccw-r"><span>묶음 ${g.order.length}건</span><b>순번 오름차순 최상단 1건</b></div>`:''}
+     ${out?`<div class="ccw-r"><span>최초 감지</span><b>${hhmm(g.t0)}</b></div>`:''}
+     <div class="ccw-r"><span>고객명</span><b>홍길동</b></div><div class="ccw-r"><span>WorkFlow</span><b>Group ${w3(g.id)}</b></div>
+     <div class="cbtn" id="wccBtn">${ICON.tel}${out?'전화 걸기':'전화 받기'}</div></div>
+     <div class="ccw-note">${out?'25분간 인바운드 콜 없음 → 유휴 상담사에게 자동 배정. 05:00 안에 [전화 걸기].':type==='gsa'?'고객 휴대폰에서 전화 연결 요청 → 상담 이력의 컨택 전 건에서 [고객 응대 시작].':re?'완료건 인지 → 상담 이력 [이력상세보기] → 추가 메모.':'차량 MM에서 전화 연결 요청 → 경고 정보와 함께 인바운드 안내 팝업.'}</div></section>`;
+    wvShow('ccw'); { const z=$('#wvpB'); if(z) z.scrollTop=0; }
+    sfx.ring();
+    if(out){ let t=300; for(let i=0;i<5;i++){ if(!await live(run,90)) return false; t-=3; const e=$('#wccT'); if(e) e.textContent='잔여 시간 '+mmss(t); } }
+    else if(!await live(run,450)) return false;
+    { const el=$('#wccBtn'); if(el){el.classList.remove('press');void el.offsetWidth;el.classList.add('press');} tone(1500,.06,'triangle',.03); if(!await live(run,380)) return false; }
+    addLog(out?'상담원 [전화 걸기] · CTI 발신':'상담원 [전화 받기] · 고객 응대 화면','teal');
+  }
+  wCcwConsult(g,type,'컨택 중',undefined,dealer);
+  // call — 짧은 통화 시뮬레이션 (실제 2초)
   setPhase('wngCall'); sfx.connect();
-  fLink(out?'ccw':src,out?src:'ccw','live'); flowSend(lk,900,'#2ee6cf');
+  fLink(out?target:src,out?src:target,'live'); flowSend(lk,900,'#2ee6cf');
   const callMin=out?4:3, T0=performance.now();
-  wCallStrip(true,out);
+  wCallStrip(true,out,undefined,dealer);
   vehUI('통화 중','amber');
-  fCap(`<b>통화 중</b> · ${out?'상담원 → 고객 휴대폰':'고객 → 상담원'} · 경고 ${g.order.length}건 안내 · 서비스센터 점검 권유`);
-  while(performance.now()-T0<3000){ if(run!==token) return false; const k=Math.min(1,(performance.now()-T0)/3000); const e=$('#wCallT'); if(e) e.textContent=mmss(k*callMin*60); if(!await live(run,90)) return false; }
+  fCap(`<b>통화 중</b> · ${out?'상담원 → 고객 휴대폰':dealer?'고객 → 딜러(또는 AI 콜)':'고객 → 상담원'} · 경고 ${g.order.length}건 안내 · 서비스센터 점검 권유`);
+  while(performance.now()-T0<2000){ if(run!==token) return false; const k=Math.min(1,(performance.now()-T0)/2000); const e=$('#wCallT'); if(e) e.textContent=mmss(k*callMin*60); if(!await live(run,Math.min(90,Math.max(0,2000-(performance.now()-T0))))) return false; }
   simOffset+=callMin*MIN; wClockMark(callMin*MIN); sfx.done&&tone(660,.12,'sine',.04);
-  wCallStrip(false,out,mmss(callMin*60)); if(phase==='wngCall') setPhase('wngBusy');
-  fLink(out?'ccw':src,out?src:'ccw','on'); fNode(src,'done');
+  wCallStrip(false,out,mmss(callMin*60),dealer); if(phase==='wngCall') setPhase('wngBusy');
+  fLink(out?target:src,out?src:target,'on'); fNode(src,'done');
   addLog(`통화 종료 · ${callMin}분`,'teal');
   // memo
   let res;
-  if(re){ res='상담 완료 (추가 메모)'; fCap(`<b>추가 메모</b> · Group ${w3(g.id)} 원본 상담은 유지하고 추가 메모를 누적 등록`); addLog(`Group ${w3(g.id)} 추가 메모 등록`,'teal'); if(!await live(run,400)) return false; }
+  if(dealer){ res='통화 완료'; fCap(`<b>통화 완료</b> · 고객 → 딜러(또는 AI 콜) 직접 통화 · Group ${w3(g.id)}`); addLog(`딜러(또는 AI 콜) 직접 통화 완료 · Group ${w3(g.id)}`,'teal'); if(!re){g.status='closed';g.res=res;} }
+  else if(re){ res='상담 완료 (추가 메모)'; fCap(`<b>추가 메모</b> · Group ${w3(g.id)} 원본 상담은 유지하고 추가 메모를 누적 등록`); addLog(`Group ${w3(g.id)} 추가 메모 등록`,'teal'); if(!await live(run,400)) return false; }
   else {
     const k='on';
     if(k==='on'){ fNode('ccw','act'); const id=fLink('ccw','dms','live'); flowSend(id,420,'#2ee6cf'); if(!await live(run,420)) return false; fLink('ccw','dms','on'); fNode('dms','done'); res='이관 완료';
@@ -3396,8 +3416,8 @@ async function wContact(run,type,auto){
     else { res='상담 완료'; fCap(`<b>상담 완료</b> · 콜센터 내부 메모로만 저장 · Group ${w3(g.id)} 컨택 완료`); addLog(`Group ${w3(g.id)} 상담 완료 (내부 메모)`,'teal'); }
     g.status='closed'; g.res=res;
   }
-  fNode('ccw','done');
-  c.res=res; wRenderAll(); wCcwConsult(g,type,res.startsWith('상담 완료')?'상담 완료':res);
+  fNode(target,'done');
+  c.res=res; wRenderAll(); wCcwConsult(g,type,res.startsWith('상담 완료')?'상담 완료':res,undefined,dealer);
   sfx.done(); vehUI(`Group ${w3(g.id)} · ${res}`,'');
   if(!re) wToast(`Group ${w3(g.id)} 컨택 완료 · 이후 새 발생은 신규 Group`);
   return true;
@@ -3412,11 +3432,11 @@ async function wInCallTrig(){
   wCcwConsultKeep(ic.g,ic.type,n); wToast('신규 경고가 발생했습니다.'); addLog(`상담 중 신규 WNG ${w3(n)} → 고객 응대 화면 카드 추가`,'amber');
   fCap(`<b>상담 중 신규 WNG</b> · 같은 Group ${w3(ic.g.id)}에 추가 · 고객 응대 화면 경고 카드 자동 추가 (NEW 2초)`);
 }
-function wCallStrip(on,out,dur){
+function wCallStrip(on,out,dur,dealer=false){
   const card=document.querySelector('#wCcw .card'); if(!card) return;
   let el=$('#wCall'); if(!el){ el=document.createElement('div'); el.id='wCall'; card.appendChild(el); }
   el.className='wcall'+(on?' on':'');
-  el.innerHTML=on?`<span class="wc-eq"><i></i><i></i><i></i><i></i><i></i></span><span class="wc-tx"><b>통화 중</b><small>${out?'상담원 → 고객 휴대폰':'고객 → 상담원'}</small></span><span class="wc-t" id="wCallT">00:00</span>`
+  el.innerHTML=on?`<span class="wc-eq"><i></i><i></i><i></i><i></i><i></i></span><span class="wc-tx"><b>통화 중</b><small>${out?'상담원 → 고객 휴대폰':dealer?'고객 → 딜러(또는 AI 콜)':'고객 → 상담원'}</small></span><span class="wc-t" id="wCallT">00:00</span>`
     :`<span class="wc-eq off"><i></i><i></i><i></i><i></i><i></i></span><span class="wc-tx"><b>통화 종료</b><small>경고 안내 · 서비스센터 점검 권유</small></span><span class="wc-t">${dur}</span>`;
 }
 function wCcwConsultKeep(g,type,fresh){ const tx=$('#wTx'); const keep=tx?tx.innerHTML:''; wCcwConsult(g,type,'컨택 중',fresh); const t2=$('#wTx'); if(t2) t2.innerHTML=keep; setTimeout(()=>document.querySelectorAll('.wcard.fresh').forEach(e=>{e.classList.remove('fresh');const b=e.querySelector('.newb');if(b)b.remove();}),2000); }
@@ -3458,12 +3478,12 @@ Object.assign(DOCK,{
     const it=[btn('wngNext','WNG 발생',due?`${hhmm(wSla(g))} 25분 경과 → 자동 아웃바운드 먼저`:`${hhmm(np.t)} · ${wDiff(np.on)}`,'T','teal','wng')];
     if(WG.pi<WPLAN.length) it.push(btn('wngAuto','지속 발생',`남은 기획 시나리오 ${WPLAN.length-WG.pi}건`,'P','neutral','play'));
     it.push(btn('wngEdit','WNG 직접 구성','256개 중 ON / OFF 골라 전송','E','neutral','sliders'));
-    if(g&&g.status==='open'&&g.w0!=null) it.push(btn('wngMM','MM [CTA] 전화',`인바운드 · Group ${w3(g.id)}`,'M','amber','car'),btn('wngGSA','GSA 앱 [CTA] 전화','인바운드 · 고객 휴대폰','A','amber','tel'),btn('wng25','25분 경과',`자동 아웃바운드 · ${hhmm(wSla(g))}`,'C','red','clock'));
-    else if(cl&&(!g||g.w0==null)) it.push(btn('wngRe','MM 전화 · 재상담',`완료된 Group ${w3(cl.id)} · 추가 메모`,'M','amber','car'));
+    if(g&&g.status==='open'&&g.w0!=null) it.push(btn('wngMM','MM [CTA] 전화',`${wDealerRoute(g)?'딜러(또는 AI 콜) 직접 연결':'콜센터 인바운드'} · Group ${w3(g.id)}`,'M','amber','car'),btn('wngGSA','GSA 앱 [CTA] 전화',wDealerRoute(g)?'딜러(또는 AI 콜) 직접 연결':'콜센터 인바운드 · 고객 휴대폰','A','amber','tel'),btn('wng25','25분 경과',`자동 아웃바운드 · ${hhmm(wSla(g))}`,'C','red','clock'));
+    else if(cl&&(!g||g.w0==null)) it.push(btn('wngRe',`MM 전화 · ${wDealerRoute(cl)?'재문의':'재상담'}`,`완료된 Group ${w3(cl.id)} · ${wDealerRoute(cl)?'딜러 직접 연결':'추가 메모'}`,'M','amber','car'));
     return it; },
   wngBusy:()=>[info('WNG 메시지 처리 중')],
   wngAuto:()=>[info('기획 시나리오 지속 발생 중 · 초기화(R)로 멈춤')],
-  wngCall:()=>[info('고객과 상담원이 통화 중 · 3초')],
+  wngCall:()=>[info(`고객과 ${WG.cols[WG.cols.length-1]?.dealer?'딜러(또는 AI 콜)':'상담원'} 통화 중 · 2초`)],
   wngEdit:()=>[{lbl:'오른쪽 패널에서 ON / OFF 선택'},btn('wngSend','이 상태로 WNG 발생',WG.edit?wDiff([...WG.edit]):'','T','teal','wng'),btn('wngEditX','취소','','Q','neutral','reset')]
 });
 Object.assign(ACT,{
