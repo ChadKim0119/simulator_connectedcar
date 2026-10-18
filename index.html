@@ -1210,6 +1210,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.8',date:'2026-10-18',name:'고객 차량 주행 우선 · 측면 추진가스',notes:['앞선 일반 차량은 멈추는 대신 교차로를 빠르게 비움 · 덜 막힌 공원 경로 선택','충돌 검사 유지 · 공중 선회 중 로드스터 앞뒤 측면 추진가스']},
   {v:'0.2.7',date:'2026-10-18',name:'공원 주행 범위 · 충돌 방지 · 축구',notes:['고객 자유 주행을 공원 9개 교차로 안으로 제한','모든 차량의 차체·이동 구간 충돌 방지 및 로드스터 착지 확인','공원 축구장 · 두 팀 아이들의 패스와 슛']},
   {v:'0.2.6',date:'2026-10-18',name:'공원 순환 주행 · 로드스터 오마주',notes:['공원 사이 도로를 포함하는 불규칙 주행 · 교차로에서 경로 확장','두 스포츠카의 냉가스 점프 연출 · 캐치볼과 배팅 연습 교대']},
   {v:'0.2.5',date:'2026-10-18',name:'도시 시연 가시성 · 교통 · 공원',notes:['노란 경고 신호 범례 · 고객 차량 우선 양보 · 출동 중 연속 사이렌','건물 가림 반투명 · 통화 양끝 자동 프레이밍 · 시설 옥상 간판','공원 어린이·강아지 및 아빠와 아들 캐치볼 애니메이션']},
@@ -1680,7 +1681,11 @@ function makeRoadster(color){
     const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,.2,8),new THREE.MeshStandardMaterial({color:0x57646e,metalness:.8,roughness:.3}));nozzle.position.set(x,.5,z);g.add(nozzle);
     const jet=new THREE.Mesh(new THREE.ConeGeometry(.42,2.3,10),new THREE.MeshBasicMaterial({color:0xd4f2ff,transparent:true,opacity:.8,depthWrite:false}));jet.position.set(x,-.25,z);jet.visible=false;g.add(jet);jets.push(jet);
   }
-  car.jets=jets;return car;
+  const sideJets=[];for(const x of [-1.5,1.5])for(const side of [-1,1]){
+    const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(.14,.18,.24,8),new THREE.MeshStandardMaterial({color:0x57646e,metalness:.8,roughness:.3}));nozzle.rotation.x=Math.PI/2;nozzle.position.set(x,.85,side*1.16);g.add(nozzle);
+    const jet=new THREE.Mesh(new THREE.ConeGeometry(.4,2.2,10),new THREE.MeshBasicMaterial({color:0xc9efff,transparent:true,opacity:.8,depthWrite:false}));jet.rotation.x=-side*Math.PI/2;jet.position.set(x,.85,side*2.1);jet.userData={x,side};jet.visible=false;g.add(jet);sideJets.push(jet);
+  }
+  car.sideJets=sideJets;car.jets=jets;return car;
 }
 /* ================= road paths ================= */
 function snap(p){
@@ -1770,9 +1775,22 @@ function startRoaming(){
 }
 function extendRoaming(){
   if(!carM.roaming)return;
+  planClearRoamTurn();
   let consumed=0;while(consumed+2<carM.pts.length&&carM.cum[consumed+1]<carM.s-35)consumed++;
   if(consumed){const offset=carM.cum[consumed];carM.pts.splice(0,consumed);carM.cum=carM.cum.slice(consumed).map(v=>v-offset);carM.s-=offset;carM.len-=offset;carM.end-=offset;}
   while(carM.end-carM.s<160){const n=carM.pts.length,a=carM.pts[n-2],b=carM.pts[n-1],p=nextRoamPoint([a.x,a.y],[b.x,b.y]);carM.pts.push(new THREE.Vector2(...p));carM.len+=30;carM.end=carM.len;carM.cum.push(carM.len);}
+}
+function planClearRoamTurn(){
+  if(typeof npcs==='undefined'||!carM.active||carM.target<.5)return;
+  const index=carM.cum.findIndex(d=>d-carM.s>7&&d-carM.s<24);if(index<1||index>=carM.pts.length-1)return;
+  const node=carM.pts[index];if(node.trafficChosen)return;node.trafficChosen=true;
+  const prev=carM.pts[index-1],options=[[30,0],[-30,0],[0,30],[0,-30]].map(([x,z])=>[node.x+x,node.y+z]).filter(([x,z])=>Math.abs(x)<=30&&Math.abs(z)<=30&&(x!==prev.x||z!==prev.y));
+  const score=([x,z])=>{const hx=(x-node.x)/30,hz=(z-node.y)/30;let cost=0;for(const m of npcs){if((m.flightHeight||0)>3.5)continue;for(const t of [0,1,2]){const p=m.at(m.s+m.speed*t),px=p.x-p.hz*m.lane,pz=p.z+p.hx*m.lane;for(const d of [8,16,24]){const gap=Math.hypot(node.x+hx*d-hz*carM.lane-px,node.y+hz*d+hx*carM.lane-pz);cost+=Math.max(0,13-gap)*(m.roadster?.3:1);}}}return cost;};
+  const current=carM.pts[index+1],currentScore=score([current.x,current.y]);const ranked=options.map(p=>({p,cost:score(p)})).sort((a,b)=>a.cost-b.cost);
+  if(!ranked.length||ranked[0].cost+5>=currentScore)return;
+  carM.pts=carM.pts.slice(0,index+1);carM.pts.push(new THREE.Vector2(...ranked[0].p));
+  while(carM.pts.length<index+7){const n=carM.pts.length,a=carM.pts[n-2],b=carM.pts[n-1];carM.pts.push(new THREE.Vector2(...nextRoamPoint([a.x,a.y],[b.x,b.y])));}
+  carM.cum=[0];for(let i=1;i<carM.pts.length;i++)carM.cum.push(carM.cum[i-1]+carM.pts[i].distanceTo(carM.pts[i-1]));carM.len=carM.end=carM.cum[carM.cum.length-1];
 }
 const ringMat=new THREE.MeshBasicMaterial({color:0x2ee6cf,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide});
 const selRing=new THREE.Mesh(new THREE.RingGeometry(3.6,4.05,48),ringMat); selRing.rotation.x=-Math.PI/2;
@@ -1789,7 +1807,8 @@ const roadsters=[0xe12736,0xcbd5e2].map((c,i)=>{
 });
 const coldGasTexture=glowTex;
 const gasPuffs=Array.from({length:80},()=>{const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:coldGasTexture,color:0xe6f6ff,transparent:true,opacity:0,depthWrite:false}));sprite.visible=false;scene.add(sprite);return {sprite,life:0,velocity:V3(0,0,0)};});let nextGasPuff=0;
-function emitColdGas(m){m.obj.updateMatrixWorld();for(const x of [-1.5,1.5])for(const z of [-.8,.8]){const p=gasPuffs[nextGasPuff++%gasPuffs.length];p.life=.85;p.sprite.visible=true;p.sprite.position.copy(m.obj.localToWorld(V3(x,.3,z)));p.velocity.set((Math.random()-.5)*3,-5,(Math.random()-.5)*3);p.sprite.scale.setScalar(.8);}}
+function emitColdGas(m,turn=0){m.obj.updateMatrixWorld();for(const x of [-1.5,1.5])for(const z of turn?[Math.sign(x)*turn*1.16]:[-.8,.8]){const p=gasPuffs[nextGasPuff++%gasPuffs.length];p.life=.85;p.sprite.visible=true;p.sprite.position.copy(m.obj.localToWorld(V3(x,turn?.85:.3,z)));if(turn){const side=Math.sign(z);p.velocity.set(Math.sin(m.rot)*side*8,.3,Math.cos(m.rot)*side*8);}else p.velocity.set((Math.random()-.5)*3,-5,(Math.random()-.5)*3);p.sprite.scale.setScalar(.8);}}
+function roadsterTurn(m){if(!m.jump)return 0;const heading=m.at(m.s+Math.max(.1,m.speed*.05));let delta=Math.atan2(-heading.hz,heading.hx)-m.rot;while(delta>Math.PI)delta-=2*Math.PI;while(delta<-Math.PI)delta+=2*Math.PI;return Math.abs(delta)>.08?Math.sign(delta):0;}
 function approaching(a,b){
   if(a===b||!b.active||b.jump)return false;
   const launchSpeed=a.speed>=3?a.speed:(a.roadster&&!a.jumpCooldown?a.cruiseSpeed:0);if(launchSpeed<3)return false;
@@ -1803,13 +1822,14 @@ function approaching(a,b){
   const encounter=-(dx*vx+dz*vz)/v2;
   return encounter>.08&&encounter<1.05&&Math.hypot(dx+vx*encounter,dz+vz*encounter)<5.7;
 }
-function resetRoadsterEffects(){junctionOwners.clear();for(const m of npcs.filter(v=>!v.roadster)){m.s=m.spawnS;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);}for(const [i,m] of roadsters.entries()){m.s=i?72:12;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.jumpCooldown=0;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);}for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}}
+function resetRoadsterEffects(){junctionOwners.clear();for(const m of npcs.filter(v=>!v.roadster)){m.s=m.spawnS;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);}for(const [i,m] of roadsters.entries()){m.s=i?72:12;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.jumpCooldown=0;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}}
 function updateRoadsterEffects(dt){
   for(const m of roadsters){m.jumpCooldown=Math.max(0,m.jumpCooldown-dt);
     if(!m.jump&&m.jumpCooldown===0&&PROJECT==='ecare'&&[carM,...npcs].some(other=>approaching(m,other))){m.jump={time:0,gas:0};m.jumpCooldown=9;emitColdGas(m);m.jumpTag=addTag('냉가스 점프',()=>m.obj.position.clone().add(V3(0,5,0)),'pk',0xc9f1ff);}
     if(m.jump){const previous=m.jump.time,next=previous+dt;let wanted=next>1.65*.72&&!canLand(m)?1.65*.72:next;const height=Math.sin(clamp(wanted/1.65,0,1)*Math.PI)*6.5;if(!canChangeHeight(m,height))wanted=previous;m.jump.time=wanted;const k=clamp(wanted/1.65,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;m.obj.position.y=m.flightHeight;m.obj.rotation.z=Math.cos(k*Math.PI)*.18;
+      const turn=roadsterTurn(m);(m.roadster.sideJets||[]).forEach(j=>j.visible=turn!==0&&j.userData.side===Math.sign(j.userData.x)*turn);m.jump.sideGas=(m.jump.sideGas||0)+dt;if(turn&&m.jump.sideGas>.045){m.jump.sideGas=0;emitColdGas(m,turn);}
       const thrust=k<.28||k>.87;m.roadster.jets.forEach(j=>j.visible=thrust);m.jump.gas+=dt;if(thrust&&m.jump.gas>.045){m.jump.gas=0;emitColdGas(m);}
-      if(k>=1){if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);}
+      if(k>=1){if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}
     }
   }
   for(const p of gasPuffs)if(p.life>0){p.life-=dt;p.sprite.visible=p.life>0;p.sprite.position.addScaledVector(p.velocity,dt);p.velocity.y*=Math.exp(-dt*3);p.sprite.position.y=Math.max(.2,p.sprite.position.y);p.sprite.material.opacity=Math.max(0,p.life/.85)*.6;p.sprite.scale.setScalar(.8+(1-p.life/.85)*3.5);}
@@ -1820,6 +1840,8 @@ function roadPoint(m,distance){const p=m.at(m.s+distance);return {x:p.x-p.hz*m.l
 function shouldYield(m,priority){
   if(!priority.active||priority.speed<.2)return false;
   const distance=m.obj.position.distanceTo(priority.obj.position);if(distance>52)return false;
+  const a=priority.at(priority.s),b=m.at(m.s),dx=m.obj.position.x-priority.obj.position.x,dz=m.obj.position.z-priority.obj.position.z;
+  if(a.hx*b.hx+a.hz*b.hz>.9&&dx*a.hx+dz*a.hz>0)return false;
   const horizon=Math.max(12,priority.speed*2.2),ahead=Math.max(14,m.speed*m.speed/(2*8)+8);
   for(let a=0;a<=ahead;a+=3)for(let b=0;b<=horizon;b+=3){const p=roadPoint(m,a),q=roadPoint(priority,b);if(Math.hypot(p.x-q.x,p.z-q.z)<6)return true;}
   return false;
@@ -1859,20 +1881,28 @@ function upcomingJunction(m,travel=0){
 }
 function junctionBlocked(m,travel){
   if(m.jump||(m.roadster&&!m.jumpCooldown))return false;
-  const j=upcomingJunction(m,travel);if(!j)return false;
+  const j=upcomingJunction(m,travel);if(!j||j.along<-.1)return false;
   let owner=junctionOwners.get(j.key);
   if(owner){const p=owner.center();if(owner.active===false||Math.hypot(p.x-j.x,p.z-j.z)>12.1)owner=null;}
   if(!owner){const candidates=allVehicles().filter(v=>!(v.jump||(v.roadster&&!v.jumpCooldown))&&(v.target>.1||v.speed>.1)).filter(v=>upcomingJunction(v)?.key===j.key);const inside=v=>{const p=v.center();return Math.hypot(p.x-j.x,p.z-j.z)<12?0:1;};owner=candidates.sort((a,b)=>inside(a)-inside(b)||a.trafficId-b.trafficId)[0];if(owner)junctionOwners.set(j.key,owner);else junctionOwners.delete(j.key);}
   if(owner===m||!owner)return false;
+  if(owner===carM&&clearingHeroLane(m))return false;
   if(m===truckM&&owner===carM&&carM.speed<.1&&phase==='dispatch')return false;
   return Math.abs(j.along)<12;
 }
 [carM,truckM,...npcs].forEach((m,i)=>{m.trafficId=i;m.travelGuard=safeVehicleMove;});
+function clearingHeroLane(m){
+  if(m===carM||m===truckM||!carM.active||carM.target<.5)return false;
+  const a=carM.at(carM.s),b=m.at(m.s),dx=m.obj.position.x-carM.obj.position.x,dz=m.obj.position.z-carM.obj.position.z;
+  return a.hx*b.hx+a.hz*b.hz>.9&&dx*a.hx+dz*a.hz>0&&dx*a.hx+dz*a.hz<38&&Math.abs(dx*a.hz-dz*a.hx)<5;
+}
 function updateTraffic(dt){for(const m of npcs){
   const stuntReady=m.roadster&&!m.jumpCooldown;
   let yieldNow=!m.jump&&((!stuntReady&&shouldYield(m,carM))||(phase==='dispatch'&&shouldYield(m,truckM)));
   if(!stuntReady&&!m.jump)yieldNow=yieldNow||npcs.some(other=>other!==m&&other.trafficId<m.trafficId&&shouldYield(m,other));
-  m.target=yieldNow?0:(m.cruiseSpeed||9);m.accel=yieldNow?12:4;
+  const clearAhead=clearingHeroLane(m)&&!m.jump;
+  if(clearAhead)yieldNow=phase==='dispatch'&&shouldYield(m,truckM);
+  m.target=yieldNow?0:clearAhead?Math.max(m.cruiseSpeed||9,carM.speed+3,12):(m.cruiseSpeed||9);m.accel=yieldNow?12:clearAhead?9:6;
   m.update(dt);
 }}
 /* ================= 3D tags ================= */

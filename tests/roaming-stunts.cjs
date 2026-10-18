@@ -10,7 +10,7 @@ assert(central>600);assert(turns.size===9);
 ctx.startRoaming();const car=ctx.carM;car.speed=car.target=10;
 for(let i=0;i<1000;i++){car.s+=15;const before=car.at(car.s);ctx.extendRoaming();const after=car.at(car.s);assert(Math.hypot(before.x-after.x,before.z-after.z)<1e-6);assert(car.pts.length<20);assert(car.remaining()>=160);assert.equal(car.speed,10);}
 car.setPath([[0,0],[30,0]],false);assert.equal(car.roaming,false);
-vm.runInContext(src.slice(src.indexOf('function approaching('),src.indexOf('function resetRoadsterEffects')),ctx);
+vm.runInContext(src.slice(src.indexOf('function roadsterTurn('),src.indexOf('function resetRoadsterEffects')),ctx);
 const m=(x,z,hx,hz,speed=10)=>({active:true,speed,s:0,obj:{position:{x,z}},at:()=>({hx,hz})});
 const a=m(0,0,1,0),b=m(12,3.6,-1,0);assert(ctx.approaching(a,b));assert(!ctx.approaching(a,m(12,3.6,1,0)));assert(!ctx.approaching(a,m(-12,3.6,-1,0)));assert(!ctx.approaching(a,m(12,8,-1,0)));assert(!ctx.approaching(a,m(12,3.6,-1,0,0)));assert(ctx.approaching(a,m(8,-8,0,1)));assert(!ctx.approaching(a,m(8,8,0,1)));b.jump={};assert(!ctx.approaching(a,b));
 console.log('PASS: 3000 road choices, central park roads, no U-turns, 1000 path extensions without teleport/unbounded growth, service route exit, head-on jump boundaries');
@@ -39,3 +39,5 @@ const player=()=>({...person(),position:{set(x,y,z){Object.assign(this,{x,y,z})}
 vm.runInContext(src.slice(src.indexOf('function animateFootball'),src.indexOf('function animateParks')),ctx);
 let sawShot=false;for(let t=0;t<20;t+=.05){ctx.animateFootball(football,t);assert(Math.abs(football.ball.position.x-football.cx)<7.5);assert(Math.abs(football.ball.position.z-football.cz)<3);sawShot||=football.ball.position.x-football.cx>7;for(const kid of football.kids)assert(Math.abs(kid.position.x-football.cx)<=6&&Math.abs(kid.position.z-football.cz)<=4);}
 assert(sawShot);console.log('PASS: football passing and shots, six players remain inside the pitch');
+const turnCar=ctx.roadsters[0];turnCar.jump={time:.4,gas:0};turnCar.jumpCooldown=1;turnCar.rot=0;turnCar.at=()=>({hx:0,hz:1});turnCar.speed=10;turnCar.roadster.sideJets=[-1,1].flatMap(x=>[-1,1].map(side=>({visible:false,userData:{x,side}})));ctx.roadsters=[turnCar];ctx.npcs=[turnCar];ctx.carM.active=false;ctx.truckM.active=false;ctx.canLand=ctx.canChangeHeight=()=>true;let sideBursts=0;ctx.emitColdGas=(m,turn)=>{if(turn)sideBursts++;};
+ctx.updateRoadsterEffects(.05);assert.equal(turnCar.roadster.sideJets.filter(j=>j.visible).length,2);assert(sideBursts>0);turnCar.rot=-Math.PI/2;ctx.updateRoadsterEffects(.05);assert(turnCar.roadster.sideJets.every(j=>!j.visible));turnCar.jump.time=1.64;ctx.updateRoadsterEffects(.05);assert.equal(turnCar.jump,null);assert(turnCar.roadster.sideJets.every(j=>!j.visible));console.log('PASS: opposite front/rear side jets fire during airborne turns and stop on straight flight/landing');

@@ -5,6 +5,7 @@ const ctx={V3,Math,PROJECT:'ecare',phase:'dispatch',S:{beacon:true,dealer:{top:V
 vm.runInContext(src.slice(src.indexOf('function roadPoint'),src.indexOf('function vehicleSize')),ctx);
 function mover(x,z,dx,dz,speed=9){return {s:0,lane:0,speed,active:true,obj:{position:V3(x,0,z)},at:s=>({x:x+dx*s,z:z+dz*s,hx:dx,hz:dz})}}
 assert(ctx.shouldYield(mover(-15,0,1,0),mover(0,-12,0,1,10)));assert(!ctx.shouldYield(mover(70,0,1,0),mover(0,-12,0,1,10)));assert(!ctx.shouldYield(mover(-15,0,1,0),mover(0,-12,0,1,0)));assert(!ctx.shouldYield(mover(-15,22,1,0),mover(0,-12,0,-1,10)));
+assert(!ctx.shouldYield(mover(10,0,1,0),mover(0,0,1,0)),'a leading car must not stop for a following car');
 let created=0,stopped=0;ctx.AC={state:'running',currentTime:1,destination:{},createOscillator(){created++;return {frequency:{setTargetAtTime(){}},connect(){},start(){},stop(){stopped++},disconnect(){}}},createGain(){return {gain:{},connect(){},disconnect(){}}}};
 vm.runInContext(src.slice(src.indexOf('let rescueSiren=null;'),src.indexOf("$('#btnSound').addEventListener")),ctx);
 for(let i=0;i<200;i++)ctx.updateRescueSiren();assert.equal(created,1);ctx.phase='arrived';ctx.updateRescueSiren();assert.equal(stopped,1);ctx.phase='dispatch';ctx.muted=true;ctx.updateRescueSiren();assert.equal(created,1);ctx.muted=false;ctx.updateRescueSiren();assert.equal(created,2);ctx.S.beacon=false;ctx.updateRescueSiren();assert.equal(stopped,2);
