@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>e-Care 시뮬레이터</title>
 <meta name="description" content="e-Care 커넥티드 케어 시뮬레이터 — 경고등 감지, VDP·VEP 정보 흐름, SLA 상담 연결, 긴급출동과 서비스센터 연계를 3D로 시연합니다.">
 <meta name="theme-color" content="#05080d">
@@ -878,6 +879,127 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 #wngView .wmid.keep{border-color:var(--wkeep);color:var(--wkeep)}
 .wtip-m{max-height:220px;overflow:auto;scrollbar-width:thin}
 .wtip-m .wl{font:500 11.5px/1.6 var(--f-mono)}
+/* ---------- v0.1.9: zoom controls ---------- */
+.zoom{gap:2px;padding:5px;border-radius:13px;background:rgba(7,12,20,.86);border-color:rgba(150,185,220,.18);box-shadow:0 10px 28px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);z-index:4}
+.zoom button{width:38px;height:38px;border-radius:9px;color:#d5dde8;transition:background .15s,color .15s,transform .1s}
+.zoom button:active{background:rgba(46,230,207,.22);transform:scale(.93)}
+.zoom button svg{width:20px;height:20px;stroke-width:1.9;stroke-linejoin:round}
+.zoom .zp{font:700 10.5px var(--f-mono);color:#9fb0c3;padding:2px 0}
+.zoom .zsep{height:1px;margin:3px 7px;background:rgba(150,185,220,.16)}
+#zLock .lk-c{display:none}
+#zLock[aria-pressed="true"] .lk-c{display:inline}
+#zLock[aria-pressed="true"] .lk-o{display:none}
+#zLock[aria-pressed="true"]{background:rgba(46,230,207,.16);color:var(--teal);box-shadow:inset 0 0 0 1px rgba(46,230,207,.45)}
+.stage.pinch{cursor:zoom-in}
+/* ---------- v0.1.9: call pane language toggle ---------- */
+.cp-lang{display:flex;flex:none;padding:2px;border-radius:8px;border:1px solid var(--line-2);background:rgba(0,0,0,.25)}
+.cp-lang button{font:700 10.5px var(--f-body);padding:5px 7px;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
+.cp-lang button[aria-pressed="true"]{background:var(--teal);color:#06121a}
+.cp-lang button:not([aria-pressed="true"]):hover{color:#fff}
+.callpane .cp-tt b{font-size:13px}
+.cp-h{gap:8px}
+.cp-tt .t{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden}
+.cp-tt .t #cpKind{overflow:hidden;text-overflow:ellipsis}
+.cp-tt .t .tm{flex:none;font:700 11px var(--f-mono);letter-spacing:0;color:#fff;text-transform:none}
+.cp-tt .t .tm:empty{display:none}
+/* ---------- v0.1.9: data flow compact ---------- */
+.zone-flow .zone-body{gap:10px;padding:10px}
+.zone-flow .card{padding:11px 12px}
+.zone-flow .flow{top:-10px}
+#app:not(.flowWide) .flow svg{max-height:min(262px,32vh);margin:0 auto}
+#app:not(.flowWide) .legend{font-size:10.5px;gap:4px 10px}
+#app:not(.flowWide) .legend i{width:11px;margin-right:4px}
+#app:not(.flowWide) #side .card h3{font-size:15.5px}
+#app:not(.flowWide) #side .card p{font-size:12.5px;line-height:1.5}
+#app:not(.flowWide) #side .card-h{margin-bottom:7px}
+#app:not(.flowWide) #side .checks{gap:4px;margin-top:8px}
+#app:not(.flowWide) #side .checks li{padding:6px 10px;font-size:12.5px}
+#app:not(.flowWide) #side .ph-in{min-height:0}
+#app:not(.flowWide) #side .kv{gap:4px 12px;font-size:12px}
+#app:not(.flowWide) .log li{padding:4px 0;font-size:12px}
+#app:not(.flowWide) .log ol{margin-top:8px!important}
+#app:not(.flowWide) #side .card.scr>p{display:none}
+#app:not(.flowWide) #side .pop p,#app:not(.flowWide) #side .ph-card p{display:none}
+#app:not(.flowWide) #side .rule{margin-top:8px;font-size:11.5px;line-height:1.5}
+#app:not(.flowWide) .memo{margin-top:6px}
+#app:not(.flowWide) .memo .stp{padding:6px 10px;margin-top:4px}
+#app:not(.flowWide) .memo .stp:not(.on) small,#app:not(.flowWide) .memo .stp:not(.on) .sclist{display:none}
+.stage:has(.celebr:not([hidden])) .subtitle{opacity:0;transition:opacity .3s}
+.stat{margin-top:8px;gap:4px}
+.stat .sr{grid-template-columns:62px 1fr;gap:6px}
+.stat .sl{font-size:10.5px;padding-top:2px}
+.stat .sc span{font-size:10px;padding:1px 5px}
+.zone-flow .legend{margin-top:7px}
+#side .card h3{margin:6px 0 4px}
+#side .card p{margin:0 0 6px}
+#side .kv{margin-top:6px}
+#side .eta{margin-top:8px}
+.card.mini .ccw-r,.card.mini .ccw-note,.card.mini .cbtn{display:none}
+#app:not(.flowWide) .card.mini>p,#app:not(.flowWide) .card.mini .kv{display:none}
+#app:not(.flowWide) #side .cnote{display:none}
+.card.mini .ccwpop{padding-bottom:6px}
+/* ---------- v0.1.9: care complete celebration ---------- */
+.celebr{position:absolute;inset:0;z-index:8;display:flex;align-items:flex-end;justify-content:center;padding:0 16px 72px;cursor:pointer;background:radial-gradient(ellipse at 50% 42%,rgba(46,230,207,.22),rgba(5,8,13,0) 58%)}
+.celebr[hidden]{display:none}
+.celebr.in{animation:cbFade .6s ease-out}
+.celebr.out{opacity:0;transition:opacity .45s}
+.celebr::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.55),rgba(46,230,207,.25) 18%,transparent 45%);opacity:0;animation:cbFlash 1s ease-out}
+.cb-card{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:18px;align-items:center;text-align:left;padding:18px 44px 16px 22px;border-radius:20px;background:rgba(6,11,18,.84);border:1px solid rgba(46,230,207,.5);box-shadow:0 0 0 1px rgba(46,230,207,.12),0 30px 80px rgba(0,0,0,.55),0 0 90px rgba(46,230,207,.28);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:cbPop .75s cubic-bezier(.2,1.35,.4,1) both;max-width:calc(100% - 32px)}
+.cb-ring{position:relative;width:76px;height:76px}
+.cb-ring svg{width:100%;height:100%;fill:none;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.cb-ring .c0{stroke:rgba(46,230,207,.15);stroke-width:6}
+.cb-ring .c1{stroke:#2ee6cf;stroke-width:6;stroke-dasharray:327;stroke-dashoffset:327;animation:cbDraw .75s .15s ease-out forwards;filter:drop-shadow(0 0 8px rgba(46,230,207,.85))}
+.cb-ring .ck{stroke:#fff;stroke-width:8;stroke-dasharray:72;stroke-dashoffset:72;animation:cbDraw .45s .8s ease-out forwards}
+.cb-ring::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(46,230,207,.7);opacity:0;animation:cbWave 1.4s 1s ease-out 2}
+.cb-k{font:600 11px var(--f-display);letter-spacing:.32em;color:var(--teal)}
+.cb-t{font:800 30px/1.15 var(--f-body);letter-spacing:-.02em;margin-top:4px;background:linear-gradient(100deg,#fff 30%,#8ff3e6 50%,#fff 70%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:cbShine 2.6s 1.1s ease-in-out infinite}
+.cb-s{margin-top:6px;font-size:13.5px;color:#c9d3df;line-height:1.5}
+.cb-st{grid-column:1/-1;display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.cb-st div{padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);min-width:96px;opacity:0;animation:cbUp .5s ease-out forwards}
+.cb-st div:nth-child(1){animation-delay:1.05s}.cb-st div:nth-child(2){animation-delay:1.2s}.cb-st div:nth-child(3){animation-delay:1.35s}
+.cb-st span{display:block;font-size:10.5px;color:var(--muted)}
+.cb-st b{font:700 16px var(--f-mono);color:#fff}
+.cb-st b.ok{color:var(--teal)}
+.cb-x{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line)}
+.cb-x svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.cb-burst{position:absolute;left:60px;top:56px;width:0;height:0;pointer-events:none}
+.cb-burst i{position:absolute;width:7px;height:12px;margin:-6px -3px;background:var(--c);border-radius:2px;opacity:0;animation:cbConf 1.7s cubic-bezier(.12,.7,.3,1) forwards;animation-delay:calc(.8s + var(--t))}
+@keyframes cbConf{0%{opacity:1;transform:rotate(var(--a)) translateY(0) rotate(0)}75%{opacity:1}100%{opacity:0;transform:rotate(var(--a)) translateY(calc(-1 * var(--d))) rotate(560deg)}}
+@keyframes cbPop{0%{opacity:0;transform:scale(.55) translateY(24px)}100%{opacity:1;transform:none}}
+@keyframes cbDraw{to{stroke-dashoffset:0}}
+@keyframes cbShine{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+@keyframes cbUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cbFade{from{opacity:0}}
+@keyframes cbFlash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+@keyframes cbWave{0%{opacity:.9;transform:scale(.9)}100%{opacity:0;transform:scale(1.7)}}
+#app.flowFocus .cb-t{font-size:24px}
+#app.flowFocus .cb-st{display:none}
+/* ---------- v0.1.9: touch · iPad ---------- */
+html{-webkit-text-size-adjust:100%;touch-action:manipulation}
+@supports (height:100dvh){html,body{height:100dvh}}
+button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.cp-lang button,.zoom button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.dock,.top,.zone-h{-webkit-user-select:none;user-select:none}
+@media (hover:none){
+  .act:hover{transform:none;box-shadow:none}
+  .svc:hover{transform:none;box-shadow:none}
+  .zoom button:hover{background:transparent}
+  .act:active{transform:scale(.97)}
+}
+@media (pointer:coarse){
+  .drawer-btn{width:38px;height:38px}
+  .drawer-btn svg{width:18px;height:18px}
+  .ibtn{width:42px;height:42px}
+  .tbtn{padding:9px 12px}
+  .cp-x{width:40px;height:40px}
+  .cp-lang button{padding:8px 10px;font-size:11.5px}
+  .cp-f .cp-clr{padding:8px 12px}
+  .wfold{width:28px;height:28px}
+  .wmore{padding:4px 9px}
+  .zoom button{width:46px;height:46px}
+  .zoom button svg{width:22px;height:22px}
+  .act .k{display:none}
+  .zone-flow .rail,.zone .rail{min-width:52px}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
@@ -938,7 +1060,7 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
   </aside>
 
   <main class="zone zone-stage" aria-label="시뮬레이션 화면">
-    <div class="zone-h"><span class="zd" style="background:var(--teal)"></span><span class="zl">Simulation</span><span class="stchip" id="stState">연결 대기</span><span class="ticker" id="ticker"></span><span class="zr" id="viewLbl" style="margin-left:0">자동 카메라</span><button class="tbtn" id="btnLayout" aria-pressed="false" title="레이아웃 전환 (L)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/></svg><span id="layoutLbl">정보 흐름 크게</span></button><button class="drawer-btn" id="stageBtn" title="시뮬레이션 접기 (V)"><svg viewBox="0 0 24 24"><path d="M4 4l6 6M4 4v5M4 4h5M20 20l-6-6M20 20v-5M20 20h-5"/></svg></button></div>
+    <div class="zone-h"><span class="zd" style="background:var(--teal)"></span><span class="zl">Simulation</span><span class="stchip" id="stState">연결 대기</span><span class="ticker" id="ticker"></span><span class="zr" id="viewLbl" style="margin-left:0">자동 카메라</span><button class="tbtn" id="btnLayout" aria-pressed="false" title="레이아웃 전환 (L)"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/></svg><span id="layoutLbl">정보 흐름 크게</span></button><button class="drawer-btn" id="stageBtn" title="시뮬레이션 접기 (V)"><svg viewBox="0 0 24 24"><path d="M4 4l6 6M10 5v5H5M20 20l-6-6M14 19v-5h5"/></svg></button></div>
     <button class="rail" id="stageRail" title="시뮬레이션 펼치기 (V)"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg><span class="rv">Simulation</span><span class="rk">시뮬레이션 화면</span><span class="rd" id="railDot2"></span></button>
     <div class="stage" id="stage">
       <canvas id="scene" aria-label="e-Care 3D 시뮬레이션"></canvas>
@@ -970,12 +1092,14 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
       <div class="hint">휠 확대·축소 · 드래그 이동</div>
       <div class="subtitle" id="subtitle"></div>
       <div class="zoom" role="group" aria-label="화면 확대 축소">
-        <button id="zIn" title="확대 (+)"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button id="zIn" title="확대 (+)" aria-label="확대"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L20 20M10.5 7.6v5.8M7.6 10.5h5.8"/></svg></button>
         <div class="zp" id="zPct">100%</div>
-        <button id="zOut" title="축소 (-)"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
-        <button id="zLock" aria-pressed="false" title="지도 고정 (G)"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
-        <button id="zFit" title="자동 카메라로 복귀 (0)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+        <button id="zOut" title="축소 (-)" aria-label="축소"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L20 20M7.6 10.5h5.8"/></svg></button>
+        <span class="zsep" aria-hidden="true"></span>
+        <button id="zLock" aria-pressed="false" title="지도 고정 (G)" aria-label="지도 고정"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.2"/><path class="lk-c" d="M8 11V8a4 4 0 0 1 8 0v3"/><path class="lk-o" d="M8 11V8a4 4 0 0 1 7.7-1.5"/><path d="M12 15v2"/></svg></button>
+        <button id="zFit" title="자동 카메라로 복귀 (0)" aria-label="자동 카메라"><svg viewBox="0 0 24 24"><path d="M4 9V6a2 2 0 0 1 2-2h3M20 9V6a2 2 0 0 0-2-2h-3M4 15v3a2 2 0 0 0 2 2h3M20 15v3a2 2 0 0 1-2 2h-3"/><circle cx="12" cy="12" r="2.6"/></svg></button>
       </div>
+      <div class="celebr" id="celebr" hidden></div>
     </div>
   </main>
 
@@ -999,7 +1123,7 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
   </footer>
 
   <div class="callpane" id="callPane" role="log" aria-label="고객 통화 내용">
-    <div class="cp-h" id="cpHead" title="끌어서 이동 · 눌러서 접기/펼치기"><span class="cp-grip" aria-hidden="true"></span><span class="cp-dot"></span><div class="cp-tt"><span class="t" id="cpKind">Customer Call</span><b id="cpTitle">고객 통화</b><span class="pv" id="cpPv">통화 대기 중</span></div><span class="tm" id="cpT"></span><button class="cp-x" id="cpMin" title="접기 · 펼치기"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></div>
+    <div class="cp-h" id="cpHead" title="끌어서 이동 · 눌러서 접기/펼치기"><span class="cp-grip" aria-hidden="true"></span><span class="cp-dot"></span><div class="cp-tt"><span class="t"><span id="cpKind">Customer Call</span><span class="tm" id="cpT"></span></span><b id="cpTitle">고객 통화</b><span class="pv" id="cpPv">통화 대기 중</span></div><div class="cp-lang" id="cpLang" role="group" aria-label="대화 언어"><button type="button" data-l="ko" aria-pressed="true">한국어</button><button type="button" data-l="ja" aria-pressed="false">日本語</button></div><button class="cp-x" id="cpMin" title="접기 · 펼치기"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></div>
     <div class="cp-who" id="cpWho"></div>
     <div class="cp-body" id="cpBody"></div>
     <div class="cp-f"><span id="cpSt">대기 중</span><span id="cpN">0줄</span><button class="cp-clr" id="cpClr" title="통화 기록 지우기">기록 지우기</button></div>
@@ -1048,6 +1172,15 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.1.9',date:'2026-10-18',name:'통화 패널 한/일 전환 · 터치 · 완료 연출',notes:[
+    '고객 통화 패널 머리에 [한국어 | 日本語] 전환 버튼 · 지난 대화와 진행 중인 대화까지 즉시 바뀜 (선택 언어 기억)',
+    '통화가 시작되면 접혀 있어도 고객 통화 패널을 자동으로 펼침',
+    '정보 흐름 패널: 서버 흐름도를 줄이고 카드 간격 · 상태 표를 압축해 세로 스크롤 최소화, 고객 통화 대화창은 정보 흐름에서 삭제 (통화 패널로 일원화)',
+    '시뮬레이션 확대 · 축소 버튼 다시 디자인 (돋보기 +/− · 잠금 상태 아이콘 · 자동 카메라), 시뮬레이션 접기 아이콘을 안쪽 화살표로 수정',
+    '시뮬레이션 화면 두 손가락 핀치 확대 · 축소 + 이동, 트랙패드 핀치 지원',
+    '아이패드 터치 대응: 버튼 터치 영역 확대, 더블탭 확대 · 화면 확대 방지, 단축키 배지 숨김, WNG 매트릭스 탭 시 상태 표시',
+    '견인 차량(또는 고객 차량)이 서비스센터에 도착하면 완료 연출: 빛 기둥 · 파동 · 불꽃 · 컨페티 + 체크 애니메이션 · 소요 시간 요약 카드 · 효과음'
+  ]},
   {v:'0.1.8',date:'2026-10-17',name:'WNG 메시지 목록 고정 형식',notes:[
     '타이밍별 WNG 메시지는 001~006과 256을 항상 표시하고, 그 사이(007~255)에 ON · 변경된 WNG가 있으면 "...." 옆에 "+N" 표시',
     '"+N"을 누르면 가려진 WNG를 상태(on · off · 발생 · 유지)와 함께 툴팁으로 표시'
@@ -1593,16 +1726,35 @@ function zoomBy(f){ userZoom=clamp(userZoom*f,.3,100/15);
 $('#zIn').addEventListener('click',()=>zoomBy(1/1.25));
 $('#zOut').addEventListener('click',()=>zoomBy(1.25));
 $('#zFit').addEventListener('click',()=>{autoLock=false;setLock(false);userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();});
-stage.addEventListener('wheel',e=>{if(PROJECT==='wng'||e.target.closest('#callPane'))return;e.preventDefault();zoomBy(Math.exp(e.deltaY*.0012));},{passive:false});
-let drag=null;
-stage.addEventListener('pointerdown',e=>{ if(e.button!==0||e.target.closest('.zoom,#callPane,#wngView')||PROJECT==='wng') return; drag={x:e.clientX,y:e.clientY,id:e.pointerId}; stage.setPointerCapture(e.pointerId); stage.classList.add('drag'); });
-stage.addEventListener('pointermove',e=>{ if(!drag||e.pointerId!==drag.id) return;
-  const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY;
-  const u=(cam.right-cam.left)/Math.max(1,W);
+stage.addEventListener('wheel',e=>{if(PROJECT==='wng'||e.target.closest('#callPane'))return;e.preventDefault();zoomBy(Math.exp(e.deltaY*(e.ctrlKey?.009:.0012)));},{passive:false});
+/* v0.1.9: 한 손가락(마우스) 드래그 이동 · 두 손가락 핀치 확대·축소 */
+const PTR=new Map(); let drag=null, pinch=null;
+function panBy(dx,dy){ const u=(cam.right-cam.left)/Math.max(1,W);
   const Rv=V3(Math.cos(view.yaw),0,-Math.sin(view.yaw)), F=V3(-Math.sin(view.yaw),0,-Math.cos(view.yaw));
-  pan.addScaledVector(Rv,-dx*u).addScaledVector(F,dy*u/Math.sin(view.pitch)); updViewLbl(); });
-const endDrag=e=>{ if(drag&&e.pointerId===drag.id){drag=null;stage.classList.remove('drag');} };
-stage.addEventListener('pointerup',endDrag); stage.addEventListener('pointercancel',endDrag);
+  pan.addScaledVector(Rv,-dx*u).addScaledVector(F,dy*u/Math.sin(view.pitch)); updViewLbl(); }
+function pinchInfo(){ const [a,b]=[...PTR.values()]; return {d:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),x:(a.x+b.x)/2,y:(a.y+b.y)/2}; }
+stage.addEventListener('pointerdown',e=>{ if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('.zoom,#callPane,#wngView,.celebr')||PROJECT==='wng') return;
+  if(e.pointerType==='touch') touchHint();
+  PTR.set(e.pointerId,{x:e.clientX,y:e.clientY}); try{stage.setPointerCapture(e.pointerId);}catch(_){}
+  if(PTR.size===2){ drag=null; const p=pinchInfo(); pinch={d:p.d,x:p.x,y:p.y,z:userZoom}; stage.classList.add('pinch'); }
+  else if(PTR.size===1){ drag={x:e.clientX,y:e.clientY,id:e.pointerId}; stage.classList.add('drag'); } });
+stage.addEventListener('pointermove',e=>{ const q=PTR.get(e.pointerId); if(!q) return; q.x=e.clientX; q.y=e.clientY;
+  if(pinch&&PTR.size>=2){ const p=pinchInfo(); zoomBy(pinch.z*pinch.d/p.d/userZoom); panBy(p.x-pinch.x,p.y-pinch.y); pinch.x=p.x; pinch.y=p.y; return; }
+  if(!drag||e.pointerId!==drag.id) return;
+  const dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY; panBy(dx,dy); });
+const endDrag=e=>{ if(!PTR.delete(e.pointerId)) return;
+  if(PTR.size<2&&pinch){ pinch=null; stage.classList.remove('pinch'); }
+  if(PTR.size===1){ const [id,q]=[...PTR.entries()][0]; drag={x:q.x,y:q.y,id}; }
+  else if(!PTR.size){ drag=null; stage.classList.remove('drag'); } };
+stage.addEventListener('pointerup',endDrag); stage.addEventListener('pointercancel',endDrag); stage.addEventListener('lostpointercapture',endDrag);
+/* Safari: 페이지 확대 대신 시뮬레이션 확대 (데스크톱 트랙패드 제스처) */
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+let gzZ=null;
+stage.addEventListener('gesturestart',e=>{ gzZ=userZoom; });
+stage.addEventListener('gesturechange',e=>{ if(gzZ==null||PROJECT==='wng'||navigator.maxTouchPoints>0||!e.scale) return; zoomBy(gzZ/e.scale/userZoom); });
+stage.addEventListener('gestureend',()=>{ gzZ=null; });
+function touchHint(){ const h=document.querySelector('.hint'); if(h&&!h.dataset.touch){ h.dataset.touch='1'; h.textContent='두 손가락 확대·축소 · 드래그 이동'; } }
+if(matchMedia('(pointer:coarse)').matches) touchHint(); else { const h=document.querySelector('.hint'); if(h) h.textContent='휠 · 핀치 확대·축소 · 드래그 이동'; }
 
 let W=1,H=1;
 function resize(){W=stage.clientWidth;H=stage.clientHeight;renderer.setSize(W,H,false);}
@@ -1708,7 +1860,9 @@ const sfx={
   siren(){tone(620,.55,'sawtooth',.018,0,940);tone(940,.55,'sawtooth',.018,.55,620);tone(620,.55,'sawtooth',.018,1.1,940);},
   breach(){tone(520,.3,'square',.03);tone(390,.4,'square',.03,.32);},
   tick(){tone(2400,.03,'square',.012);},
-  done(){tone(784,.15,'sine',.04);tone(988,.15,'sine',.04,.12);tone(1319,.3,'sine',.04,.24);}
+  done(){tone(784,.15,'sine',.04);tone(988,.15,'sine',.04,.12);tone(1319,.3,'sine',.04,.24);},
+  fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.05,i*.11));[523,659,784,1047,1319].forEach(f=>tone(f,1.3,'sine',.022,.5));tone(1568,.7,'sine',.03,.62);[.9,1.2,1.5,1.85].forEach((w,i)=>{tone(180,.18,'sine',.05,w,60);tone(2400+i*350,.06,'square',.008,w+.05);});},
+  pop(){tone(260,.16,'sine',.05,0,70);tone(3000,.05,'square',.006,.04);}
 };
 $('#btnSound').addEventListener('click',e=>{muted=!muted;e.currentTarget.setAttribute('aria-pressed',muted);$('#sndWave').style.opacity=muted?.15:1;});
 $('#btnFull').addEventListener('click',()=>{const d=document;try{if(d.fullscreenElement){d.exitFullscreen().catch(()=>{});}else{const p=$('#app').requestFullscreen&&$('#app').requestFullscreen();if(p&&p.catch)p.catch(()=>{});}}catch(e){}});
@@ -1952,19 +2106,18 @@ function phoneDealers(){
 }
 function sideAwait(){
   const sv=scenario==='severe', d=DIAG[scenario];
-  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Customer Screens</span>${d.chip}</header>
+  side.innerHTML=`<section class="card scr"><header class="card-h"><span class="eyebrow">Customer Screens</span>${d.chip}</header>
   <h3>경고 알림 표시</h3><p>${sv?'차량 HU와 e-Care 앱에 긴급 경고가 표시되고, 콜센터 웹과 DMS에도 같은 정보가 등록되었습니다.':'차량 HU와 e-Care 앱에 정비 경고가 표시되고, 선호 딜러 DMS에 정보가 등록되었습니다.'}</p>
   ${devHTML()}
   <div class="rule">${sv?'<b>SLA</b> · 경고 발생 후 <b>25분</b> 안에 고객이 콜센터로 전화하지 않으면 상담원이 고객 휴대폰으로 먼저 전화합니다.':'<b>정비 경고</b> · 콜센터 상담원이 대응하지 않습니다. 고객이 HU나 앱에서 서비스센터로 직접 연락합니다.'+(night()?'<br><b>야간</b> · 딜러 영업시간(09:00~18:00)이 아니므로 연락 요청을 남기면 다음 영업일 아침에 딜러가 먼저 전화합니다.':'')}</div></section>`;
 }
 function sideCall(o){
-  const toDealer=o.party==='dealer';
-  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${o.dir==='out'?(toDealer?'Dealer Callback':'SLA Call-out'):toDealer?'Dealer Call':'Inbound Call'}</span><span class="chip amber" id="cst">${o.dir==='out'?'고객 휴대폰 호출 중':toDealer?S.dealer.name+' 수신 중':'콜센터 수신 중'}</span></header>
-  <div class="parties">
-   <div class="party" id="pA"><div class="av ag">${ICON.agent}</div><div><b>${toDealer?S.dealer.name+' 어드바이저':'e-Care 상담원'}</b><small>${toDealer?'DMS · 차량 경고 정보 연동':'콜센터 웹 · 차량 진단 정보 연동'}</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
-   <div class="linkrow"><span id="ctime">00:00</span></div>
-   <div class="party" id="pC"><div class="av cu">${o.via==='hu'?ICON.car:ICON.phone}</div><div><b>홍길동 고객님</b><small>${o.via==='hu'?'차량 HU · 핸즈프리 통화':'고객 휴대폰 · 010-****-1234'}</small></div><div class="wave">${'<i></i>'.repeat(6)}</div></div>
-  </div><div class="script" id="tx"></div></section>`;
+  /* v0.1.9: 대화 내용은 고객 통화 패널에만 표시 · 콜센터 통화는 콜센터 웹 카드를 그대로 유지 */
+  if(o.party!=='dealer') return;
+  const d=DIAG[scenario]||{};
+  side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">${o.dir==='out'?'Dealer Callback':'Dealer Call'} · DMS</span><span class="chip">고객 통화 연결</span></header>
+  <h3>${S.dealer.name}</h3><p>e-Care로 전달된 차량 경고 정보를 DMS에서 조회하며 통화합니다. 대화 내용은 고객 통화 패널에 표시됩니다.</p>
+  <dl class="kv"><dt>경고</dt><dd>${d.title||'-'}</dd><dt>진단 코드</dt><dd>${d.code||'-'}</dd><dt>연결</dt><dd>${o.dir==='out'?'다음 영업일 콜백':o.via==='hu'?'차량 HU 전화하기':'e-Care 앱'}</dd></dl></section>`;
 }
 function sideDispatch(){
   side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Emergency Dispatch</span><span class="chip red" id="dst">배정 완료</span></header>
@@ -1986,7 +2139,7 @@ function sideService(kind){
   <dl class="kv"><dt>입고 방식</dt><dd>${kind==='tow'?'견인 차량 입고':'고객 직접 입고'}</dd><dt>DMS 전달</dt><dd>원격 진단 데이터 · ${DIAG[scenario].code}</dd><dt>담당</dt><dd>서비스 어드바이저 배정 완료</dd></dl></section>`;
 }
 function sideDone(){
-  const rows=LOG.slice(-11).map(l=>`<li class="${l.kind}"><time>${l.t}</time><span>${l.text}</span></li>`).join('');
+  const rows=LOG.slice(innerHeight<860?-7:-9).map(l=>`<li class="${l.kind}"><time>${l.t}</time><span>${l.text}</span></li>`).join('');
   side.innerHTML=`<section class="card log"><header class="card-h"><span class="eyebrow">Care Complete</span><span class="chip">완료</span></header>
   <h3>${scenario==='severe'?'긴급 상황, 끊김 없이 해결':'정비 필요, 미리 안내하고 연결'}</h3>
   <p>경고 감지부터 서비스센터 입고까지 한 흐름으로 이어졌습니다.</p>
@@ -2001,24 +2154,38 @@ const G={flags:{tm:0,dk:0,ott:0,hs:0,valet:0},done:new Set(),mm:{view:'home'},ph
 const S={dealer:PREF,dlist:[],callLink:null,hazard:false,status:'normal',load:null,beam:null,callT0:0,eta:null,slaT0:0,slaStop:0,lapse:null,ff:1,callLive:false,callDir:1,phoneTag:null};
 const SLA_MS=25*60*1000;
 const live=(run,ms)=>new Promise(r=>setTimeout(()=>r(run===token),ms));
+/* v0.1.9: [who, 한국어, 日本語] */
 const SCRIPT={
-  out:[['agent','안녕하세요, e-Care 상담센터입니다. 홍길동 고객님 휴대폰 맞으신가요?'],['cust','네, 맞아요.'],['agent','25분 전 차량에서 브레이크 시스템 경고가 감지됐는데 연락이 없으셔서 먼저 전화드렸습니다. 지금 안전한 곳에 계신가요?'],['cust','경황이 없어서 연락을 못 했어요. 갓길에 세워 뒀어요.'],['agent','현재 위치로 긴급출동 차량을 바로 보내드리겠습니다. 비상등을 켜고 차 밖 안전한 곳에서 기다려 주세요.']],
-  hu:[['cust','차량 화면에 브레이크 경고가 떠서 전화하기 버튼을 눌렀어요.'],['agent','e-Care 상담센터입니다. 차량에서 바로 연결되어 고객님 차량의 진단 정보가 함께 접수되었습니다.'],['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?'],['cust','네, 갓길에 세웠어요.'],['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.']],
-  app:[['cust','앱에서 브레이크 경고 알림을 보고 전화드렸어요.'],['agent','e-Care 상담센터입니다. 고객님 차량의 진단 정보가 이미 접수되어 있습니다.'],['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?'],['cust','네, 갓길에 세웠어요.'],['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.']]
+  out:[['agent','안녕하세요, e-Care 상담센터입니다. 홍길동 고객님 휴대폰 맞으신가요?','お世話になっております。e-Careサポートセンターです。ホン・ギルドン様の携帯電話でお間違いないでしょうか？'],
+       ['cust','네, 맞아요.','はい、そうです。'],
+       ['agent','25분 전 차량에서 브레이크 시스템 경고가 감지됐는데 연락이 없으셔서 먼저 전화드렸습니다. 지금 안전한 곳에 계신가요?','25分前にお車でブレーキシステムの警告が検知されましたが、ご連絡がなかったため、こちらからお電話いたしました。今、安全な場所にいらっしゃいますか？'],
+       ['cust','경황이 없어서 연락을 못 했어요. 갓길에 세워 뒀어요.','慌ててしまって連絡できませんでした。路肩に停めています。'],
+       ['agent','현재 위치로 긴급출동 차량을 바로 보내드리겠습니다. 비상등을 켜고 차 밖 안전한 곳에서 기다려 주세요.','現在地へすぐに緊急出動車両を手配いたします。ハザードランプを点灯し、車外の安全な場所でお待ちください。']],
+  hu:[['cust','차량 화면에 브레이크 경고가 떠서 전화하기 버튼을 눌렀어요.','車の画面にブレーキの警告が出たので、通話ボタンを押しました。'],
+      ['agent','e-Care 상담센터입니다. 차량에서 바로 연결되어 고객님 차량의 진단 정보가 함께 접수되었습니다.','e-Careサポートセンターです。お車から直接つながり、お客様のお車の診断情報も一緒に受け付けております。'],
+      ['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?','ブレーキシステムの異常のため、走行を中止してください。停車されましたか？'],
+      ['cust','네, 갓길에 세웠어요.','はい、路肩に停めました。'],
+      ['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.','現在地へ緊急出動車両を手配いたします。車外の安全な場所でお待ちください。']],
+  app:[['cust','앱에서 브레이크 경고 알림을 보고 전화드렸어요.','アプリでブレーキ警告の通知を見て、お電話しました。'],
+       ['agent','e-Care 상담센터입니다. 고객님 차량의 진단 정보가 이미 접수되어 있습니다.','e-Careサポートセンターです。お客様のお車の診断情報はすでに受け付けております。'],
+       ['agent','브레이크 시스템 이상이라 주행을 멈추셔야 합니다. 정차하셨나요?','ブレーキシステムの異常のため、走行を中止してください。停車されましたか？'],
+       ['cust','네, 갓길에 세웠어요.','はい、路肩に停めました。'],
+       ['agent','현재 위치로 긴급출동 차량을 보내드리겠습니다. 차 밖 안전한 곳에서 기다려 주세요.','現在地へ緊急出動車両を手配いたします。車外の安全な場所でお待ちください。']]
 };
 function scriptFor(o){
-  if(o.party==='dealer'&&o.dir==='out'){ const n=S.dealer.name; return [
-    ['agent',`안녕하세요, ${n} 서비스 어드바이저입니다. 어젯밤 남기신 연락 요청과 e-Care 경고 정보를 확인했습니다.`],
-    ['cust','네, 엔진 점검 경고가 떠서 남겼어요.'],
-    ['agent','배출가스 계통 점검이 필요합니다. 주행은 가능하니 오늘 편하신 시간에 입고해 주세요.'],
-    ['cust','오후 3시쯤 갈게요.'],
-    ['agent','오후 3시로 예약해 드렸습니다. 진단 정보로 부품도 미리 준비해 두겠습니다.']]; }
-  if(o.party==='dealer'){ const n=S.dealer.name; return [
-    o.via==='hu'?['cust','차량 화면에 엔진 점검 경고가 떠서 전화하기 버튼을 눌렀어요.']:['cust','앱에서 서비스센터를 골라 전화드렸어요. 엔진 점검 경고가 떴어요.'],
-    ['agent',`${n} 서비스 어드바이저입니다. e-Care로 전달된 차량 경고 정보를 DMS에서 확인했습니다.`],
-    ['agent','배출가스 계통 점검이 필요합니다. 주행은 가능하니 편하신 시간에 입고해 주세요.'],
-    ['cust','오늘 오후에 갈 수 있을까요?'],
-    ['agent','오후 3시로 예약해 드릴게요. 진단 정보로 부품도 미리 준비해 두겠습니다.']]; }
+  const n=S.dealer.name, nj=CPJ[n]||n;
+  if(o.party==='dealer'&&o.dir==='out') return [
+    ['agent',`안녕하세요, ${n} 서비스 어드바이저입니다. 어젯밤 남기신 연락 요청과 e-Care 경고 정보를 확인했습니다.`,`お世話になっております。${nj}のサービスアドバイザーです。昨夜いただいたご連絡のご依頼と、e-Careの警告情報を確認いたしました。`],
+    ['cust','네, 엔진 점검 경고가 떠서 남겼어요.','はい、エンジンチェックの警告が出たので残しました。'],
+    ['agent','배출가스 계통 점검이 필요합니다. 주행은 가능하니 오늘 편하신 시간에 입고해 주세요.','排出ガス系統の点検が必要です。走行は可能ですので、本日ご都合のよいお時間に入庫してください。'],
+    ['cust','오후 3시쯤 갈게요.','午後3時ごろ伺います。'],
+    ['agent','오후 3시로 예약해 드렸습니다. 진단 정보로 부품도 미리 준비해 두겠습니다.','午後3時でご予約いたしました。診断情報をもとに、部品も事前にご用意しておきます。']];
+  if(o.party==='dealer') return [
+    o.via==='hu'?['cust','차량 화면에 엔진 점검 경고가 떠서 전화하기 버튼을 눌렀어요.','車の画面にエンジンチェックの警告が出たので、通話ボタンを押しました。']:['cust','앱에서 서비스센터를 골라 전화드렸어요. 엔진 점검 경고가 떴어요.','アプリでサービスセンターを選んでお電話しました。エンジンチェックの警告が出ました。'],
+    ['agent',`${n} 서비스 어드바이저입니다. e-Care로 전달된 차량 경고 정보를 DMS에서 확인했습니다.`,`${nj}のサービスアドバイザーです。e-Careから届いた車両の警告情報をDMSで確認いたしました。`],
+    ['agent','배출가스 계통 점검이 필요합니다. 주행은 가능하니 편하신 시간에 입고해 주세요.','排出ガス系統の点検が必要です。走行は可能ですので、ご都合のよいお時間に入庫してください。'],
+    ['cust','오늘 오후에 갈 수 있을까요?','今日の午後に伺えますか？'],
+    ['agent','오후 3시로 예약해 드릴게요. 진단 정보로 부품도 미리 준비해 두겠습니다.','午後3時でご予約いたします。診断情報をもとに、部品も事前にご用意しておきます。']];
   return o.dir==='out'?SCRIPT.out:SCRIPT[o.via];
 }
 
@@ -2060,6 +2227,7 @@ $('#btnPW').addEventListener('click',()=>switchProject('wng'));
 async function warnFlow(sc){
   const run=++token; scenario=sc; const severe=sc==='severe';
   setPhase('warn'); lamps(sc); S.status=sc; flowReset();
+  S.warnSim=simMs(); S.calls=0;
   if(severe){ sfx.severe(); vehUI('경고 감지','red'); carM.target=0; carM.lane=4.4; hazard(true); addLog('브레이크 시스템 경고등 점등','red'); }
   else { sfx.maint(); vehUI('경고 감지','amber'); carM.target=6.5; addLog('엔진 점검 경고등 점등','amber'); }
   fNode('veh',severe?'warn':'warn amber'); fCap('<b>①</b> 차량에서 경고등 점등 · TCU가 고장 신호 생성');
@@ -2159,6 +2327,7 @@ async function memoSeq(run,opt){
    <div class="stp" id="ms1"><span class="n">2</span><div><b>서비스센터 선택</b><small>선호 센터 1 + 마지막 수신 위치 기준 근거리 4</small><div class="sclist">${SC5().map(([nm,km,p],i)=>`<div class="${i===0?'sel':''}"><i></i><span>${nm}${p?' · 선호':''}</span><em class="${n?'off':''}">${n?'업무종료':'업무중'}</em></div>`).join('')}</div></div></div>
    <div class="stp" id="ms2"><span class="n">3</span><div><b>상담내역 확인 → 전송</b><small>딜러가 연락드릴 고객 정보 · 경고 유형 · 선택 센터 · 요청 사항</small></div></div>
   </div>`;
+  side.querySelectorAll(':scope>.card').forEach(c=>c.classList.add('mini'));
   side.appendChild(box);
   const z=side.closest('.zone-body'); if(z) z.scrollTop=z.scrollHeight;
   for(let i=0;i<3;i++){ const el=$('#ms'+i); if(!el||run!==token) return; el.classList.add('on'); if(!await live(run,1100)) return; el.classList.remove('on'); el.classList.add('done'); }
@@ -2173,14 +2342,14 @@ async function noAnswerFlow(run){
   const o={party:'center',dir:'out',via:'phone'};
   if(!await ccwStep(o,run)) return;
   sideCall(o); setPhase('call');
-  cpOpen({kind:'SLA Call-out · 무응답',title:'e-Care 상담원 → 홍길동 고객님',agent:'e-Care 상담원',cust:'고객 휴대폰',dir:'out'});
+  cpOpen({kind:'SLA Call-out · 무응답',title:{ko:'e-Care 상담원 → 홍길동 고객님',ja:'e-Care オペレーター → ホン・ギルドン様'},agent:'e-Care 상담원',cust:'고객 휴대폰',dir:'out'}); S.calls=(S.calls||0)+1;
   killFX(S.beam); S.beam=makeBeam(V3(CENTER.x,44,CENTER.z),phonePos,0x2ee6cf);
   for(let i=0;i<3;i++){
     const cst=$('#cst'); if(cst){cst.textContent=`발신 ${i+1}/3 · 호출 중`; cst.className='chip amber';}
-    $('#pC').classList.add('ringing'); sfx.ring(); addLog(`CTI 발신 ${i+1}/3`);
+    $('#callPane').classList.add('ring'); sfx.ring(); addLog(`CTI 발신 ${i+1}/3`);
     fCap(`<b>⑧</b> 아웃바운드 발신 ${i+1}/3 · 고객 응답 없음`);
-    if(!await live(run,2400)) return; $('#pC').classList.remove('ringing');
-    if(cst){cst.textContent='연결 실패';cst.className='chip red';} addLog(`발신 ${i+1}/3 연결 실패`,'red'); sfx.breach(); cpSys(`발신 ${i+1}/3 · 고객 응답 없음 · 연결 실패`,'red');
+    if(!await live(run,2400)) return; $('#callPane').classList.remove('ring');
+    if(cst){cst.textContent='연결 실패';cst.className='chip red';} addLog(`발신 ${i+1}/3 연결 실패`,'red'); sfx.breach(); cpSys({ko:`발신 ${i+1}/3 · 고객 응답 없음 · 연결 실패`,ja:`発信 ${i+1}/3・応答なし・接続失敗`},'red');
     if(i<2){ fCap(`<b>⑧</b> 연결 실패 → <b>후처리 중</b> · 5분 카운트다운 후 [전화 재연결] (재시도 ${i+1}/2)`);
       await timeLapse(simMs()+5*60*1000,1600,run,{note:`후처리 중 · 재시도 ${i+1}/2 대기`,mode:'clock'}); if(run!==token) return; endLapse(); }
   }
@@ -2301,12 +2470,13 @@ async function pickDealerFlow(i){
   addLog(`고객 → ${d.name} 전화 · e-Care 앱`,'teal');
   await callFlow({party:'dealer',dir:'in',via:'app'},run);
 }
-function typeText(el,text,run){const els=(Array.isArray(el)?el:[el]).filter(Boolean);return new Promise(res=>{let i=0;const step=()=>{if(run!==token)return res();i++;els.forEach(e=>e.textContent=text.slice(0,i));const z=side.closest('.zone-body');if(z)z.scrollTop=z.scrollHeight;const cb=$('#cpBody');if(cb)cb.scrollTop=cb.scrollHeight;if(i<text.length)setTimeout(step,reduce?0:26);else res();};step();});}
+function typeText(el,text,run){const els=(Array.isArray(el)?el:[el]).filter(Boolean);els.forEach(e=>e.classList.add('typing'));const fin=()=>{els.forEach(e=>e.classList.remove('typing'));};return new Promise(res=>{let i=0;const step=()=>{if(run!==token){fin();return res();}i++;els.forEach(e=>{const t=e.dataset&&e.dataset.ko!=null?e.dataset[CPL]:text;e.textContent=t.slice(0,Math.ceil(i/text.length*t.length));});const cb=$('#cpBody');if(cb)cb.scrollTop=cb.scrollHeight;if(i<text.length)setTimeout(step,reduce?0:26);else{fin();res();}};step();});}
 async function callFlow(o,run){
   const toDealer=o.party==='dealer', d=S.dealer;
   if(o.party==='center'){ setPhase('busy'); if(!await ccwStep(o,run)) return; }
   setPhase('call'); sideCall(o);
-  cpOpen({kind:o.dir==='out'?(toDealer?'Dealer Callback':'SLA Call-out'):toDealer?'Dealer Call':'Inbound Call',title:`${toDealer?d.name+' 어드바이저':'e-Care 상담원'} ↔ 홍길동 고객님`,agent:toDealer?d.name+' 어드바이저':'e-Care 상담원',cust:o.via==='hu'?'차량 HU · 핸즈프리':'고객 휴대폰',dir:o.dir});
+  const agNm=toDealer?{ko:d.name+' 어드바이저',ja:(CPJ[d.name]||d.name)+' アドバイザー'}:LX('e-Care 상담원');
+  cpOpen({kind:o.dir==='out'?(toDealer?'Dealer Callback':'SLA Call-out'):toDealer?'Dealer Call':'Inbound Call',title:{ko:`${agNm.ko} ↔ 홍길동 고객님`,ja:`${agNm.ja} ↔ ホン・ギルドン様`},agent:agNm,cust:o.via==='hu'?'차량 HU · 핸즈프리':'고객 휴대폰',dir:o.dir}); S.calls=(S.calls||0)+1;
   const far=toDealer?d.top.clone():V3(CENTER.x,44,CENTER.z);
   const cust=o.via==='hu'?carTop:phonePos;
   focus(mid(carPos,toDealer?V3(d.bx,10,d.bz):V3(CENTER.x,14,CENTER.z)),62);
@@ -2317,23 +2487,19 @@ async function callFlow(o,run){
   S.callLink=fLink(a,b,'live'); fNode(a,'act'); fNode(b,'act'); S.callLive=true; S.callDir=o.dir==='out'?-1:1;
   const src=o.via==='hu'?'차량 HU':'e-Care 앱';
   fCap(o.dir==='out'?(toDealer?`<b>⑩</b> <b>${d.name}</b> → 고객 휴대폰 · 다음 영업일 콜백`:'<b>⑦</b> 콜센터 → <b>고객 휴대폰</b> · SLA 초과 선제 콜아웃'):toDealer?`<b>⑧</b> <b>${src}</b> → <b>${d.name}</b> · 딜러 직접 통화`:`<b>⑦</b> <b>${src}</b> → 콜센터 · SLA 이내 고객 전화`);
-  const recv=o.dir==='out'?$('#pC'):$('#pA'); const skipRing=o.party==='center'&&o.dir==='in';
+  const skipRing=o.party==='center'&&o.dir==='in';
   vehUI(o.dir==='out'?'휴대폰 수신 중':'발신 중',scenario==='severe'?'red':'amber');
-  if(!skipRing){ recv.classList.add('ringing'); $('#callPane').classList.add('ring'); sfx.ring(); if(!await live(run,2500)) return; recv.classList.remove('ringing'); $('#callPane').classList.remove('ring'); }
+  if(!skipRing){ $('#callPane').classList.add('ring'); sfx.ring(); if(!await live(run,2500)) return; $('#callPane').classList.remove('ring'); }
   cpLive();
   S.beam.connected=true; sfx.connect(); if(toDealer) setStat('sc','컨택');
-  const cst=$('#cst'); cst.textContent='통화 연결'; cst.className='chip';
   S.callT0=performance.now(); vehUI('통화 중','');
   if(S.phoneTag) setTag(S.phoneTag,'<span class="d"></span>고객 휴대폰<small>통화 중</small>');
   addLog('통화 연결','teal');
-  for(const [who,text] of scriptFor(o)){
-    const tx=$('#tx'); if(!tx||run!==token) return;
-    const bb=document.createElement('div'); bb.className='bub '+who; bb.innerHTML=`<span class="who">${who==='agent'?(toDealer?'서비스 어드바이저':'상담원'):'고객'}</span><span class="tt"></span>`; tx.appendChild(bb);
-    const sp=who==='agent'?$('#pA'):$('#pC'); sp.classList.add('speaking');
-    const t2=cpLine(who,who==='agent'?(toDealer?d.name+' 어드바이저':'e-Care 상담원'):'홍길동 고객님');
-    await typeText([bb.querySelector('.tt'),t2],text,run);
-    if(!await live(run,850+text.length*17)) return;
-    sp.classList.remove('speaking');
+  for(const [who,ko,ja] of scriptFor(o)){
+    if(run!==token) return;
+    const t2=cpLine(who,who==='agent'?agNm:'홍길동 고객님'); t2.dataset.ko=ko; t2.dataset.ja=ja;
+    await typeText(t2,ko,run);
+    if(!await live(run,850+ko.length*17)) return;
   }
   if(!await live(run,500)) return;
   S.callT0=0; cpEnd('통화 종료'); S.beam.fade=1; S.callLive=false; fLink(a,b,'on'); fNode(a,'done'); fNode(b,'done');
@@ -2384,7 +2550,7 @@ async function towFlow(){
   sideService('tow'); S.eta={m:truckM,total:truckM.end};
   focus(truckPos,48); vehUI('견인 이동 중','');
   await new Promise(r=>{truckM.onArrive=r;}); if(run!==token) return;
-  finish(night()?'야간 견인 입고 · 보관 후 다음 날 09:00 정비 착수':'견인 입고 완료 · 정비 착수');
+  finish(night()?'야간 견인 입고 · 보관 후 다음 날 09:00 정비 착수':'견인 입고 완료 · 정비 착수','tow');
 }
 async function reserveFlow(){
   const run=++token; setPhase('service'); const d=S.dealer;
@@ -2398,16 +2564,80 @@ async function reserveFlow(){
   sideService('drive'); S.eta={m:carM,total:carM.end}; vehUI('서비스센터로 이동','amber');
   focus(carPos,46);
   await new Promise(r=>{carM.onArrive=r;}); if(run!==token) return;
-  finish(`${d.name} 도착 · 사전 진단으로 바로 정비`);
+  finish(`${d.name} 도착 · 사전 진단으로 바로 정비`,'drive');
 }
-function finish(msg){
+function finish(msg,kind){
   killFX(S.route); killFX(S.pin); S.beacon=false; S.eta=null;
   addLog(msg,'teal'); sfx.done(); fCap('<b>완료</b> · 경고 감지부터 서비스센터 입고까지 연결되었습니다');
   if(scenario==='severe') setStat('em','출동완료'); setStat('sc','입고');
-  pulseAt(V3(S.dealer.bx,.3,S.dealer.bz-9),0x2ee6cf,10);
   lamps(null); vehUI('케어 완료','');
-  setPhase('done'); sideDone(); focus(V3(S.dealer.bx*.5,0,S.dealer.bz*.5),70);
+  setPhase('done'); sideDone();
+  celebrate(msg,kind);
 }
+/* ================= v0.1.9: 케어 완료 연출 ================= */
+const pillarTex=(()=>{const c=document.createElement('canvas');c.width=4;c.height=128;const g=c.getContext('2d');const gr=g.createLinearGradient(0,0,0,128);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.55,'rgba(255,255,255,.35)');gr.addColorStop(1,'rgba(255,255,255,1)');g.fillStyle=gr;g.fillRect(0,0,4,128);return new THREE.CanvasTexture(c);})();
+function fxPillar(p){
+  const g=new THREE.Group(); g.position.copy(p); const h=70;
+  const mk=(r0,r1,col,op)=>{ const geo=new THREE.CylinderGeometry(r0,r1,h,40,1,true); geo.translate(0,h/2,0); const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:col,map:pillarTex,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false})); m.userData.op=op; g.add(m); return m; };
+  const outer=mk(5.2,7.5,0x2ee6cf,.55), core=mk(1.4,2.2,0xffffff,.85);
+  const halo=glow(0x2ee6cf,34,0); halo.position.y=1.5; g.add(halo);
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(9,48),new THREE.MeshBasicMaterial({color:0x2ee6cf,map:glowTex,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,fog:false})); disc.rotation.x=-Math.PI/2; disc.position.y=.25; g.add(disc);
+  scene.add(g); let t=0;
+  addFX({update(dt){ t+=dt; const a=t<.4?t/.4:Math.max(0,1-(t-1.6)/2.6);
+    [outer,core].forEach(m=>m.material.opacity=m.userData.op*a); halo.material.opacity=.95*a; disc.material.opacity=.9*a;
+    g.scale.set(1+t*.06,Math.min(1,.15+t/.5),1+t*.06); outer.rotation.y+=dt*.8; disc.scale.setScalar(1+Math.sin(t*6)*.06);
+    return t<4.3; }, dispose(){ scene.remove(g); g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material) o.material.dispose(); }); }});
+}
+function fxConfetti(p,n=220){
+  const pos=new Float32Array(n*3), col=new Float32Array(n*3), vel=[];
+  const pal=[0x2ee6cf,0xffd166,0x59a8ff,0xff6b9a,0xffffff,0xa78bfa].map(c=>new THREE.Color(c));
+  for(let i=0;i<n;i++){ pos.set([p.x,p.y,p.z],i*3); const c=pal[i%pal.length]; col.set([c.r,c.g,c.b],i*3);
+    const a=Math.random()*Math.PI*2, sp=6+Math.random()*18; vel.push([Math.cos(a)*sp,24+Math.random()*30,Math.sin(a)*sp,Math.random()*6.3,2+Math.random()*3]); }
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(pos,3)); geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const mat=new THREE.PointsMaterial({size:5,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:1,depthWrite:false,fog:false});
+  const pts=new THREE.Points(geo,mat); pts.frustumCulled=false; scene.add(pts); let t=0;
+  addFX({update(dt){ t+=dt; dt=Math.min(dt,.05);
+    for(let i=0;i<n;i++){ const v=vel[i]; v[1]=Math.max(-7,v[1]-36*dt); v[0]*=1-1.5*dt; v[2]*=1-1.5*dt; v[3]+=dt*v[4];
+      pos[i*3]+=(v[0]+Math.sin(v[3])*2.5)*dt; pos[i*3+1]=Math.max(.15,pos[i*3+1]+v[1]*dt); pos[i*3+2]+=(v[2]+Math.cos(v[3])*2.5)*dt; }
+    geo.attributes.position.needsUpdate=true; mat.size=4+Math.abs(Math.sin(t*9))*2.5; mat.opacity=t<3.4?1:Math.max(0,1-(t-3.4)/1.4); return t<4.8; },
+    dispose(){ scene.remove(pts); geo.dispose(); mat.dispose(); }});
+}
+function fxFirework(p,color){
+  const n=110, pos=new Float32Array(n*3), vel=[];
+  for(let i=0;i<n;i++){ pos.set([p.x,p.y,p.z],i*3); const u=Math.random()*2-1, a=Math.random()*Math.PI*2, r=Math.sqrt(1-u*u), sp=15+Math.random()*7; vel.push([r*Math.cos(a)*sp,u*sp,r*Math.sin(a)*sp]); }
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({size:10,sizeAttenuation:false,map:glowTex,color,transparent:true,opacity:1,blending:THREE.AdditiveBlending,depthWrite:false,fog:false});
+  const pts=new THREE.Points(geo,mat); pts.frustumCulled=false; const fl=glow(color,30,1); fl.position.copy(p); scene.add(pts,fl); sfx.pop(); let t=0;
+  addFX({update(dt){ t+=dt; dt=Math.min(dt,.05);
+    for(let i=0;i<n;i++){ const v=vel[i]; v[0]*=1-1.9*dt; v[1]=v[1]*(1-1.9*dt)-8*dt; v[2]*=1-1.9*dt; pos[i*3]+=v[0]*dt; pos[i*3+1]+=v[1]*dt; pos[i*3+2]+=v[2]*dt; }
+    geo.attributes.position.needsUpdate=true; const k=t/2; mat.opacity=Math.max(0,1-k*k); mat.size=2+8*(1-k); fl.material.opacity=Math.max(0,1-t*3.5); fl.scale.setScalar(30*(1+t*2)); return t<2; },
+    dispose(){ scene.remove(pts,fl); geo.dispose(); mat.dispose(); fl.material.dispose(); }});
+}
+function celebrate(msg,kind){
+  const run=token, d=S.dealer, c=V3(d.bx,0,d.bz-9);
+  const later=(ms,f)=>setTimeout(()=>{ if(run===token) f(); },ms);
+  focus(V3(d.bx,0,d.bz-6),46);
+  fxPillar(c); sfx.fanfare();
+  [0,220,480,800].forEach((ms,i)=>later(ms,()=>pulseAt(V3(c.x,.3+i*.04,c.z),i%2?0xffffff:0x2ee6cf,10+i*6)));
+  later(350,()=>fxConfetti(V3(c.x,3,c.z)));
+  [[600,-9,26,4,0x2ee6cf],[1050,8,31,-3,0xffd166],[1500,-2,36,-8,0x59a8ff],[1950,11,24,6,0xff6b9a]].forEach(([ms,dx,y,dz,col])=>later(ms,()=>fxFirework(V3(c.x+dx,y,c.z+dz),col)));
+  later(4300,()=>{ if(phase==='done') focus(V3(d.bx*.5,0,d.bz*.5),70); });
+  const el=$('#celebr'); if(!el) return;
+  const ms=S.warnSim?Math.max(0,simMs()-S.warnSim):0, hh=Math.floor(ms/3600000), mm=Math.round(ms%3600000/60000);
+  const dur=ms?(hh?`${hh}시간 ${mm}분`:`${mm}분`):'—';
+  const pal=['#2ee6cf','#ffd166','#59a8ff','#ff6b9a','#ffffff','#a78bfa'];
+  const conf=Array.from({length:40},(_,i)=>`<i style="--a:${(i*9+Math.random()*8).toFixed(0)}deg;--d:${(120+Math.random()*130).toFixed(0)}px;--c:${pal[i%6]};--t:${(Math.random()*.3).toFixed(2)}s"></i>`).join('');
+  el.innerHTML=`<div class="cb-card"><div class="cb-burst">${conf}</div>
+    <div class="cb-ring"><svg viewBox="0 0 120 120"><circle class="c0" cx="60" cy="60" r="52"/><circle class="c1" cx="60" cy="60" r="52" transform="rotate(-90 60 60)"/><path class="ck" d="M37 62l15 15 31-33"/></svg></div>
+    <div class="cb-tx"><div class="cb-k">CARE COMPLETE</div><div class="cb-t">케어 완료</div><div class="cb-s">${msg}</div></div>
+    <div class="cb-st"><div><span>경고 감지 → 입고</span><b>${dur}</b></div><div><span>고객 통화</span><b>${S.calls||0}건</b></div><div><span>DMS 사전 전달</span><b class="ok">완료</b></div></div>
+    <span class="cb-x" title="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span></div>`;
+  if(CP.open){ CP.auto=false; cpToggle(false); }
+  el.hidden=true; later(450,()=>{ el.hidden=false; el.classList.remove('out','in'); void el.offsetWidth; el.classList.add('in'); });
+  const close=()=>{ if(el.hidden||el.classList.contains('out')) return; el.classList.add('out'); setTimeout(()=>{ el.hidden=true; el.classList.remove('in','out'); },460); };
+  el.onclick=close; el.onpointerdown=e=>e.stopPropagation(); later(7600,close);
+}
+function celebrHide(){ const el=$('#celebr'); if(el){ el.hidden=true; el.classList.remove('in','out'); } }
 function reset(silent){
   S.stat={}; renderStat();
   token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false; S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
@@ -2415,7 +2645,7 @@ function reset(silent){
   S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=baseOffset;
   carM.active=true; carM.setPath(LOOP,true); carM.s=18; carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
   truckM.setPath([[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],false); truckM.speed=truckM.target=0; truckM.onArrive=null; truckM.place(true);
-  cpIdle();
+  cpIdle(); celebrHide(); S.warnSim=0; S.calls=0;
   if(PROJECT==='gs'){ gsEnter(); if(!silent) addLog('시나리오 초기화'); return; }
   if(PROJECT==='wng'){ wngEnter(); if(!silent) addLog('시나리오 초기화'); return; }
   setPhase('drive'); sideIdle(); vehUI('주행 중'); focus(carPos,50);
@@ -2693,8 +2923,19 @@ async function gsCancelSvc(){
 /* ================= floating call pane (v0.1.0) ================= */
 const CP={t0:0,id:0,n:0,x:null,y:null,open:false,manual:false};
 try{Object.assign(CP,JSON.parse(localStorage.getItem('ecareCallPane')||'{}'));}catch(e){}
-CP.t0=0; CP.manual=false;
-const cpEmptyHTML=`<div class="cp-empty" id="cpEmpty"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>통화가 시작되면 상담원과 고객의 대화가<br>여기에 차례로 쌓입니다.</div>`;
+CP.t0=0; CP.manual=false; CP.auto=false;
+/* v0.1.9: 통화 패널 언어 (한국어 / 日本語) */
+let CPL='ko'; try{ if(localStorage.getItem('ecareCpLang')==='ja') CPL='ja'; }catch(e){}
+const CPJ={'고객 통화':'お客様通話','통화 대기 중':'通話待機中','대기 중':'待機中','호출 중':'呼出中','통화 중':'通話中','통화 종료':'通話終了','통화 중단':'通話中断','연결 실패 · SMS 발송':'接続失敗・SMS送信','호출':'呼出','종료':'終了','기록 지우기':'履歴クリア','→ 발신':'→ 発信','← 수신':'← 着信','e-Care 상담원':'e-Care オペレーター','홍길동 고객님':'ホン・ギルドン様','고객 휴대폰':'お客様の携帯電話','차량 HU · 핸즈프리':'車両HU・ハンズフリー','3회 발신 실패 → SMS 자동 발송':'3回発信失敗 → SMS自動送信','서초 서비스센터':'瑞草サービスセンター','강남 서비스센터':'江南サービスセンター','용산 서비스센터':'龍山サービスセンター','송파 서비스센터':'松坡サービスセンター','분당 서비스센터':'盆唐サービスセンター'};
+const LX=v=>v&&typeof v==='object'?v:{ko:String(v),ja:CPJ[v]||String(v)};
+function cpSet(el,v){ if(typeof el==='string') el=$(el); if(!el) return; const o=LX(v); el.dataset.ko=o.ko; el.dataset.ja=o.ja; el.textContent=o[CPL]; }
+const cpEmptyHTML=()=>`<div class="cp-empty" id="cpEmpty"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span data-ko="통화가 시작되면 상담원과 고객의 대화가" data-ja="通話が始まると、オペレーターとお客様の会話が">${CPL==='ja'?'通話が始まると、オペレーターとお客様の会話が':'통화가 시작되면 상담원과 고객의 대화가'}</span><br><span data-ko="여기에 차례로 쌓입니다." data-ja="ここに順番に表示されます。">${CPL==='ja'?'ここに順番に表示されます。':'여기에 차례로 쌓입니다.'}</span></div>`;
+function cpPvLine(){ const tt=CP.pvEl; if(!tt) return; const l=tt.closest('.cp-l'); const ag=l&&l.classList.contains('agent'); const pv=$('#cpPv'); if(pv) pv.textContent=`${CPL==='ja'?(ag?'オペレーター':'お客様'):(ag?'상담원':'고객')}: ${tt.textContent}`; }
+function cpLang(l){ CPL=l==='ja'?'ja':'ko'; try{localStorage.setItem('ecareCpLang',CPL);}catch(e){}
+  document.querySelectorAll('#cpLang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===CPL));
+  document.querySelectorAll('#callPane [data-ko]').forEach(e=>{ if(!e.classList.contains('typing')) e.textContent=e.dataset[CPL]; });
+  if(CP.t0){ const e=$('#cpT'); if(e) e.textContent=mmss((performance.now()-CP.t0)/1000); }
+  cpPvLine(); }
 function cpSave(){ try{localStorage.setItem('ecareCallPane',JSON.stringify({x:CP.x,y:CP.y,open:CP.open}));}catch(e){} }
 function cpPlace(anim){
   const p=$('#callPane'); if(!p) return; const W=innerWidth, H=innerHeight, w=p.offsetWidth||380, h=(($('#cpHead')||{}).offsetHeight||56)+2;
@@ -2705,49 +2946,55 @@ function cpPlace(anim){
   if(CP.open){ const c=document.querySelector('.zone-ctrl'), r=c&&c.getBoundingClientRect(); let bot=H-10; if(r&&r.height&&r.bottom>60&&r.bottom<=H) bot=r.bottom; p.style.height=Math.max(160,Math.round(bot-10))+'px'; } else p.style.height='';
   if(anim) setTimeout(()=>p.classList.remove('anim'),320);
 }
-function cpToggle(v,manual){ if(manual) CP.manual=!(v==null?!CP.open:v); CP.open=v==null?!CP.open:v; cpPlace(true); cpSave(); if(CP.open){ const b=$('#cpBody'); if(b) b.scrollTop=b.scrollHeight; } }
+function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.auto=false; } CP.open=v==null?!CP.open:v; cpPlace(true); cpSave(); if(CP.open){ const b=$('#cpBody'); if(b) b.scrollTop=b.scrollHeight; } }
 (function(){
-  const p=$('#callPane'), h=$('#cpHead'); $('#cpBody').innerHTML=cpEmptyHTML;
+  const p=$('#callPane'), h=$('#cpHead'); $('#cpBody').innerHTML=cpEmptyHTML();
+  cpSet('#cpTitle','고객 통화'); cpSet('#cpPv','통화 대기 중'); cpSet('#cpSt','대기 중'); cpSet('#cpClr','기록 지우기'); cpSet('#cpN',{ko:'0줄',ja:'0行'});
+  document.querySelectorAll('#cpLang button').forEach(b=>{ b.setAttribute('aria-pressed',b.dataset.l===CPL); b.addEventListener('click',e=>{ e.stopPropagation(); cpLang(b.dataset.l); }); });
   let d=null;
-  h.addEventListener('pointerdown',e=>{ if(e.button!==0||e.target.closest('#cpMin')) return; d={sx:e.clientX,sy:e.clientY,x:CP.x,y:CP.y,moved:false,id:e.pointerId}; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointerdown',e=>{ if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('#cpMin,#cpLang')) return; d={sx:e.clientX,sy:e.clientY,x:CP.x,y:CP.y,moved:false,id:e.pointerId}; h.setPointerCapture(e.pointerId); });
   h.addEventListener('pointermove',e=>{ if(!d||e.pointerId!==d.id) return; const dx=e.clientX-d.sx, dy=e.clientY-d.sy;
     if(!d.moved&&Math.hypot(dx,dy)<5) return; d.moved=true; p.classList.add('drag');
     CP.x=d.x+dx; if(!CP.open) CP.y=d.y+dy; cpPlace(false); });
   const up=e=>{ if(!d||e.pointerId!==d.id) return; const moved=d.moved; d=null; p.classList.remove('drag'); if(moved) cpSave(); else cpToggle(null,true); };
   h.addEventListener('pointerup',up); h.addEventListener('pointercancel',e=>{d=null;p.classList.remove('drag');});
   $('#cpMin').addEventListener('click',e=>{e.stopPropagation();cpToggle(null,true);});
-  $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML; CP.n=0; $('#cpN').textContent='0줄'; if(!CP.t0){ $('#cpSt').textContent='대기 중'; $('#cpPv').textContent='통화 대기 중'; $('#cpT').textContent=''; } });
+  $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML(); CP.n=0; cpSet('#cpN',{ko:'0줄',ja:'0行'}); if(!CP.t0){ cpSet('#cpSt','대기 중'); CP.pvEl=null; cpSet('#cpPv','통화 대기 중'); cpSet('#cpT',''); } });
   addEventListener('resize',()=>cpPlace(false));
   try{ new ResizeObserver(()=>{ if(CP.open) cpPlace(false); }).observe(document.querySelector('.zone-ctrl')); }catch(e){}
   cpPlace(false);
 })();
 function cpOpen(o){
   const p=$('#callPane'), b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove();
-  CP.id++; CP.t0=0; p.classList.remove('onair','ring'); if(!CP.open&&!CP.manual) cpToggle(true);
-  $('#cpKind').textContent=o.kind; $('#cpTitle').textContent=o.title; $('#cpT').textContent='호출';
-  $('#cpWho').innerHTML=`<span class="a">${ICON.agent}${o.agent}</span><span class="dir">${o.dir==='out'?'→ 발신':'← 수신'}</span><span class="c">${ICON.phone}${o.cust}</span>`;
+  CP.id++; CP.t0=0; p.classList.remove('onair','ring');
+  CP.manual=false; if(!CP.open){ cpToggle(true); CP.auto=true; }   /* v0.1.9: 통화가 시작되면 항상 펼침 */
+  $('#cpKind').textContent=o.kind; cpSet('#cpTitle',o.title); cpSet('#cpT','호출');
+  $('#cpWho').innerHTML=`<span class="a">${ICON.agent}<span class="w1"></span></span><span class="dir"></span><span class="c">${ICON.phone}<span class="w2"></span></span>`;
+  cpSet('#cpWho .w1',o.agent); cpSet('#cpWho .dir',o.dir==='out'?'→ 발신':'← 수신'); cpSet('#cpWho .w2',o.cust);
   const sep=document.createElement('div'); sep.className='cp-sep flash'; sep.id='cpc-'+CP.id; sep.innerHTML=`<span><b>${o.kind}</b> · ${hms(simMs()).slice(0,5)}</span>`; b.appendChild(sep);
-  b.scrollTop=b.scrollHeight; $('#cpSt').textContent='호출 중'; $('#cpPv').textContent=`${o.kind} · 연결 중`;
+  b.scrollTop=b.scrollHeight; cpSet('#cpSt','호출 중'); CP.pvEl=null; cpSet('#cpPv',{ko:`${o.kind} · 연결 중`,ja:`${o.kind}・接続中`});
   return CP.id;
 }
-function cpLive(){ CP.t0=performance.now(); $('#cpSt').textContent='통화 중'; $('#callPane').classList.add('onair'); }
-function cpCount(){ const n=$('#cpN'); if(n) n.textContent=$('#cpBody').querySelectorAll('.cp-l').length+'줄'; }
+function cpLive(){ CP.t0=performance.now(); cpSet('#cpSt','통화 중'); $('#callPane').classList.add('onair'); }
+function cpCount(){ const k=$('#cpBody').querySelectorAll('.cp-l').length; cpSet('#cpN',{ko:k+'줄',ja:k+'行'}); }
 function cpLine(who,name){
   const b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove();
   b.querySelectorAll('.cp-l.cur').forEach(x=>{x.classList.remove('cur');x.classList.add('past');});
   const d=document.createElement('div'); d.className='cp-l '+who+' cur';
-  d.innerHTML=`<span class="av">${who==='agent'?ICON.agent:ICON.phone}</span><div class="bx"><span class="nm">${name}</span><span class="tt"></span></div>`;
+  d.innerHTML=`<span class="av">${who==='agent'?ICON.agent:ICON.phone}</span><div class="bx"><span class="nm"></span><span class="tt"></span></div>`;
+  cpSet(d.querySelector('.nm'),name);
   b.appendChild(d); b.scrollTop=b.scrollHeight; cpCount();
-  const tt=d.querySelector('.tt'), pv=$('#cpPv');
-  new MutationObserver(()=>{ if(pv) pv.textContent=`${who==='agent'?'상담원':'고객'}: ${tt.textContent}`; }).observe(tt,{childList:true,characterData:true,subtree:true});
+  const tt=d.querySelector('.tt'); CP.pvEl=tt;
+  new MutationObserver(()=>{ if(CP.pvEl===tt) cpPvLine(); }).observe(tt,{childList:true,characterData:true,subtree:true});
   return tt;
 }
-function cpSys(text,cls){ const b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove(); const d=document.createElement('div'); d.className='cp-sys '+(cls||''); d.textContent=text; b.appendChild(d); b.scrollTop=b.scrollHeight; $('#cpPv').textContent=text; }
+function cpSys(text,cls){ const b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove(); const d=document.createElement('div'); d.className='cp-sys '+(cls||''); cpSet(d,text); b.appendChild(d); b.scrollTop=b.scrollHeight; CP.pvEl=null; cpSet('#cpPv',text); }
 function cpEnd(note){
   const p=$('#callPane'); const was=CP.t0; CP.t0=0; p.classList.remove('onair','ring');
-  $('#cpSt').textContent=note||'통화 종료';
+  cpSet('#cpSt',note||'통화 종료');
   $('#cpBody').querySelectorAll('.cp-l.cur').forEach(x=>{x.classList.remove('cur');x.classList.add('past');});
-  const tm=$('#cpT'); if(tm) tm.textContent=was?'종료 '+mmss((performance.now()-was)/1000):'종료';
+  const tt=was?' '+mmss((performance.now()-was)/1000):''; cpSet('#cpT',{ko:'종료'+tt,ja:'終了'+tt});
+  if(CP.auto){ const id=CP.id; setTimeout(()=>{ if(CP.id===id&&!CP.t0&&CP.auto&&CP.open){ CP.auto=false; cpToggle(false); } },2800); }   /* 자동으로 펼친 경우 통화 종료 후 다시 접어 조작 버튼을 가리지 않음 */
 }
 function cpIdle(){ if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
 function cpShow(id){ cpToggle(true); const el=document.getElementById('cpc-'+id); if(el){ el.scrollIntoView({block:'start'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
@@ -2929,7 +3176,8 @@ function wBits(rec){
       ${ed?`<div class="wsel-d">${chg||'<span>아직 바뀐 WNG가 없습니다</span>'}${add.length+del.length>8?wMore([...add,...del],0,'이번에 바뀌는 WNG (발생 · 해제)').replace('+'+(add.length+del.length),'전체'):''}</div>`:''}`; }
   wFitBits();
 }
-document.addEventListener('mouseover',e=>{ const b=e.target.closest('#wBits .bit'); const h=$('#wHov'); if(!b||!h) return; const n=+b.dataset.bit, on=WG.edit?WG.edit.has(n):WG.cur.has(n); h.innerHTML=`<b style="color:${RANKC[wRank(n)]}">WNG ${wLbl(n)}</b> · ${on?'ON':'OFF'}${WG.edit?' · 눌러서 '+(on?'OFF':'ON'):''}`; });
+const wHovFn=e=>{ const b=e.target.closest('#wBits .bit'); const h=$('#wHov'); if(!b||!h) return; const n=+b.dataset.bit, on=WG.edit?WG.edit.has(n):WG.cur.has(n); h.innerHTML=`<b style="color:${RANKC[wRank(n)]}">WNG ${wLbl(n)}</b> · ${on?'ON':'OFF'}${WG.edit?' · 눌러서 '+(on?'OFF':'ON'):''}`; };
+document.addEventListener('pointerover',wHovFn); document.addEventListener('pointerdown',wHovFn);
 function wRule(i,cls){ const e=$('#wr'+i); if(e) e.className=cls||''; }
 document.addEventListener('click',e=>{ const b=e.target.closest('#wvPanel [data-bit]'); if(!b||!WG.edit||PROJECT!=='wng') return; const n=+b.dataset.bit; WG.edit.has(n)?WG.edit.delete(n):WG.edit.add(n); tone(1200,.04,'triangle',.02); wBits(); renderDock(); });
 
