@@ -936,7 +936,7 @@ body.wng .clock.fast{animation:ckFast .55s ease-in-out infinite alternate}
 #app:not(.flowWide) .stat{margin-top:6px;gap:3px}
 #app:not(.flowWide) .stat .sc{gap:2px}
 #app:not(.flowWide) .stat .sc span{font-size:9.5px;padding:1px 4px}
-#app:not(.flowWide) .legend{flex-wrap:nowrap;overflow:hidden;white-space:nowrap;margin-top:6px}
+#app:not(.flowWide) .legend{flex-wrap:wrap;white-space:nowrap;margin-top:6px}
 .zone-flow.tight #side .card p,.zone-flow.tight #side .devcap,.zone-flow.tight #side .rule{display:none}
 .zone-flow.tight #side .card h3{margin-bottom:2px}
 .zone-flow.tight .legend{display:none}
@@ -1148,7 +1148,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
         <div id="flowSvg"></div>
         <div class="fcap" id="flowCap">차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.</div>
         <div class="stat" id="statBox"></div>
-        <div class="legend" id="legend"><span><i style="background:var(--alert)"></i>고장 신호</span><span><i style="background:var(--blue)"></i>진단 데이터</span><span><i style="background:var(--teal)"></i>경고 정보 배포 · 통화</span></div>
+        <div class="legend" id="legend"><span><i style="background:var(--alert)"></i>고장 신호</span><span><i style="background:var(--amber)"></i>경고 신호</span><span><i style="background:var(--blue)"></i>진단 데이터</span><span><i style="background:var(--teal)"></i>경고 정보 배포 · 통화</span></div>
       </section>
       <div id="side"></div>
     </div>
@@ -1210,6 +1210,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.5',date:'2026-10-18',name:'도시 시연 가시성 · 교통 · 공원',notes:['노란 경고 신호 범례 · 고객 차량 우선 양보 · 출동 중 연속 사이렌','건물 가림 반투명 · 통화 양끝 자동 프레이밍 · 시설 옥상 간판','공원 어린이·강아지 및 아빠와 아들 캐치볼 애니메이션']},
   {v:'0.2.4',date:'2026-10-18',name:'녹음 장면만 음성 제공',notes:['한국어 선제 전화 장면에서만 음성 버튼 표시 및 WAV 재생','다른 통화·일본어에서는 음성 조작 숨김 · 기본 TTS 제거']},
   {v:'0.2.3',date:'2026-10-18',name:'e-Care 한국어 녹음 음성',notes:['25분 경과 후 상담원 선제 전화의 한국어 대사 5개를 WAV로 재생','녹음 종료에 맞춰 대사 진행 · 음성 OFF/언어 변경/초기화 시 재생 중단']},
   {v:'0.2.2',date:'2026-10-18',name:'e-Care 통화 음성 · 한국어/일본어',notes:[
@@ -1431,27 +1432,73 @@ function windowTex(seed){
 const WTEX=[windowTex(3),windowTex(9),windowTex(21)];
 const bMats=[]; for(let i=0;i<6;i++) bMats.push(new THREE.MeshStandardMaterial({color:0x1a2332,roughness:.78,metalness:.15,emissive:0xffffff,emissiveMap:WTEX[i%3],emissiveIntensity:.95}));
 const roofMat=new THREE.MeshStandardMaterial({color:0x2a3546,roughness:.9});
+const cityBuildings=[];
 function building(x,z,w,h,d,mat,base=.4){
   const geo=new THREE.BoxGeometry(w,h,d); const uv=geo.attributes.uv;
   for(let f=0;f<6;f++) for(let k=0;k<4;k++){ const i=f*4+k; if(f===2||f===3){uv.setXY(i,0,0);continue;} const fw=(f<2)?d:w; uv.setXY(i,uv.getX(i)*fw/16,uv.getY(i)*h/24); }
   const m=new THREE.Mesh(geo,mat||bMats[(R()*bMats.length)|0]); m.position.set(x,base+h/2,z); m.castShadow=true; m.receiveShadow=true; scene.add(m);
-  if(R()<.45){ const rt=new THREE.Mesh(new THREE.BoxGeometry(w*.4,1.2+R()*1.5,d*.4),roofMat); rt.position.set(x+(R()-.5)*w*.3,base+h+.8,z+(R()-.5)*d*.3); rt.castShadow=true; scene.add(rt); }
+  const parts=[m]; cityBuildings.push(parts);
+  if(R()<.45){ const rt=new THREE.Mesh(new THREE.BoxGeometry(w*.4,1.2+R()*1.5,d*.4),roofMat); rt.position.set(x+(R()-.5)*w*.3,base+h+.8,z+(R()-.5)*d*.3); rt.castShadow=true; scene.add(rt);parts.push(rt); }
   return m;
 }
 const sideMat=new THREE.MeshStandardMaterial({color:0x121a26,roughness:.9});
 const parkMat=new THREE.MeshStandardMaterial({color:0x0e2620,roughness:1});
 const treeGeo=new THREE.ConeGeometry(1.3,3.4,7), treeMat=new THREE.MeshStandardMaterial({color:0x1b5a48,roughness:.9,flatShading:true});
 const trunkGeo=new THREE.CylinderGeometry(.18,.22,1,6), trunkMat=new THREE.MeshStandardMaterial({color:0x2b2a26});
+const parkActors=[];
 function park(cx,cz){
   const p=new THREE.Mesh(new THREE.BoxGeometry(21,.45,21),parkMat); p.position.set(cx,.22,cz); p.receiveShadow=true; scene.add(p);
   const plaza=cx===15&&cz===15;
+  populatePark(cx,cz);
   if(plaza){ const pad=new THREE.Mesh(new THREE.BoxGeometry(12,.06,8),new THREE.MeshStandardMaterial({color:0x2a3444,roughness:.8})); pad.position.set(cx,.48,cz); pad.receiveShadow=true; scene.add(pad);
     for(const dz of [-2.6,2.6]){const l=new THREE.Mesh(new THREE.BoxGeometry(8,.02,.18),new THREE.MeshBasicMaterial({color:0x8a96a8}));l.position.set(cx,.52,cz+dz);scene.add(l);} }
   for(let i=0;i<13;i++){ const x=cx+(R()-.5)*17, z=cz+(R()-.5)*17, s=.7+R()*.6;
-    if(plaza&&Math.hypot(x-cx,z-cz)<8){continue;}
+    if(Math.hypot(x-cx,z-cz)<7.5){continue;}
     const t=new THREE.Mesh(treeGeo,treeMat); t.position.set(x,.45+1+1.7*s,z); t.scale.setScalar(s); t.castShadow=true; scene.add(t);
     const tr=new THREE.Mesh(trunkGeo,trunkMat); tr.position.set(x,.95,z); scene.add(tr); }
 }
+function parkPerson(color,scale=1){
+  const g=new THREE.Group(),skin=new THREE.MeshStandardMaterial({color:0xefbb91,roughness:1}),shirt=new THREE.MeshStandardMaterial({color,roughness:1}),pants=new THREE.MeshStandardMaterial({color:0x293f60});
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.34,10,8),skin);head.position.y=2.35;g.add(head);
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(.38,.3,.85,8),shirt);body.position.y=1.6;g.add(body);
+  const limbs=[];
+  for(const side of [-1,1]){
+    const leg=new THREE.Group();leg.position.set(side*.19,1.2,0);const l=new THREE.Mesh(new THREE.CylinderGeometry(.12,.1,1,6),pants);l.position.y=-.5;leg.add(l);g.add(leg);limbs.push(leg);
+    const arm=new THREE.Group();arm.position.set(side*.42,1.95,0);const a=new THREE.Mesh(new THREE.CylinderGeometry(.1,.09,.8,6),skin);a.position.y=-.4;arm.add(a);g.add(arm);limbs.push(arm);
+  }
+  g.scale.setScalar(scale);g.userData.limbs=limbs;scene.add(g);return g;
+}
+function parkDog(){
+  const g=new THREE.Group(),fur=new THREE.MeshStandardMaterial({color:0xcf9b5d,roughness:1}),dark=new THREE.MeshStandardMaterial({color:0x39291c});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(1.3,.55,.55),fur);body.position.y=.75;g.add(body);
+  const head=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.48),fur);head.position.set(.7,1,0);g.add(head);
+  for(const z of [-.23,.23]){const ear=new THREE.Mesh(new THREE.ConeGeometry(.15,.4,4),dark);ear.position.set(.65,1.4,z);g.add(ear);}
+  const legs=[];for(const x of [-.45,.45])for(const z of [-.2,.2]){const l=new THREE.Mesh(new THREE.BoxGeometry(.13,.5,.13),fur);l.position.set(x,.3,z);g.add(l);legs.push(l);}
+  const tail=new THREE.Mesh(new THREE.CylinderGeometry(.07,.1,.7,6),fur);tail.position.set(-.8,1,0);tail.rotation.z=-.7;g.add(tail);g.userData={legs,tail};scene.add(g);return g;
+}
+function populatePark(cx,cz){
+  if(cx===-15&&cz===15){
+    const dad=parkPerson(0x538ccc,1.15),son=parkPerson(0xffbd4f,.78);dad.position.set(cx-5,.5,cz);son.position.set(cx+5,.5,cz);dad.rotation.y=Math.PI/2;son.rotation.y=-Math.PI/2;
+    const glove=new THREE.Mesh(new THREE.SphereGeometry(.3,8,6),new THREE.MeshStandardMaterial({color:0x785133}));glove.position.set(-.42,-.65,0);son.userData.limbs[3].add(glove);
+    const ball=new THREE.Mesh(new THREE.SphereGeometry(.19,10,8),basic(0xffffff));scene.add(ball);
+    const dirt=new THREE.Mesh(new THREE.CircleGeometry(6.5,32),new THREE.MeshStandardMaterial({color:0xa18b65,roughness:1}));dirt.rotation.x=-Math.PI/2;dirt.position.set(cx,.49,cz);scene.add(dirt);
+    parkActors.push({type:'baseball',cx,cz,dad,son,ball});
+  }else{
+    for(let i=0;i<3;i++){const child=parkPerson([0xffb646,0xe77891,0x65b8d9][i],.72);parkActors.push({type:'child',g:child,cx,cz,phase:i*2.1,r:3.5+i*.6});}
+    for(let i=0;i<2;i++)parkActors.push({type:'dog',g:parkDog(),cx,cz,phase:i*3+1,r:2.2+i});
+    const ball=new THREE.Mesh(new THREE.SphereGeometry(.45,12,8),new THREE.MeshStandardMaterial({color:0xf4cf51}));ball.position.set(cx,.95,cz);scene.add(ball);
+  }
+}
+function animateParks(t){for(const a of parkActors){
+  if(a.type==='baseball'){
+    const k=(t*.32)%1,u=k<.5?k*2:2-k*2;a.ball.position.set(a.cx-5+u*10,2+Math.sin(u*Math.PI)*3,a.cz);
+    a.dad.userData.limbs[3].rotation.x=-.8-Math.sin(t*2)*.7;a.son.userData.limbs[3].rotation.x=-1+Math.sin(t*2)*.45;
+  }else{
+    const k=t*(a.type==='dog'?.85:.45)+a.phase;a.g.position.set(a.cx+Math.cos(k)*a.r,.5+Math.abs(Math.sin(t*6+a.phase))*.13,a.cz+Math.sin(k)*a.r*.7);a.g.rotation.y=-k-Math.PI/2;
+    if(a.type==='child')a.g.userData.limbs.forEach((l,i)=>l.rotation.x=Math.sin(t*6+i*2)*.55);
+    else{a.g.userData.legs.forEach((l,i)=>l.rotation.z=Math.sin(t*9+i*2)*.4);a.g.userData.tail.rotation.x=Math.sin(t*10)*.6;}
+  }
+}}
 const BLK=[-75,-45,-15,15,45,75];
 const SPECIAL={'-45,-45':'center','-45,45':'dealer','45,45':'dealer','-15,-45':'dealer','45,-45':'depot','15,-75':'vep'};
 for(const cx of BLK) for(const cz of BLK){
@@ -1658,9 +1705,23 @@ scene.add(selRing,pulseRing);
 const truck=makeTruck();
 const truckM=new Mover(truck.g,{points:[[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],loop:false,lane:2.2,accel:7});
 const OUTER=[[-60,-60],[60,-60],[60,60],[-60,60]];
-const npcs=[0x8a96a8,0x3b4a5e,0x7a2a30,0xc9cfd6,0x31423a,0x56606e,0xa88c5a].map((c,i)=>{const car=makeCar(c,false); const m=new Mover(car.g,{points:OUTER,loop:true,s:i*68,lane:2.1}); m.target=m.speed=9; return m;});
-[0x46546a,0xb7bec8].forEach((c,i)=>{const car=makeCar(c,false); const m=new Mover(car.g,{points:[[0,-60],[0,60]],loop:true,s:i*60,lane:2.1}); m.target=m.speed=8; npcs.push(m);});
+const npcs=[0x8a96a8,0x3b4a5e,0x7a2a30,0xc9cfd6,0x31423a,0x56606e,0xa88c5a].map((c,i)=>{const car=makeCar(c,false); const m=new Mover(car.g,{points:OUTER,loop:true,s:i*68,lane:2.1}); m.cruiseSpeed=9;m.target=m.speed=9; return m;});
+[0x46546a,0xb7bec8].forEach((c,i)=>{const car=makeCar(c,false); const m=new Mover(car.g,{points:[[0,-60],[0,60]],loop:true,s:i*60,lane:2.1}); m.cruiseSpeed=8;m.target=m.speed=8; npcs.push(m);});
 
+function roadPoint(m,distance){const p=m.at(m.s+distance);return {x:p.x-p.hz*m.lane,z:p.z+p.hx*m.lane};}
+function shouldYield(m,priority){
+  if(!priority.active||priority.speed<.2)return false;
+  const distance=m.obj.position.distanceTo(priority.obj.position);if(distance>52)return false;
+  const horizon=Math.max(12,priority.speed*2.2),ahead=Math.max(14,m.speed*m.speed/(2*8)+8);
+  for(let a=0;a<=ahead;a+=3)for(let b=0;b<=horizon;b+=3){const p=roadPoint(m,a),q=roadPoint(priority,b);if(Math.hypot(p.x-q.x,p.z-q.z)<6)return true;}
+  return false;
+}
+function updateTraffic(dt){for(const m of npcs){
+  const yieldNow=shouldYield(m,carM)||(phase==='dispatch'&&shouldYield(m,truckM));
+  m.target=yieldNow?0:(m.cruiseSpeed||9);m.accel=yieldNow?12:4;
+  if(yieldNow&&m.obj.position.distanceTo(hero.g.position)<10)m.speed=0;
+  m.update(dt);
+}}
 /* ================= 3D tags ================= */
 const tags=[];
 function addTag(html,getPos,cls,color){
@@ -1683,6 +1744,26 @@ addTag('JAPAN',V3(JAPAN.x,-2,JAPAN.z+26),'region');
 addTag('KOREA · SEOUL',V3(60,-2,95),'region');
 const carTag=addTag('',()=>hero.g.position.clone().add(V3(0,6.2,0)),'hero');
 const truckTag=addTag('',()=>truck.g.position.clone().add(V3(0,6.4,0)),'truck');
+
+function rooftopSign(label,subtitle,pos,color,width=22){
+  const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;const c=canvas.getContext('2d');
+  c.fillStyle='#101c29';c.fillRect(0,0,1024,256);c.strokeStyle=color;c.lineWidth=16;c.strokeRect(8,8,1008,240);
+  c.textAlign='center';c.textBaseline='middle';c.fillStyle='#f5f9ff';c.font='bold 76px sans-serif';c.fillText(label,512,99,960);c.fillStyle=color;c.font='44px sans-serif';c.fillText(subtitle,512,191,960);
+  const texture=new THREE.CanvasTexture(canvas);texture.encoding=THREE.sRGBEncoding;texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  const g=new THREE.Group();g.position.copy(pos);
+  const face=new THREE.Mesh(new THREE.PlaneGeometry(width,width/4),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide}));face.position.y=width/8+1.6;g.add(face);
+  const frame=new THREE.Mesh(new THREE.BoxGeometry(width+.4,width/4+.35,.55),new THREE.MeshStandardMaterial({color:0x263649,roughness:.6}));frame.position.set(0,width/8+1.6,-.32);g.add(frame);
+  for(const x of [-width*.35,width*.35]){const post=new THREE.Mesh(new THREE.BoxGeometry(.3,2.3,.3),roofMat);post.position.set(x,1,0);g.add(post);}
+  g.rotation.y=Math.PI/4;scene.add(g);return {g,face,texture};
+}
+const facilitySigns={
+  center:rooftopSign('e-Care 상담센터','24H · CALL CENTER',V3(-45,41,-45),'#ff6472',25),
+  depot:rooftopSign('긴급출동 센터','EMERGENCY RESPONSE',V3(45,8.5,-47),'#ff6472',23),
+  vep:rooftopSign('VEP · 한국','DATA CENTER',V3(15,12,-75),'#2ee6cf',22),
+  vdp:rooftopSign('VDP · 일본','GLOBAL',V3(JAPAN.x,9,JAPAN.z),'#59a8ff',20)
+};
+DEALERS.forEach(d=>d.rooftop=rooftopSign(d.name,'SERVICE · DMS',V3(d.bx,9.5,d.bz+1),'#2ee6cf',22));
+T_CENTER.el.hidden=T_DEPOT.el.hidden=T_VDP.el.hidden=T_VEP.el.hidden=true;DEALERS.forEach(d=>d.tag.el.hidden=true);
 
 /* ================= effects ================= */
 const FX=new Set();
@@ -1824,6 +1905,41 @@ function updateCam(dt){
   const aspect=W/H, s=view.size*userZoom; let hw=s, hh=s/aspect; if(aspect<1){hh=s*1.05; hw=hh*aspect;}
   cam.left=-hw;cam.right=hw;cam.top=hh;cam.bottom=-hh;cam.updateProjectionMatrix();
 }
+function fitConversation(){
+  const a=carTop(),b=scenario==='severe'?CENTER.top.clone():S.dealer.top.clone();
+  const right=V3(Math.cos(view.yaw),0,-Math.sin(view.yaw)),up=V3(-Math.sin(view.pitch)*Math.sin(view.yaw),Math.cos(view.pitch),-Math.sin(view.pitch)*Math.cos(view.yaw));
+  const peak=a.clone().add(b).multiplyScalar(.5);peak.y=Math.max(a.y,b.y)+a.distanceTo(b)*.22+5;
+  const pts=[a,a.clone().setY(0),b,b.clone().setY(0),peak];
+  const xs=pts.map(p=>p.dot(right)),ys=pts.map(p=>p.dot(up));const xmin=Math.min(...xs)-12,xmax=Math.max(...xs)+12,ymin=Math.min(...ys)-12,ymax=Math.max(...ys)+12;
+  let left=12,rightPx=W-12,top=16,bottom=H-28;
+  const pane=$('#callPane'),sr=stage.getBoundingClientRect(),pr=pane.getBoundingClientRect();
+  if(CP.open&&!pane.classList.contains('docked')&&pr.right>sr.left&&pr.left<sr.right&&pr.bottom>sr.top&&pr.top<sr.bottom){
+    const overlap=Math.min(sr.right,pr.right)-Math.max(sr.left,pr.left);
+    if(overlap<W*.7){if(pr.left<sr.left+W/2)left=Math.max(left,pr.right-sr.left+16);else rightPx=Math.min(rightPx,pr.left-sr.left-16);}
+  }
+  const availableW=Math.max(80,rightPx-left),availableH=Math.max(80,bottom-top),scale=Math.max((xmax-xmin)/availableW,(ymax-ymin)/availableH);
+  const cx=(xmin+xmax)/2-(left+rightPx-W)/2*scale,cy=(ymin+ymax)/2+(top+bottom-H)/2*scale;
+  const target=right.clone().multiplyScalar(cx).addScaledVector(up,cy),dir=V3(Math.cos(view.pitch)*Math.sin(view.yaw),Math.sin(view.pitch),Math.cos(view.pitch)*Math.cos(view.yaw));
+  cam.position.copy(target).addScaledVector(dir,400);cam.lookAt(target);cam.left=-W*scale/2;cam.right=W*scale/2;cam.top=H*scale/2;cam.bottom=-H*scale/2;cam.updateProjectionMatrix();cam.updateMatrixWorld();
+}
+const obstructionRay=new THREE.Raycaster(),fadedBuildings=new Set();
+function updateBuildingVisibility(dt){
+  const hit=new Set();
+  if(PROJECT==='ecare'&&S.status==='severe'&&!S.load){
+    const meshes=cityBuildings.flat();scene.updateMatrixWorld();
+    for(const offset of [V3(0,1.5,0),V3(2,1.5,0),V3(-2,1.5,0),V3(0,1.5,1),V3(0,1.5,-1)]){
+      const target=hero.g.position.clone().add(offset),direction=target.clone().sub(cam.position);obstructionRay.set(cam.position,direction.clone().normalize());obstructionRay.far=direction.length()-2;
+      for(const h of obstructionRay.intersectObjects(meshes,false))hit.add(h.object);
+    }
+  }
+  for(const parts of cityBuildings)if(parts.some(m=>hit.has(m)))for(const m of parts)hit.add(m);
+  for(const m of hit){if(!m.userData.originalMaterial){m.userData.originalMaterial=m.material;m.material=m.material.clone();m.material.transparent=true;m.material.depthWrite=false;}fadedBuildings.add(m);}
+  for(const m of [...fadedBuildings]){
+    const original=m.userData.originalMaterial;m.material.color.copy(original.color);m.material.emissiveIntensity=original.emissiveIntensity;
+    const goal=hit.has(m)?.16:1;m.material.opacity+=(goal-m.material.opacity)*(1-Math.exp(-dt*12));m.castShadow=!hit.has(m);
+    if(!hit.has(m)&&m.material.opacity>.995){m.material.dispose();m.material=original;delete m.userData.originalMaterial;m.castShadow=true;fadedBuildings.delete(m);}
+  }
+}
 const carPos=()=>hero.g.position.clone();
 const carTop=()=>hero.g.position.clone().add(V3(0,3,0));
 const phonePos=()=>hero.g.position.clone().add(V3(0,8.5,0));
@@ -1922,7 +2038,15 @@ const sfx={
   fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.05,i*.11));[523,659,784,1047,1319].forEach(f=>tone(f,1.3,'sine',.022,.5));tone(1568,.7,'sine',.03,.62);[.9,1.2,1.5,1.85].forEach((w,i)=>{tone(180,.18,'sine',.05,w,60);tone(2400+i*350,.06,'square',.008,w+.05);});},
   pop(){tone(260,.16,'sine',.05,0,70);tone(3000,.05,'square',.006,.04);}
 };
-$('#btnSound').addEventListener('click',e=>{muted=!muted;e.currentTarget.setAttribute('aria-pressed',muted);$('#sndWave').style.opacity=muted?.15:1;});
+let rescueSiren=null;
+function updateRescueSiren(){
+  const active=PROJECT==='ecare'&&phase==='dispatch'&&S.beacon&&!muted;
+  if(!active){if(rescueSiren){rescueSiren.osc.stop();rescueSiren.osc.disconnect();rescueSiren.gain.disconnect();rescueSiren=null;}return;}
+  const a=AC;if(!a||a.state!=='running')return;
+  if(!rescueSiren){const osc=a.createOscillator(),gain=a.createGain();osc.type='triangle';gain.gain.value=.035;osc.connect(gain);gain.connect(a.destination);osc.start();rescueSiren={osc,gain};}
+  rescueSiren.osc.frequency.setTargetAtTime(780+220*Math.sin(T*Math.PI*2/1.2),a.currentTime,.035);
+}
+$('#btnSound').addEventListener('click',e=>{muted=!muted;ac();updateRescueSiren();e.currentTarget.setAttribute('aria-pressed',muted);$('#sndWave').style.opacity=muted?.15:1;});
 $('#btnFull').addEventListener('click',()=>{const d=document;try{if(d.fullscreenElement){d.exitFullscreen().catch(()=>{});}else{const p=$('#app').requestFullscreen&&$('#app').requestFullscreen();if(p&&p.catch)p.catch(()=>{});}}catch(e){}});
 
 /* ================= simulated clock ================= */
@@ -1989,7 +2113,7 @@ function buildFlow(){
  ${Object.entries(FN).map(([k,n])=>`<g class="fn" id="fn-${k}"><rect x="${n.x-n.w/2}" y="${n.y-n.h/2}" width="${n.w}" height="${n.h}" rx="8"/><text class="t" x="${n.x}" y="${n.y-(n.h>40?3:2)}" text-anchor="middle">${n.t}</text><text class="s" x="${n.x}" y="${n.y+(n.h>40?12:11)}" text-anchor="middle">${n.s}</text></g>`).join('')}
  <g id="fpk"></g></svg>`;
   $('#legend').innerHTML=wn?'<span><i style="background:var(--alert)"></i>WNG 이벤트</span><span><i style="background:var(--blue)"></i>전체 상태 메시지</span><span><i style="background:#a78bfa"></i>표출 (MM 로직)</span><span><i style="background:var(--teal)"></i>DMS · 컨택</span>':gs?'<span><i style="background:var(--teal)"></i>가입 · 제어 · 이력</span><span><i style="background:var(--blue)"></i>조회 · 디지털 키</span><span><i style="background:var(--amber)"></i>OTA</span><span><i style="background:#a78bfa"></i>데이터 · 스트림</span>'
-    :'<span><i style="background:var(--alert)"></i>고장 신호</span><span><i style="background:var(--blue)"></i>진단 데이터</span><span><i style="background:var(--teal)"></i>경고 정보 배포 · 통화</span>';
+    :'<span><i style="background:var(--alert)"></i>고장 신호</span><span><i style="background:var(--amber)"></i>경고 신호</span><span><i style="background:var(--blue)"></i>진단 데이터</span><span><i style="background:var(--teal)"></i>경고 정보 배포 · 통화</span>';
 }
 buildFlow();
 function fPath(a,b){
@@ -2595,12 +2719,12 @@ async function dispatchFlow(){
   addLog('긴급출동 요청 · 7호차 배정','red'); setStat('em','신고접수');
   focus(mid(truckPos,carPos),Math.max(46,truckM.len*.42));
   await packet(V3(CENTER.x,44,CENTER.z),()=>truckPos().add(V3(0,4,0)),0xff4552,1200,'DISPATCH → 출동 7호차'); if(run!==token) return;
-  S.beacon=true; sfx.siren(); truckM.target=15; setStat('em','출동'); memoSeq(run,{});
+  S.beacon=true; truckM.target=15; setStat('em','출동'); memoSeq(run,{});
   const st=$('#dst'); if(st) st.textContent='이동 중';
   addLog('출동 차량 출발'); fNode('web','done');
   focus(mid(truckPos,carPos),50); S.followDispatch=true;
   await new Promise(r=>{truckM.onArrive=r;}); if(run!==token) return;
-  S.followDispatch=false; killFX(S.route); killFX(S.pin);
+  S.followDispatch=false; S.beacon=false;updateRescueSiren();killFX(S.route); killFX(S.pin);
   addLog('현장 도착 · 고객 차량 확인','teal'); setStat('em','도착'); fCap('<b>⑩</b> 출동 차량 현장 도착');
   setPhase('arrived'); sideArrived(); focus(mid(truckPos,carPos),30); vehUI('출동 차량 도착','');
 }
@@ -2716,7 +2840,7 @@ function celebrAvoid(el){ el.style.paddingLeft=el.style.paddingRight='';
 function celebrHide(){ const el=$('#celebr'); if(el){ el.hidden=true; el.classList.remove('in','out'); } }
 function reset(silent){
   S.stat={}; renderStat();
-  token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false; S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
+  token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false;updateRescueSiren(); S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
   scenario=null; S.status='normal'; hazard(false); lamps(null); flowReset(); removeTag(S.phoneTag); S.phoneTag=null;
   S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=baseOffset;
   carM.active=true; carM.setPath(LOOP,true); carM.s=18; carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
@@ -3602,7 +3726,7 @@ function frame(){
   }
   const ndt=dt*S.ff;
   const gsPark=PROJECT==='gs';
-  carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); npcs.forEach(m=>m.update(ndt));
+  carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); updateTraffic(dt);
   if(S.load){
     S.load.t+=dt; const k=clamp(S.load.t/1.6,0,1), e=ease(k);
     truck.g.updateMatrixWorld(); const bed=truck.g.localToWorld(truck.bedLocal.clone());
@@ -3632,6 +3756,8 @@ function frame(){
   flowTick();
   if(S.followDispatch){ const d=truck.g.position.distanceTo(hero.g.position); goal.size=clamp(d*.62+18,30,80); }
   updateCam(dt);
+  if(phase==='call'&&PROJECT==='ecare')fitConversation();
+  updateBuildingVisibility(dt);animateParks(T);updateRescueSiren();
   // tags
   const st=S.status;
   const cs={drive:'주행 중',warn:st==='severe'?'경고 · 감속 중':'경고 감지',diagnose:'경고 정보 전달 중',awaitCall:st==='severe'?'정차 · 고객 연락 대기':'주행 중 · 고객 연락 대기',lapse:'고객 연락 대기',busy:'고객 연락 중',pickDealer:'딜러 선택 중',gsAsk:'고객 연락 대기',gsBusy:'처리 중',nightWait:'딜러 콜백 대기',call:'통화 중',awaitAction:st==='severe'?'정차 · 비상등':'주행 중 · 경고',dispatch:'출동 대기',arrived:'출동 차량 도착',tow:'견인 중',service:'서비스센터로 이동',done:'케어 완료',intro:'주행 중'}[phase];
