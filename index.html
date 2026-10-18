@@ -411,6 +411,7 @@ body.wng .callpane{display:none!important}
 .cp-who svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px;margin-right:4px}
 .cp-who .a{color:var(--teal)} .cp-who .c{color:var(--blue)} .cp-who .dir{color:var(--muted);font-size:10.5px}
 .cp-body{flex:1;min-height:0;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}
+.cp-audio[hidden]{display:none}
 .cp-audio{display:flex;align-items:center;gap:8px;padding:7px 12px;border-top:1px solid var(--line);flex:none}
 .cp-audio button{border:1px solid var(--line-2);border-radius:7px;background:var(--panel-hi);color:var(--muted);padding:7px 10px;min-height:36px;font:700 11px var(--f-body);cursor:pointer;white-space:nowrap}
 .cp-audio button[aria-pressed="true"]{border-color:var(--teal);color:var(--teal)}
@@ -1162,7 +1163,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
     <div class="cp-h" id="cpHead" title="끌어서 이동 · 눌러서 접기/펼치기"><span class="cp-grip" aria-hidden="true"></span><span class="cp-dot"></span><div class="cp-tt"><span class="t"><span id="cpKind">Customer Call</span><span class="tm" id="cpT"></span></span><b id="cpTitle">고객 통화</b><span class="pv" id="cpPv">통화 대기 중</span></div><div class="cp-lang" id="cpLang" role="group" aria-label="대화 언어"><button type="button" data-l="ko" aria-pressed="true">한국어</button><button type="button" data-l="ja" aria-pressed="false">日本語</button></div><button class="cp-x" id="cpMin" title="접기 · 펼치기"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></div>
     <div class="cp-who" id="cpWho"></div>
     <div class="cp-body" id="cpBody"></div>
-    <div class="cp-audio"><button type="button" id="cpVoice" aria-pressed="true">음성 ON</button><span id="cpVoiceStatus" role="status" aria-live="polite">선택한 언어로 대사를 읽습니다</span></div>
+    <div class="cp-audio" hidden><button type="button" id="cpVoice" aria-pressed="true">음성 ON</button><span id="cpVoiceStatus" role="status" aria-live="polite">선택한 언어로 대사를 읽습니다</span></div>
     <div class="cp-f"><span id="cpSt">대기 중</span><span id="cpN">0줄</span><button class="cp-clr" id="cpClr" title="통화 기록 지우기">기록 지우기</button></div>
   </div>
   <div id="intro">
@@ -1209,6 +1210,8 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.4',date:'2026-10-18',name:'녹음 장면만 음성 제공',notes:['한국어 선제 전화 장면에서만 음성 버튼 표시 및 WAV 재생','다른 통화·일본어에서는 음성 조작 숨김 · 기본 TTS 제거']},
+  {v:'0.2.3',date:'2026-10-18',name:'e-Care 한국어 녹음 음성',notes:['25분 경과 후 상담원 선제 전화의 한국어 대사 5개를 WAV로 재생','녹음 종료에 맞춰 대사 진행 · 음성 OFF/언어 변경/초기화 시 재생 중단']},
   {v:'0.2.2',date:'2026-10-18',name:'e-Care 통화 음성 · 한국어/일본어',notes:[
     'e-Care 통화에서 선택한 언어의 대사를 순서대로 음성 재생 · 음성 ON/OFF 설정 기억',
     '통화 중 언어 변경 시 현재 대사를 새 언어로 다시 재생 · 초기화/모드 전환 시 음성 중단',
@@ -2536,7 +2539,7 @@ async function callFlow(o,run){
   if(o.party==='center'){ setPhase('busy'); if(!await ccwStep(o,run)) return; }
   setPhase('call'); sideCall(o);
   const agNm=toDealer?{ko:d.name+' 어드바이저',ja:(CPJ[d.name]||d.name)+' アドバイザー'}:LX('e-Care 상담원');
-  cpOpen({kind:o.dir==='out'?(toDealer?'Dealer Callback':'SLA Call-out'):toDealer?'Dealer Call':'Inbound Call',title:{ko:`${agNm.ko} ↔ 홍길동 고객님`,ja:`${agNm.ja} ↔ ホン・ギルドン様`},agent:agNm,cust:o.via==='hu'?'차량 HU · 핸즈프리':'고객 휴대폰',dir:o.dir}); S.calls=(S.calls||0)+1;
+  cpOpen({voice:o.party==='center'&&o.dir==='out',kind:o.dir==='out'?(toDealer?'Dealer Callback':'SLA Call-out'):toDealer?'Dealer Call':'Inbound Call',title:{ko:`${agNm.ko} ↔ 홍길동 고객님`,ja:`${agNm.ja} ↔ ホン・ギルドン様`},agent:agNm,cust:o.via==='hu'?'차량 HU · 핸즈프리':'고객 휴대폰',dir:o.dir}); S.calls=(S.calls||0)+1;
   const far=toDealer?d.top.clone():V3(CENTER.x,44,CENTER.z);
   const cust=o.via==='hu'?carTop:phonePos;
   focus(mid(carPos,toDealer?V3(d.bx,10,d.bz):V3(CENTER.x,14,CENTER.z)),62);
@@ -3002,11 +3005,49 @@ let CPL='ko'; try{ if(localStorage.getItem('ecareCpLang')==='ja') CPL='ja'; }cat
 const CPJ={'고객 통화':'お客様通話','통화 대기 중':'通話待機中','대기 중':'待機中','호출 중':'呼出中','통화 중':'通話中','통화 종료':'通話終了','통화 중단':'通話中断','연결 실패 · SMS 발송':'接続失敗・SMS送信','호출':'呼出','종료':'終了','기록 지우기':'履歴クリア','→ 발신':'→ 発信','← 수신':'← 着信','e-Care 상담원':'e-Care オペレーター','홍길동 고객님':'ホン・ギルドン様','고객 휴대폰':'お客様の携帯電話','차량 HU · 핸즈프리':'車両HU・ハンズフリー','3회 발신 실패 → SMS 자동 발송':'3回発信失敗 → SMS自動送信','서초 서비스센터':'瑞草サービスセンター','강남 서비스센터':'江南サービスセンター','용산 서비스센터':'龍山サービスセンター','송파 서비스센터':'松坡サービスセンター','분당 서비스센터':'盆唐サービスセンター'};
 const LX=v=>v&&typeof v==='object'?v:{ko:String(v),ja:CPJ[v]||String(v)};
 /* e-Care only: browser/device speech, independent of scenario sound effects. */
-const CVOICE={enabled:true,cancel:null,notice:null};
+const CVOICE={enabled:true,scene:false,cancel:null,notice:null};
 try{CVOICE.enabled=localStorage.getItem('ecareCallVoice')!=='off';}catch(e){}
-function cpVoiceSupported(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance);}
+function cpVoiceSupported(){return PROJECT==='ecare'&&CVOICE.scene&&CPL==='ko'&&typeof window.Audio==='function';}
+const CP_RECORDINGS={
+  "ko": {
+    "안녕하세요, e-Care 상담센터입니다. 홍길동 고객님 휴대폰 맞으신가요?": "audio/ecare/ko_agent_001.wav",
+    "25분 전 차량에서 브레이크 시스템 경고가 감지됐는데 연락이 없으셔서 먼저 전화드렸습니다. 지금 안전한 곳에 계신가요?": "audio/ecare/ko_agent_003.wav",
+    "현재 위치로 긴급출동 차량을 바로 보내드리겠습니다. 비상등을 켜고 차 밖 안전한 곳에서 기다려 주세요.": "audio/ecare/ko_agent_005.wav",
+    "네, 맞아요.": "audio/ecare/ko_customer_002.wav",
+    "경황이 없어서 연락을 못 했어요. 갓길에 세워 뒀어요.": "audio/ecare/ko_customer_004.wav"
+  }
+};
+function cpRecording(el){return (CP_RECORDINGS[CPL]||{})[el.dataset[CPL]]||null;}
+function cpPlayRecording(url,el,who,run){
+  return new Promise(resolve=>{
+    const audio=new Audio(url),row=el.closest('.cp-l');
+    let settled=false,startTimer,endTimer,checkTimer;
+    const finish=reason=>{
+      if(settled) return;settled=true;
+      clearTimeout(startTimer);clearTimeout(endTimer);clearInterval(checkTimer);
+      audio.onplaying=audio.onended=audio.onerror=null;
+      audio.pause();audio.removeAttribute('src');audio.load();
+      if(row) row.classList.remove('speaking');
+      if(CVOICE.cancel===stop) CVOICE.cancel=null;
+      resolve(reason);
+    };
+    const stop=reason=>finish(reason);CVOICE.cancel=stop;
+    audio.onplaying=()=>{
+      clearTimeout(startTimer);
+      CVOICE.notice={ko:(who==='agent'?'상담원':'고객')+' 녹음 음성 재생 중',ja:'録音音声を再生中'};cpVoiceUi();
+    };
+    audio.onended=()=>finish('done');audio.onerror=()=>finish('error');
+    startTimer=setTimeout(()=>finish('error'),10000);
+    endTimer=setTimeout(()=>finish('error'),120000);
+    checkTimer=setInterval(()=>{if(run!==token||PROJECT!=='ecare')finish('abort');},100);
+    if(row) row.classList.add('speaking');
+    el.textContent=el.dataset[CPL];const body=$('#cpBody');if(body)body.scrollTop=body.scrollHeight;
+    try{audio.play().catch(()=>finish('error'));}catch(e){finish('error');}
+  });
+}
 function cpVoiceUi(){
   const b=$('#cpVoice'); if(!b) return;
+  b.closest('.cp-audio').hidden=!cpVoiceSupported();
   b.disabled=!cpVoiceSupported(); b.setAttribute('aria-pressed',String(CVOICE.enabled&&cpVoiceSupported()));
   cpSet(b,{ko:cpVoiceSupported()?'음성 '+(CVOICE.enabled?'ON':'OFF'):'음성 미지원',ja:cpVoiceSupported()?'音声 '+(CVOICE.enabled?'ON':'OFF'):'音声非対応'});
   cpSet('#cpVoiceStatus',CVOICE.notice||(!cpVoiceSupported()?{ko:'이 브라우저는 음성을 지원하지 않습니다',ja:'このブラウザは音声に対応していません'}:CVOICE.enabled?{ko:'선택한 언어로 대사를 읽습니다',ja:'選択した言語で会話を読み上げます'}:{ko:'대사만 표시합니다',ja:'会話のテキストのみ表示します'}));
@@ -3020,44 +3061,12 @@ function cpVoiceToggle(){
   if(!CVOICE.enabled) cpVoiceStop('off');
   cpVoiceUi();
 }
-function cpVoicePick(lang,who){
-  const voices=window.speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().replace('_','-').split('-')[0]===lang);
-  return voices[who==='cust'&&voices.length>1?1:0]||null;
-}
 async function cpSpeak(el,who,run){
-  if(PROJECT!=='ecare'||!CVOICE.enabled||!cpVoiceSupported()||run!==token) return false;
-  while(run===token&&PROJECT==='ecare'&&CVOICE.enabled){
-    const lang=CPL, voice=cpVoicePick(lang,who), synth=window.speechSynthesis;
-    if(synth.getVoices().length&&!voice){
-      CVOICE.notice={ko:(lang==='ja'?'일본어':'한국어')+' 음성이 기기에 없습니다 · 대사만 표시',ja:(lang==='ja'?'日本語':'韓国語')+'の音声がありません・テキストのみ表示'};cpVoiceUi();return false;
-    }
-    const result=await new Promise(resolve=>{
-      const u=new window.SpeechSynthesisUtterance(el.dataset[lang]);
-      u.lang=lang==='ja'?'ja-JP':'ko-KR'; if(voice) u.voice=voice;
-      u.rate=who==='agent'?.98:1.04;u.pitch=who==='agent'?1:1.12;
-      let settled=false, startTimer, endTimer, checkTimer;
-      const row=el.closest('.cp-l');
-      const finish=(reason,cancel=false)=>{
-        if(settled) return;settled=true;
-        clearTimeout(startTimer);clearTimeout(endTimer);clearInterval(checkTimer);
-        u.onstart=u.onend=u.onerror=null;
-        if(row) row.classList.remove('speaking');
-        if(CVOICE.cancel===stop) CVOICE.cancel=null;
-        if(cancel) synth.cancel();
-        resolve(reason);
-      };
-      const stop=reason=>finish(reason,true); CVOICE.cancel=stop;
-      u.onstart=()=>{clearTimeout(startTimer);CVOICE.notice={ko:(who==='agent'?'상담원':'고객')+' 음성 재생 중',ja:(who==='agent'?'オペレーター':'お客様')+'の音声を再生中'};cpVoiceUi();};
-      u.onend=()=>finish('done');u.onerror=()=>finish('error',true);
-      startTimer=setTimeout(()=>finish('error',true),5000);
-      endTimer=setTimeout(()=>finish('error',true),120000);
-      checkTimer=setInterval(()=>{if(run!==token||PROJECT!=='ecare') finish('abort',true);},100);
-      if(row) row.classList.add('speaking');
-      el.textContent=el.dataset[lang];const body=$('#cpBody');if(body) body.scrollTop=body.scrollHeight;
-      try{synth.speak(u);}catch(e){finish('error',true);}
-    });
+  while(run===token&&CVOICE.enabled&&cpVoiceSupported()){
+    const recording=cpRecording(el);if(!recording) return false;
+    const result=await cpPlayRecording(recording,el,who,run);
     if(result==='restart') continue;
-    CVOICE.notice=result==='error'?{ko:'음성을 재생할 수 없습니다 · 음성 버튼을 껐다 켜거나 브라우저의 음성 설정을 확인하세요',ja:'音声を再生できません・音声ボタンを切り替えるかブラウザの音声設定をご確認ください'}:null;
+    CVOICE.notice=result==='error'?{ko:'녹음 음성을 재생할 수 없습니다 · 대사만 표시',ja:''}:null;
     cpVoiceUi();return result==='done'||result==='off';
   }
   return false;
@@ -3115,14 +3124,14 @@ function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.aut
   const up=e=>{ if(!d||e.pointerId!==d.id) return; const moved=d.moved; d=null; p.classList.remove('drag'); if(moved) cpSave(); else cpToggle(null,true); };
   h.addEventListener('pointerup',up); h.addEventListener('pointercancel',e=>{d=null;p.classList.remove('drag');});
   $('#cpMin').addEventListener('click',e=>{e.stopPropagation();cpToggle(null,true);});
-  $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML(); CP.n=0; cpSet('#cpN',{ko:'0줄',ja:'0行'}); if(!CP.t0){ cpSet('#cpSt','대기 중'); CP.pvEl=null; cpSet('#cpPv','통화 대기 중'); cpSet('#cpT',''); } });
+  $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML(); CP.n=0; cpSet('#cpN',{ko:'0줄',ja:'0行'}); if(!CP.t0){ CVOICE.scene=false;cpVoiceUi();cpSet('#cpSt','대기 중'); CP.pvEl=null; cpSet('#cpPv','통화 대기 중'); cpSet('#cpT',''); } });
   addEventListener('resize',()=>{ cpPlace(false); fitFlowSoon(); });
   try{ const ro=new ResizeObserver(fitFlowSoon); ro.observe($('#side')); ro.observe(document.querySelector('.zone-flow .zone-body')); ro.observe($('#statBox')); }catch(e){}
   try{ new ResizeObserver(()=>{ if(CP.open) cpPlace(false); }).observe(document.querySelector('.zone-ctrl')); }catch(e){}
   cpPlace(false);
 })();
 function cpOpen(o){
-  cpVoiceStop();CVOICE.notice=null;cpVoiceUi();
+  cpVoiceStop();CVOICE.scene=o.voice===true;CVOICE.notice=null;cpVoiceUi();
   const p=$('#callPane'), b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove();
   CP.id++; CP.t0=0; p.classList.remove('onair','ring');
   CP.manual=false; if(!CP.open) cpToggle(true);   /* 통화가 시작되면 항상 펼침 */
@@ -3155,7 +3164,7 @@ function cpEnd(note){
   $('#cpBody').querySelectorAll('.cp-l.cur').forEach(x=>{x.classList.remove('cur');x.classList.add('past');});
   const tt=was?' '+mmss((performance.now()-was)/1000):''; cpSet('#cpT',{ko:'종료'+tt,ja:'終了'+tt});
 }
-function cpIdle(){ cpVoiceStop(); if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
+function cpIdle(){ cpVoiceStop(); CVOICE.scene=false;cpVoiceUi(); if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
 function cpShow(id){ cpToggle(true); const el=document.getElementById('cpc-'+id); if(el){ el.scrollIntoView({block:'start'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
 
 
