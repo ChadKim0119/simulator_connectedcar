@@ -1210,6 +1210,8 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.7',date:'2026-10-18',name:'공원 주행 범위 · 충돌 방지 · 축구',notes:['고객 자유 주행을 공원 9개 교차로 안으로 제한','모든 차량의 차체·이동 구간 충돌 방지 및 로드스터 착지 확인','공원 축구장 · 두 팀 아이들의 패스와 슛']},
+  {v:'0.2.6',date:'2026-10-18',name:'공원 순환 주행 · 로드스터 오마주',notes:['공원 사이 도로를 포함하는 불규칙 주행 · 교차로에서 경로 확장','두 스포츠카의 냉가스 점프 연출 · 캐치볼과 배팅 연습 교대']},
   {v:'0.2.5',date:'2026-10-18',name:'도시 시연 가시성 · 교통 · 공원',notes:['노란 경고 신호 범례 · 고객 차량 우선 양보 · 출동 중 연속 사이렌','건물 가림 반투명 · 통화 양끝 자동 프레이밍 · 시설 옥상 간판','공원 어린이·강아지 및 아빠와 아들 캐치볼 애니메이션']},
   {v:'0.2.4',date:'2026-10-18',name:'녹음 장면만 음성 제공',notes:['한국어 선제 전화 장면에서만 음성 버튼 표시 및 WAV 재생','다른 통화·일본어에서는 음성 조작 숨김 · 기본 TTS 제거']},
   {v:'0.2.3',date:'2026-10-18',name:'e-Care 한국어 녹음 음성',notes:['25분 경과 후 상담원 선제 전화의 한국어 대사 5개를 WAV로 재생','녹음 종료에 맞춰 대사 진행 · 음성 OFF/언어 변경/초기화 시 재생 중단']},
@@ -1453,7 +1455,7 @@ function park(cx,cz){
   if(plaza){ const pad=new THREE.Mesh(new THREE.BoxGeometry(12,.06,8),new THREE.MeshStandardMaterial({color:0x2a3444,roughness:.8})); pad.position.set(cx,.48,cz); pad.receiveShadow=true; scene.add(pad);
     for(const dz of [-2.6,2.6]){const l=new THREE.Mesh(new THREE.BoxGeometry(8,.02,.18),new THREE.MeshBasicMaterial({color:0x8a96a8}));l.position.set(cx,.52,cz+dz);scene.add(l);} }
   for(let i=0;i<13;i++){ const x=cx+(R()-.5)*17, z=cz+(R()-.5)*17, s=.7+R()*.6;
-    if(Math.hypot(x-cx,z-cz)<7.5){continue;}
+    if(Math.hypot(x-cx,z-cz)<7.5||(cx===15&&cz===-15&&Math.abs(x-cx)<9&&Math.abs(z-cz)<6)){continue;}
     const t=new THREE.Mesh(treeGeo,treeMat); t.position.set(x,.45+1+1.7*s,z); t.scale.setScalar(s); t.castShadow=true; scene.add(t);
     const tr=new THREE.Mesh(trunkGeo,trunkMat); tr.position.set(x,.95,z); scene.add(tr); }
 }
@@ -1482,17 +1484,58 @@ function populatePark(cx,cz){
     const glove=new THREE.Mesh(new THREE.SphereGeometry(.3,8,6),new THREE.MeshStandardMaterial({color:0x785133}));glove.position.set(-.42,-.65,0);son.userData.limbs[3].add(glove);
     const ball=new THREE.Mesh(new THREE.SphereGeometry(.19,10,8),basic(0xffffff));scene.add(ball);
     const dirt=new THREE.Mesh(new THREE.CircleGeometry(6.5,32),new THREE.MeshStandardMaterial({color:0xa18b65,roughness:1}));dirt.rotation.x=-Math.PI/2;dirt.position.set(cx,.49,cz);scene.add(dirt);
-    parkActors.push({type:'baseball',cx,cz,dad,son,ball});
+    const bat=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,2.1,8),new THREE.MeshStandardMaterial({color:0xc89656,roughness:.7}));bat.position.set(0,-.9,0);son.userData.limbs[3].add(bat);bat.visible=false;
+    parkActors.push({type:'baseball',cx,cz,dad,son,ball,bat,glove});
+  }else if(cx===15&&cz===-15){
+    populateFootball(cx,cz);
   }else{
     for(let i=0;i<3;i++){const child=parkPerson([0xffb646,0xe77891,0x65b8d9][i],.72);parkActors.push({type:'child',g:child,cx,cz,phase:i*2.1,r:3.5+i*.6});}
     for(let i=0;i<2;i++)parkActors.push({type:'dog',g:parkDog(),cx,cz,phase:i*3+1,r:2.2+i});
     const ball=new THREE.Mesh(new THREE.SphereGeometry(.45,12,8),new THREE.MeshStandardMaterial({color:0xf4cf51}));ball.position.set(cx,.95,cz);scene.add(ball);
   }
 }
+function populateFootball(cx,cz){
+  const pitch=new THREE.Mesh(new THREE.PlaneGeometry(14,10),new THREE.MeshStandardMaterial({color:0x3d8652,roughness:1}));pitch.rotation.x=-Math.PI/2;pitch.position.set(cx,.5,cz);scene.add(pitch);
+  const lines=new THREE.LineBasicMaterial({color:0xe4efde});
+  function line(points){const g=new THREE.BufferGeometry().setFromPoints(points.map(([x,z])=>V3(cx+x,.53,cz+z)));scene.add(new THREE.Line(g,lines));}
+  line([[-7,-5],[7,-5],[7,5],[-7,5],[-7,-5]]);line([[0,-5],[0,5]]);
+  line(Array.from({length:33},(_,i)=>[Math.cos(i/32*Math.PI*2)*1.8,Math.sin(i/32*Math.PI*2)*1.8]));
+  const goalMat=new THREE.MeshStandardMaterial({color:0xf2f5f1,roughness:.7});
+  for(const side of [-1,1]){
+    for(const z of [-1.8,1.8]){const post=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,1.8,6),goalMat);post.position.set(cx+side*7,1.4,cz+z);scene.add(post);}
+    const bar=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,3.6,6),goalMat);bar.rotation.x=Math.PI/2;bar.position.set(cx+side*7,2.3,cz);scene.add(bar);
+    for(let z=-1.8;z<=1.8;z+=.45){line([[side*7,z],[side*8,z]]);const mesh=new THREE.BufferGeometry().setFromPoints([V3(cx+side*7,2.3,cz+z),V3(cx+side*8,.55,cz+z)]);scene.add(new THREE.Line(mesh,new THREE.LineBasicMaterial({color:0xc0cebd,transparent:true,opacity:.6})));}
+  }
+  const kids=Array.from({length:6},(_,i)=>parkPerson(i<3?0x438ee6:0xf17051,.74));
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(.32,12,8),new THREE.MeshStandardMaterial({color:0xf5f4e9,roughness:.8}));const patch=new THREE.Mesh(new THREE.SphereGeometry(.325,4,2),new THREE.MeshBasicMaterial({color:0x26313a,wireframe:true}));ball.add(patch);scene.add(ball);
+  parkActors.push({type:'football',cx,cz,kids,ball});
+}
+function animateFootball(a,t){
+  const cycle=t%10;let bx,bz;
+  if(cycle<7){const k=cycle/7*Math.PI*2;bx=Math.sin(k)*4.2;bz=Math.sin(k*2)*2.4;}
+  else if(cycle<8.4){const k=(cycle-7)/1.4;bx=k*7.3;bz=0;}
+  else{const k=(cycle-8.4)/1.6;bx=7.3*(1-k);bz=0;}
+  a.ball.position.set(a.cx+bx,.85+Math.abs(Math.sin(t*7))*.1,a.cz+bz);a.ball.rotation.z=t*3;a.ball.rotation.x=t*2;
+  a.kids.forEach((kid,i)=>{const attack=i===Math.floor(t/3)%3;const x=attack?bx-1.2:(i%3-1)*3.2+Math.sin(t*.8+i)*.7,z=attack?bz:(i<3?-2.7:2.7)+Math.cos(t+i)*.6;kid.position.set(a.cx+clamp(x,-6,6),.52,a.cz+clamp(z,-4,4));kid.rotation.y=Math.atan2(bx-x,bz-z);kid.userData.limbs.forEach((l,j)=>l.rotation.x=Math.sin(t*6+i+j*2)*.5);if(attack)kid.userData.limbs[0].rotation.x=-Math.max(0,Math.sin(t*5))*1.1;});
+}
 function animateParks(t){for(const a of parkActors){
-  if(a.type==='baseball'){
-    const k=(t*.32)%1,u=k<.5?k*2:2-k*2;a.ball.position.set(a.cx-5+u*10,2+Math.sin(u*Math.PI)*3,a.cz);
-    a.dad.userData.limbs[3].rotation.x=-.8-Math.sin(t*2)*.7;a.son.userData.limbs[3].rotation.x=-1+Math.sin(t*2)*.45;
+  if(a.type==='football'){animateFootball(a,t);
+  }else if(a.type==='baseball'){
+    const batting=Math.floor(t/18)%2===1;
+    a.bat.visible=batting;a.glove.visible=!batting;
+    a.dad.rotation.y=Math.PI/2;a.son.rotation.y=-Math.PI/2;
+    if(batting){
+      const k=(t%4.5)/4.5,flight=clamp(k/.42,0,1),hit=clamp((k-.42)/.35,0,1);
+      if(k<.42)a.ball.position.set(a.cx-5+flight*10,2+Math.sin(flight*Math.PI)*1.6,a.cz);
+      else if(k<.77)a.ball.position.set(a.cx+5-hit*11,2+Math.sin(hit*Math.PI)*5,a.cz-hit*4);
+      else a.ball.position.set(a.cx-6,.7,a.cz-4);
+      const swing=ease(clamp((k-.34)/.17,0,1));a.son.rotation.y=-Math.PI/2+swing*1.1;
+      a.son.userData.limbs[3].rotation.set(-1.7,0,-1.1+swing*2.2);a.son.userData.limbs[2].rotation.x=-1.2;
+      a.dad.userData.limbs[3].rotation.x=-.5-Math.sin(Math.min(1,k/.42)*Math.PI)*1.8;
+    }else{
+      const k=(t*.32)%1,u=k<.5?k*2:2-k*2;a.ball.position.set(a.cx-5+u*10,2+Math.sin(u*Math.PI)*3,a.cz);
+      a.dad.userData.limbs[3].rotation.x=-.8-Math.sin(t*2)*.7;a.son.userData.limbs[3].rotation.set(-1+Math.sin(t*2)*.45,0,0);a.son.userData.limbs[2].rotation.x=0;
+    }
   }else{
     const k=t*(a.type==='dog'?.85:.45)+a.phase;a.g.position.set(a.cx+Math.cos(k)*a.r,.5+Math.abs(Math.sin(t*6+a.phase))*.13,a.cz+Math.sin(k)*a.r*.7);a.g.rotation.y=-k-Math.PI/2;
     if(a.type==='child')a.g.userData.limbs.forEach((l,i)=>l.rotation.x=Math.sin(t*6+i*2)*.55);
@@ -1626,6 +1669,19 @@ function makeTruck(){
   scene.add(g); return {g,rM,bM,gr,gb,hl,bedLocal:V3(-1.3,1.33,0)};
 }
 
+function makeRoadster(color){
+  const car=makeCar(color,false),g=car.g;
+  const silhouette=new THREE.Shape();silhouette.moveTo(-2.4,.55);silhouette.lineTo(2.55,.55);silhouette.lineTo(2.3,1.05);silhouette.lineTo(.9,1.25);silhouette.lineTo(-1.6,1.3);silhouette.lineTo(-2.45,1);silhouette.closePath();
+  const geometry=new THREE.ExtrudeGeometry(silhouette,{depth:2.2,bevelEnabled:true,bevelThickness:.1,bevelSize:.12,bevelSegments:2,steps:1});geometry.translate(0,0,-1.1);
+  g.children[0].geometry.dispose();g.children[0].geometry=geometry;g.children[0].position.y=0;
+  g.children[1].scale.set(.75,.56,1);g.children[1].position.set(-.25,1.48,0);g.children[2].scale.set(.72,1,.98);g.children[2].position.set(-.35,1.75,0);
+  const spoiler=new THREE.Mesh(new THREE.BoxGeometry(.32,.12,2.45),new THREE.MeshStandardMaterial({color:0x161c24,metalness:.4,roughness:.4}));spoiler.position.set(-2.1,1.48,0);g.add(spoiler);
+  const jets=[];for(const x of [-1.5,1.5])for(const z of [-.8,.8]){
+    const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,.2,8),new THREE.MeshStandardMaterial({color:0x57646e,metalness:.8,roughness:.3}));nozzle.position.set(x,.5,z);g.add(nozzle);
+    const jet=new THREE.Mesh(new THREE.ConeGeometry(.42,2.3,10),new THREE.MeshBasicMaterial({color:0xd4f2ff,transparent:true,opacity:.8,depthWrite:false}));jet.position.set(x,-.25,z);jet.visible=false;g.add(jet);jets.push(jet);
+  }
+  car.jets=jets;return car;
+}
 /* ================= road paths ================= */
 function snap(p){
   const bx=ROAD.reduce((a,b)=>Math.abs(b-p.x)<Math.abs(a-p.x)?b:a), bz=ROAD.reduce((a,b)=>Math.abs(b-p.z)<Math.abs(a-p.z)?b:a);
@@ -1663,7 +1719,7 @@ function roadPath(a,b){
 class Mover{
   constructor(obj,opts){this.obj=obj;this.speed=0;this.target=0;this.accel=opts.accel||6;this.lane=opts.lane||2;this.lat=new THREE.Vector2();this.rot=0;this.onArrive=null;this.active=true;this.setPath(opts.points,opts.loop,opts.stopShort||0);if(opts.s)this.s=opts.s;this.place(true);}
   setPath(pts,loop,stopShort=0){
-    this.pts=pts.map(p=>new THREE.Vector2(p[0],p[1])); this.loop=!!loop; this.cum=[0];
+    this.roaming=false;this.blockedTime=0;this.pts=pts.map(p=>new THREE.Vector2(p[0],p[1])); this.loop=!!loop; this.cum=[0];
     const n=this.pts.length, segs=loop?n:n-1;
     for(let i=0;i<segs;i++){const a=this.pts[i],b=this.pts[(i+1)%n];this.cum.push(this.cum[i]+a.distanceTo(b));}
     this.len=this.cum[this.cum.length-1]; this.s=0; this.end=Math.max(0,this.len-stopShort);
@@ -1680,7 +1736,10 @@ class Mover{
     if(!this.active) return;
     const dv=this.target-this.speed; this.speed+=clamp(dv,-this.accel*1.4*dt,this.accel*dt);
     if(!this.loop){ const rem=this.end-this.s; this.speed=Math.min(this.speed,Math.sqrt(Math.max(0,2*5*rem))+.3); }
-    this.s+=this.speed*dt;
+    const travel=this.speed*dt;
+    if(this.travelGuard&&!this.travelGuard(this,travel,dt)){this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;return;}
+    this.blockedTime=0;
+    this.s+=travel;
     if(!this.loop&&this.s>=this.end){ this.s=this.end; this.speed=0; this.target=0; if(this.onArrive){const cb=this.onArrive;this.onArrive=null;cb();} }
     this.place(false,dt);
   }
@@ -1688,7 +1747,7 @@ class Mover{
     const p=this.at(this.s);
     const want=new THREE.Vector2(-p.hz*this.lane,p.hx*this.lane);
     if(snapNow) this.lat.copy(want); else this.lat.lerp(want,1-Math.exp(-dt*3.2));
-    this.obj.position.set(p.x+this.lat.x,0,p.z+this.lat.y);
+    this.obj.position.set(p.x+this.lat.x,this.flightHeight||0,p.z+this.lat.y);
     const ta=Math.atan2(-p.hz,p.hx);
     if(snapNow) this.rot=ta; else { let d=ta-this.rot; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; this.rot+=d*Math.min(1,dt*7); }
     this.obj.rotation.y=this.rot;
@@ -1698,6 +1757,23 @@ const LOOP=[[-30,30],[30,30],[30,-30],[-30,-30]];
 const hero=makeCar(0x2b323d,true); hero.g.scale.setScalar(1.22);
 const carM=new Mover(hero.g,{points:LOOP,loop:true,s:18,lane:2.1,accel:5});
 carM.target=carM.speed=10;
+// Extend a finite road path ahead of the car; never teleport at a junction.
+function nextRoamPoint(previous,current,random=Math.random){
+  const candidates=[[30,0],[-30,0],[0,30],[0,-30]].map(([dx,dz])=>[current[0]+dx,current[1]+dz]).filter(([x,z])=>x>=-30&&x<=30&&z>=-30&&z<=30).filter(([x,z])=>x!==previous[0]||z!==previous[1]);
+  // Restrict free driving to the nine intersections around the four parks.
+  const weighted=candidates.flatMap(p=>Array(Math.abs(p[0])<=30&&Math.abs(p[1])<=30?3:1).fill(p));
+  return weighted[Math.min(weighted.length-1,Math.floor(random()*weighted.length))].slice();
+}
+function startRoaming(){
+  const pts=[[-30,30],[0,30],[0,0]];while(pts.length<9)pts.push(nextRoamPoint(pts[pts.length-2],pts[pts.length-1]));
+  carM.setPath(pts,false);carM.roaming=true;carM.s=18;carM.onArrive=null;carM.place(true);
+}
+function extendRoaming(){
+  if(!carM.roaming)return;
+  let consumed=0;while(consumed+2<carM.pts.length&&carM.cum[consumed+1]<carM.s-35)consumed++;
+  if(consumed){const offset=carM.cum[consumed];carM.pts.splice(0,consumed);carM.cum=carM.cum.slice(consumed).map(v=>v-offset);carM.s-=offset;carM.len-=offset;carM.end-=offset;}
+  while(carM.end-carM.s<160){const n=carM.pts.length,a=carM.pts[n-2],b=carM.pts[n-1],p=nextRoamPoint([a.x,a.y],[b.x,b.y]);carM.pts.push(new THREE.Vector2(...p));carM.len+=30;carM.end=carM.len;carM.cum.push(carM.len);}
+}
 const ringMat=new THREE.MeshBasicMaterial({color:0x2ee6cf,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide});
 const selRing=new THREE.Mesh(new THREE.RingGeometry(3.6,4.05,48),ringMat); selRing.rotation.x=-Math.PI/2;
 const pulseMat=ringMat.clone(); const pulseRing=new THREE.Mesh(new THREE.RingGeometry(3.6,3.9,48),pulseMat); pulseRing.rotation.x=-Math.PI/2;
@@ -1705,8 +1781,40 @@ scene.add(selRing,pulseRing);
 const truck=makeTruck();
 const truckM=new Mover(truck.g,{points:[[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],loop:false,lane:2.2,accel:7});
 const OUTER=[[-60,-60],[60,-60],[60,60],[-60,60]];
-const npcs=[0x8a96a8,0x3b4a5e,0x7a2a30,0xc9cfd6,0x31423a,0x56606e,0xa88c5a].map((c,i)=>{const car=makeCar(c,false); const m=new Mover(car.g,{points:OUTER,loop:true,s:i*68,lane:2.1}); m.cruiseSpeed=9;m.target=m.speed=9; return m;});
-[0x46546a,0xb7bec8].forEach((c,i)=>{const car=makeCar(c,false); const m=new Mover(car.g,{points:[[0,-60],[0,60]],loop:true,s:i*60,lane:2.1}); m.cruiseSpeed=8;m.target=m.speed=8; npcs.push(m);});
+const PARK_RING=[[-30,-30],[0,-30],[30,-30],[30,0],[30,30],[0,30],[-30,30],[-30,0]];
+const npcs=[0x8a96a8,0x3b4a5e,0x7a2a30,0xc9cfd6,0x31423a,0x56606e,0xa88c5a].map((c,i)=>{const car=makeCar(c,false);const near=i<2;const m=new Mover(car.g,{points:near?PARK_RING:OUTER,loop:true,s:near?i*120:(i-2)*96,lane:2.1});m.spawnS=near?i*120:(i-2)*96;m.cruiseSpeed=near?6.5:9;m.target=m.speed=m.cruiseSpeed;return m;});
+const roadsters=[0xe12736,0xcbd5e2].map((c,i)=>{
+  const car=makeRoadster(c),route=[[-30,0],[0,0],[30,0],[30,30],[0,30],[-30,30]];if(i)route.reverse();
+  const m=new Mover(car.g,{points:route,loop:true,s:i?72:12,lane:1.8,accel:7});m.cruiseSpeed=10;m.target=m.speed=10;m.roadster=car;m.jump=null;m.jumpCooldown=0;npcs.push(m);return m;
+});
+const coldGasTexture=glowTex;
+const gasPuffs=Array.from({length:80},()=>{const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:coldGasTexture,color:0xe6f6ff,transparent:true,opacity:0,depthWrite:false}));sprite.visible=false;scene.add(sprite);return {sprite,life:0,velocity:V3(0,0,0)};});let nextGasPuff=0;
+function emitColdGas(m){m.obj.updateMatrixWorld();for(const x of [-1.5,1.5])for(const z of [-.8,.8]){const p=gasPuffs[nextGasPuff++%gasPuffs.length];p.life=.85;p.sprite.visible=true;p.sprite.position.copy(m.obj.localToWorld(V3(x,.3,z)));p.velocity.set((Math.random()-.5)*3,-5,(Math.random()-.5)*3);p.sprite.scale.setScalar(.8);}}
+function approaching(a,b){
+  if(a===b||!b.active||b.jump)return false;
+  const launchSpeed=a.speed>=3?a.speed:(a.roadster&&!a.jumpCooldown?a.cruiseSpeed:0);if(launchSpeed<3)return false;
+  const pa=a.at(a.s),pb=b.at(b.s),dx=b.obj.position.x-a.obj.position.x,dz=b.obj.position.z-a.obj.position.z;
+  // A roadster can also lift vertically when a turn is blocked by a nearby body.
+  if(a.roadster&&(a.blockedTime||0)>.3&&Math.hypot(dx,dz)<11)return true;
+  // Opposing and crossing traffic can meet; parallel traffic never triggers a jump.
+  if(b.speed>=.5&&pa.hx*pb.hx+pa.hz*pb.hz>.3)return false;
+  const vx=pb.hx*b.speed-pa.hx*launchSpeed,vz=pb.hz*b.speed-pa.hz*launchSpeed,v2=vx*vx+vz*vz;
+  if(v2<1)return false;
+  const encounter=-(dx*vx+dz*vz)/v2;
+  return encounter>.08&&encounter<1.05&&Math.hypot(dx+vx*encounter,dz+vz*encounter)<5.7;
+}
+function resetRoadsterEffects(){junctionOwners.clear();for(const m of npcs.filter(v=>!v.roadster)){m.s=m.spawnS;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);}for(const [i,m] of roadsters.entries()){m.s=i?72:12;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.jumpCooldown=0;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);}for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}}
+function updateRoadsterEffects(dt){
+  for(const m of roadsters){m.jumpCooldown=Math.max(0,m.jumpCooldown-dt);
+    if(!m.jump&&m.jumpCooldown===0&&PROJECT==='ecare'&&[carM,...npcs].some(other=>approaching(m,other))){m.jump={time:0,gas:0};m.jumpCooldown=9;emitColdGas(m);m.jumpTag=addTag('냉가스 점프',()=>m.obj.position.clone().add(V3(0,5,0)),'pk',0xc9f1ff);}
+    if(m.jump){const previous=m.jump.time,next=previous+dt;let wanted=next>1.65*.72&&!canLand(m)?1.65*.72:next;const height=Math.sin(clamp(wanted/1.65,0,1)*Math.PI)*6.5;if(!canChangeHeight(m,height))wanted=previous;m.jump.time=wanted;const k=clamp(wanted/1.65,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;m.obj.position.y=m.flightHeight;m.obj.rotation.z=Math.cos(k*Math.PI)*.18;
+      const thrust=k<.28||k>.87;m.roadster.jets.forEach(j=>j.visible=thrust);m.jump.gas+=dt;if(thrust&&m.jump.gas>.045){m.jump.gas=0;emitColdGas(m);}
+      if(k>=1){if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);}
+    }
+  }
+  for(const p of gasPuffs)if(p.life>0){p.life-=dt;p.sprite.visible=p.life>0;p.sprite.position.addScaledVector(p.velocity,dt);p.velocity.y*=Math.exp(-dt*3);p.sprite.position.y=Math.max(.2,p.sprite.position.y);p.sprite.material.opacity=Math.max(0,p.life/.85)*.6;p.sprite.scale.setScalar(.8+(1-p.life/.85)*3.5);}
+}
+
 
 function roadPoint(m,distance){const p=m.at(m.s+distance);return {x:p.x-p.hz*m.lane,z:p.z+p.hx*m.lane};}
 function shouldYield(m,priority){
@@ -1716,10 +1824,55 @@ function shouldYield(m,priority){
   for(let a=0;a<=ahead;a+=3)for(let b=0;b<=horizon;b+=3){const p=roadPoint(m,a),q=roadPoint(priority,b);if(Math.hypot(p.x-q.x,p.z-q.z)<6)return true;}
   return false;
 }
+// Collision checks include the physical body and a margin, not just centre distance.
+function vehicleSize(m){return m===truckM?{length:5.2,width:1.8,height:4.1}:m===carM?{length:3.15,width:1.55,height:3.1}:{length:2.85,width:1.45,height:m.roadster?2.1:2.7};}
+function vehiclePose(m){const p=m.obj.position;return {x:p.x,z:p.z,y:p.y||0,yaw:m.rot,...vehicleSize(m)};}
+function bodiesOverlap(a,b){
+  if(a.y>=b.y+b.height+.25||b.y>=a.y+a.height+.25)return false;
+  const axes=[{x:Math.cos(a.yaw),z:-Math.sin(a.yaw)},{x:Math.sin(a.yaw),z:Math.cos(a.yaw)},{x:Math.cos(b.yaw),z:-Math.sin(b.yaw)},{x:Math.sin(b.yaw),z:Math.cos(b.yaw)}];
+  const radius=(p,axis)=>Math.abs(axis.x*Math.cos(p.yaw)-axis.z*Math.sin(p.yaw))*(p.length+.25)+Math.abs(axis.x*Math.sin(p.yaw)+axis.z*Math.cos(p.yaw))*(p.width+.25);
+  return axes.every(axis=>Math.abs((a.x-b.x)*axis.x+(a.z-b.z)*axis.z)<radius(a,axis)+radius(b,axis));
+}
+function allVehicles(){return [carM,truckM,...npcs].filter(m=>m.active!==false);}
+function canChangeHeight(m,height){const pose={...vehiclePose(m),y:height};return allVehicles().every(other=>other===m||!bodiesOverlap(pose,vehiclePose(other)));}
+function canLand(m){const landing={...vehiclePose(m),y:0};return allVehicles().every(other=>other===m||!bodiesOverlap(landing,vehiclePose(other)));}
+function predictedPose(m,travel,dt){
+  const p=m.at(m.s+travel),blend=1-Math.exp(-dt*3.2),latX=lerp(m.lat.x,-p.hz*m.lane,blend),latZ=lerp(m.lat.y,p.hx*m.lane,blend);
+  let angle=Math.atan2(-p.hz,p.hx)-m.rot;while(angle>Math.PI)angle-=2*Math.PI;while(angle<-Math.PI)angle+=2*Math.PI;
+  return {x:p.x+latX,z:p.z+latZ,y:m.flightHeight||0,yaw:m.rot+angle*Math.min(1,dt*7),...vehicleSize(m)};
+}
+function safeVehicleMove(m,travel,dt){
+  if(junctionBlocked(m,travel))return false;
+  const others=allVehicles().filter(other=>other!==m);
+  // Check the swept motion as well as the endpoint, including lateral lane changes.
+  for(const fraction of [.25,.5,.75,1]){const pose=predictedPose(m,travel*fraction,dt*fraction);if(others.some(other=>bodiesOverlap(pose,vehiclePose(other))))return false;}
+  return true;
+}
+const junctionOwners=new Map();
+function upcomingJunction(m,travel=0){
+  const p=m.at(m.s+travel+.001);let best=null;
+  for(const x of [-60,-30,0,30,60])for(const z of [-60,-30,0,30,60]){
+    const dx=x-p.x,dz=z-p.z,along=dx*p.hx+dz*p.hz,lateral=Math.abs(dx*p.hz-dz*p.hx);
+    if(lateral<.1&&along>=-12&&along<22&&(!best||Math.abs(along)<Math.abs(best.along)))best={x,z,key:x+','+z,along};
+  }
+  return best;
+}
+function junctionBlocked(m,travel){
+  if(m.jump||(m.roadster&&!m.jumpCooldown))return false;
+  const j=upcomingJunction(m,travel);if(!j)return false;
+  let owner=junctionOwners.get(j.key);
+  if(owner){const p=owner.center();if(owner.active===false||Math.hypot(p.x-j.x,p.z-j.z)>12.1)owner=null;}
+  if(!owner){const candidates=allVehicles().filter(v=>!(v.jump||(v.roadster&&!v.jumpCooldown))&&(v.target>.1||v.speed>.1)).filter(v=>upcomingJunction(v)?.key===j.key);const inside=v=>{const p=v.center();return Math.hypot(p.x-j.x,p.z-j.z)<12?0:1;};owner=candidates.sort((a,b)=>inside(a)-inside(b)||a.trafficId-b.trafficId)[0];if(owner)junctionOwners.set(j.key,owner);else junctionOwners.delete(j.key);}
+  if(owner===m||!owner)return false;
+  if(m===truckM&&owner===carM&&carM.speed<.1&&phase==='dispatch')return false;
+  return Math.abs(j.along)<12;
+}
+[carM,truckM,...npcs].forEach((m,i)=>{m.trafficId=i;m.travelGuard=safeVehicleMove;});
 function updateTraffic(dt){for(const m of npcs){
-  const yieldNow=shouldYield(m,carM)||(phase==='dispatch'&&shouldYield(m,truckM));
+  const stuntReady=m.roadster&&!m.jumpCooldown;
+  let yieldNow=!m.jump&&((!stuntReady&&shouldYield(m,carM))||(phase==='dispatch'&&shouldYield(m,truckM)));
+  if(!stuntReady&&!m.jump)yieldNow=yieldNow||npcs.some(other=>other!==m&&other.trafficId<m.trafficId&&shouldYield(m,other));
   m.target=yieldNow?0:(m.cruiseSpeed||9);m.accel=yieldNow?12:4;
-  if(yieldNow&&m.obj.position.distanceTo(hero.g.position)<10)m.speed=0;
   m.update(dt);
 }}
 /* ================= 3D tags ================= */
@@ -2396,6 +2549,7 @@ function start(p){
   applyProject(p);
   if(p==='gs'){ reset(true); addLog('GS · Global South 커넥티드 서비스 시작','teal'); return; }
   if(p==='wng'){ reset(true); addLog('WNG 정보 흐름 시뮬레이션 시작','teal'); return; }
+  startRoaming();resetRoadsterEffects();
   setPhase('drive'); sideIdle(); vehUI('주행 중'); focus(carPos,50);
   addLog('e-Care 활성화 · 고객 차량 연결','teal');
 }
@@ -2843,7 +2997,7 @@ function reset(silent){
   token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false;updateRescueSiren(); S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
   scenario=null; S.status='normal'; hazard(false); lamps(null); flowReset(); removeTag(S.phoneTag); S.phoneTag=null;
   S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=baseOffset;
-  carM.active=true; carM.setPath(LOOP,true); carM.s=18; carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
+  carM.active=true; startRoaming(); resetRoadsterEffects(); carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
   truckM.setPath([[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],false); truckM.speed=truckM.target=0; truckM.onArrive=null; truckM.place(true);
   cpIdle(); celebrHide(); S.warnSim=0; S.calls=0;
   if(PROJECT==='gs'){ gsEnter(); if(!silent) addLog('시나리오 초기화'); return; }
@@ -3726,7 +3880,7 @@ function frame(){
   }
   const ndt=dt*S.ff;
   const gsPark=PROJECT==='gs';
-  carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); updateTraffic(dt);
+  extendRoaming();updateRoadsterEffects(dt);carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); updateTraffic(dt);
   if(S.load){
     S.load.t+=dt; const k=clamp(S.load.t/1.6,0,1), e=ease(k);
     truck.g.updateMatrixWorld(); const bed=truck.g.localToWorld(truck.bedLocal.clone());
@@ -3778,7 +3932,7 @@ function frame(){
   if(PROJECT!=='wng'||phase==='intro') renderer.render(scene,cam);
   requestAnimationFrame(frame);
 }
-clockTo(22,10); updDealers(); renderSteps(); renderDock(); sideIdle(); updZoom(); applyTheme(0);
+startRoaming();clockTo(22,10); updDealers(); renderSteps(); renderDock(); sideIdle(); updZoom(); applyTheme(0);
 focus(V3(-10,0,-10),105);
 requestAnimationFrame(frame);
 })();
