@@ -411,6 +411,13 @@ body.wng .callpane{display:none!important}
 .cp-who svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px;margin-right:4px}
 .cp-who .a{color:var(--teal)} .cp-who .c{color:var(--blue)} .cp-who .dir{color:var(--muted);font-size:10.5px}
 .cp-body{flex:1;min-height:0;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin}
+.cp-audio{display:flex;align-items:center;gap:8px;padding:7px 12px;border-top:1px solid var(--line);flex:none}
+.cp-audio button{border:1px solid var(--line-2);border-radius:7px;background:var(--panel-hi);color:var(--muted);padding:7px 10px;min-height:36px;font:700 11px var(--f-body);cursor:pointer;white-space:nowrap}
+.cp-audio button[aria-pressed="true"]{border-color:var(--teal);color:var(--teal)}
+.cp-audio button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.cp-audio span{font-size:10.5px;color:var(--muted);line-height:1.5}
+.callpane:not(.open) .cp-audio,body.gs .cp-audio,body.wng .cp-audio{display:none}
+.cp-l.speaking .bx{box-shadow:0 0 0 2px var(--teal)}
 .callpane:not(.open) .cp-body,.callpane:not(.open) .cp-who,.callpane:not(.open) .cp-f{display:none}
 .cp-empty{margin:auto;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;padding:20px}
 .cp-empty svg{width:28px;height:28px;stroke:#5b6677;fill:none;stroke-width:1.8;display:block;margin:0 auto 8px}
@@ -1155,6 +1162,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
     <div class="cp-h" id="cpHead" title="끌어서 이동 · 눌러서 접기/펼치기"><span class="cp-grip" aria-hidden="true"></span><span class="cp-dot"></span><div class="cp-tt"><span class="t"><span id="cpKind">Customer Call</span><span class="tm" id="cpT"></span></span><b id="cpTitle">고객 통화</b><span class="pv" id="cpPv">통화 대기 중</span></div><div class="cp-lang" id="cpLang" role="group" aria-label="대화 언어"><button type="button" data-l="ko" aria-pressed="true">한국어</button><button type="button" data-l="ja" aria-pressed="false">日本語</button></div><button class="cp-x" id="cpMin" title="접기 · 펼치기"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button></div>
     <div class="cp-who" id="cpWho"></div>
     <div class="cp-body" id="cpBody"></div>
+    <div class="cp-audio"><button type="button" id="cpVoice" aria-pressed="true">음성 ON</button><span id="cpVoiceStatus" role="status" aria-live="polite">선택한 언어로 대사를 읽습니다</span></div>
     <div class="cp-f"><span id="cpSt">대기 중</span><span id="cpN">0줄</span><button class="cp-clr" id="cpClr" title="통화 기록 지우기">기록 지우기</button></div>
   </div>
   <div id="intro">
@@ -1201,6 +1209,11 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.2',date:'2026-10-18',name:'e-Care 통화 음성 · 한국어/일본어',notes:[
+    'e-Care 통화에서 선택한 언어의 대사를 순서대로 음성 재생 · 음성 ON/OFF 설정 기억',
+    '통화 중 언어 변경 시 현재 대사를 새 언어로 다시 재생 · 초기화/모드 전환 시 음성 중단',
+    '기기 TTS 사용 · WNG 통화는 기존 2초 유지'
+  ]},
   {v:'0.2.1',date:'2026-10-18',name:'WNG B·C 딜러 직접 연결 · 통화 2초',notes:[
     '현재 ON 경고에 A가 없고 B·C만 있으면 MM·GSA 전화는 딜러(또는 AI 콜)로 직접 연결',
     '딜러 직접 통화는 통화 완료로 표시하며 콜센터 상담 메모·DMS 이관 단계를 거치지 않음',
@@ -2545,8 +2558,16 @@ async function callFlow(o,run){
   for(const [who,ko,ja] of scriptFor(o)){
     if(run!==token) return;
     const t2=cpLine(who,who==='agent'?agNm:'홍길동 고객님'); t2.dataset.ko=ko; t2.dataset.ja=ja;
-    await typeText(t2,ko,run);
-    if(!await live(run,850+ko.length*17)) return;
+    if(PROJECT==='ecare'&&CVOICE.enabled&&cpVoiceSupported()){
+      t2.textContent=t2.dataset[CPL];
+      const spoken=await cpSpeak(t2,who,run);
+      if(run!==token) return;
+      if(!spoken){ await typeText(t2,ko,run); if(!await live(run,850+ko.length*17)) return; }
+      else if(!await live(run,250)) return;
+    } else {
+      await typeText(t2,ko,run);
+      if(!await live(run,850+ko.length*17)) return;
+    }
   }
   if(!await live(run,500)) return;
   S.callT0=0; cpEnd('통화 종료'); S.beam.fade=1; S.callLive=false; fLink(a,b,'on'); fNode(a,'done'); fNode(b,'done');
@@ -2980,10 +3001,72 @@ CP.t0=0; CP.manual=false; CP.auto=false;
 let CPL='ko'; try{ if(localStorage.getItem('ecareCpLang')==='ja') CPL='ja'; }catch(e){}
 const CPJ={'고객 통화':'お客様通話','통화 대기 중':'通話待機中','대기 중':'待機中','호출 중':'呼出中','통화 중':'通話中','통화 종료':'通話終了','통화 중단':'通話中断','연결 실패 · SMS 발송':'接続失敗・SMS送信','호출':'呼出','종료':'終了','기록 지우기':'履歴クリア','→ 발신':'→ 発信','← 수신':'← 着信','e-Care 상담원':'e-Care オペレーター','홍길동 고객님':'ホン・ギルドン様','고객 휴대폰':'お客様の携帯電話','차량 HU · 핸즈프리':'車両HU・ハンズフリー','3회 발신 실패 → SMS 자동 발송':'3回発信失敗 → SMS自動送信','서초 서비스센터':'瑞草サービスセンター','강남 서비스센터':'江南サービスセンター','용산 서비스센터':'龍山サービスセンター','송파 서비스센터':'松坡サービスセンター','분당 서비스센터':'盆唐サービスセンター'};
 const LX=v=>v&&typeof v==='object'?v:{ko:String(v),ja:CPJ[v]||String(v)};
+/* e-Care only: browser/device speech, independent of scenario sound effects. */
+const CVOICE={enabled:true,cancel:null,notice:null};
+try{CVOICE.enabled=localStorage.getItem('ecareCallVoice')!=='off';}catch(e){}
+function cpVoiceSupported(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance);}
+function cpVoiceUi(){
+  const b=$('#cpVoice'); if(!b) return;
+  b.disabled=!cpVoiceSupported(); b.setAttribute('aria-pressed',String(CVOICE.enabled&&cpVoiceSupported()));
+  cpSet(b,{ko:cpVoiceSupported()?'음성 '+(CVOICE.enabled?'ON':'OFF'):'음성 미지원',ja:cpVoiceSupported()?'音声 '+(CVOICE.enabled?'ON':'OFF'):'音声非対応'});
+  cpSet('#cpVoiceStatus',CVOICE.notice||(!cpVoiceSupported()?{ko:'이 브라우저는 음성을 지원하지 않습니다',ja:'このブラウザは音声に対応していません'}:CVOICE.enabled?{ko:'선택한 언어로 대사를 읽습니다',ja:'選択した言語で会話を読み上げます'}:{ko:'대사만 표시합니다',ja:'会話のテキストのみ表示します'}));
+}
+function cpVoiceStop(reason='abort'){
+  if(CVOICE.cancel) CVOICE.cancel(reason);
+}
+function cpVoiceToggle(){
+  CVOICE.enabled=!CVOICE.enabled; CVOICE.notice=null;
+  try{localStorage.setItem('ecareCallVoice',CVOICE.enabled?'on':'off');}catch(e){}
+  if(!CVOICE.enabled) cpVoiceStop('off');
+  cpVoiceUi();
+}
+function cpVoicePick(lang,who){
+  const voices=window.speechSynthesis.getVoices().filter(v=>v.lang.toLowerCase().replace('_','-').split('-')[0]===lang);
+  return voices[who==='cust'&&voices.length>1?1:0]||null;
+}
+async function cpSpeak(el,who,run){
+  if(PROJECT!=='ecare'||!CVOICE.enabled||!cpVoiceSupported()||run!==token) return false;
+  while(run===token&&PROJECT==='ecare'&&CVOICE.enabled){
+    const lang=CPL, voice=cpVoicePick(lang,who), synth=window.speechSynthesis;
+    if(synth.getVoices().length&&!voice){
+      CVOICE.notice={ko:(lang==='ja'?'일본어':'한국어')+' 음성이 기기에 없습니다 · 대사만 표시',ja:(lang==='ja'?'日本語':'韓国語')+'の音声がありません・テキストのみ表示'};cpVoiceUi();return false;
+    }
+    const result=await new Promise(resolve=>{
+      const u=new window.SpeechSynthesisUtterance(el.dataset[lang]);
+      u.lang=lang==='ja'?'ja-JP':'ko-KR'; if(voice) u.voice=voice;
+      u.rate=who==='agent'?.98:1.04;u.pitch=who==='agent'?1:1.12;
+      let settled=false, startTimer, endTimer, checkTimer;
+      const row=el.closest('.cp-l');
+      const finish=(reason,cancel=false)=>{
+        if(settled) return;settled=true;
+        clearTimeout(startTimer);clearTimeout(endTimer);clearInterval(checkTimer);
+        u.onstart=u.onend=u.onerror=null;
+        if(row) row.classList.remove('speaking');
+        if(CVOICE.cancel===stop) CVOICE.cancel=null;
+        if(cancel) synth.cancel();
+        resolve(reason);
+      };
+      const stop=reason=>finish(reason,true); CVOICE.cancel=stop;
+      u.onstart=()=>{clearTimeout(startTimer);CVOICE.notice={ko:(who==='agent'?'상담원':'고객')+' 음성 재생 중',ja:(who==='agent'?'オペレーター':'お客様')+'の音声を再生中'};cpVoiceUi();};
+      u.onend=()=>finish('done');u.onerror=()=>finish('error',true);
+      startTimer=setTimeout(()=>finish('error',true),5000);
+      endTimer=setTimeout(()=>finish('error',true),120000);
+      checkTimer=setInterval(()=>{if(run!==token||PROJECT!=='ecare') finish('abort',true);},100);
+      if(row) row.classList.add('speaking');
+      el.textContent=el.dataset[lang];const body=$('#cpBody');if(body) body.scrollTop=body.scrollHeight;
+      try{synth.speak(u);}catch(e){finish('error',true);}
+    });
+    if(result==='restart') continue;
+    CVOICE.notice=result==='error'?{ko:'음성을 재생할 수 없습니다 · 음성 버튼을 껐다 켜거나 브라우저의 음성 설정을 확인하세요',ja:'音声を再生できません・音声ボタンを切り替えるかブラウザの音声設定をご確認ください'}:null;
+    cpVoiceUi();return result==='done'||result==='off';
+  }
+  return false;
+}
 function cpSet(el,v){ if(typeof el==='string') el=$(el); if(!el) return; const o=LX(v); el.dataset.ko=o.ko; el.dataset.ja=o.ja; el.textContent=o[CPL]; }
 const cpEmptyHTML=()=>`<div class="cp-empty" id="cpEmpty"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span data-ko="통화가 시작되면 상담원과 고객의 대화가" data-ja="通話が始まると、オペレーターとお客様の会話が">${CPL==='ja'?'通話が始まると、オペレーターとお客様の会話が':'통화가 시작되면 상담원과 고객의 대화가'}</span><br><span data-ko="여기에 차례로 쌓입니다." data-ja="ここに順番に表示されます。">${CPL==='ja'?'ここに順番に表示されます。':'여기에 차례로 쌓입니다.'}</span></div>`;
 function cpPvLine(){ const tt=CP.pvEl; if(!tt) return; const l=tt.closest('.cp-l'); const ag=l&&l.classList.contains('agent'); const pv=$('#cpPv'); if(pv) pv.textContent=`${CPL==='ja'?(ag?'オペレーター':'お客様'):(ag?'상담원':'고객')}: ${tt.textContent}`; }
 function cpLang(l){ CPL=l==='ja'?'ja':'ko'; try{localStorage.setItem('ecareCpLang',CPL);}catch(e){}
+  CVOICE.notice=null;cpVoiceStop('restart');cpVoiceUi();
   document.querySelectorAll('#cpLang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===CPL));
   document.querySelectorAll('#callPane [data-ko]').forEach(e=>{ if(!e.classList.contains('typing')) e.textContent=e.dataset[CPL]; });
   if(CP.t0){ const e=$('#cpT'); if(e) e.textContent=mmss((performance.now()-CP.t0)/1000); }
@@ -3023,6 +3106,7 @@ function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.aut
   const p=$('#callPane'), h=$('#cpHead'); $('#cpBody').innerHTML=cpEmptyHTML();
   cpSet('#cpTitle','고객 통화'); cpSet('#cpPv','통화 대기 중'); cpSet('#cpSt','대기 중'); cpSet('#cpClr','기록 지우기'); cpSet('#cpN',{ko:'0줄',ja:'0行'});
   document.querySelectorAll('#cpLang button').forEach(b=>{ b.setAttribute('aria-pressed',b.dataset.l===CPL); b.addEventListener('click',e=>{ e.stopPropagation(); cpLang(b.dataset.l); }); });
+  $('#cpVoice').addEventListener('click',e=>{e.stopPropagation();cpVoiceToggle();});cpVoiceUi();
   let d=null;
   h.addEventListener('pointerdown',e=>{ if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('#cpMin,#cpLang')||p.classList.contains('docked')) return; d={sx:e.clientX,sy:e.clientY,x:CP.x,y:CP.y,moved:false,id:e.pointerId}; h.setPointerCapture(e.pointerId); });
   h.addEventListener('pointermove',e=>{ if(!d||e.pointerId!==d.id) return; const dx=e.clientX-d.sx, dy=e.clientY-d.sy;
@@ -3038,6 +3122,7 @@ function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.aut
   cpPlace(false);
 })();
 function cpOpen(o){
+  cpVoiceStop();CVOICE.notice=null;cpVoiceUi();
   const p=$('#callPane'), b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove();
   CP.id++; CP.t0=0; p.classList.remove('onair','ring');
   CP.manual=false; if(!CP.open) cpToggle(true);   /* 통화가 시작되면 항상 펼침 */
@@ -3064,12 +3149,13 @@ function cpLine(who,name){
 }
 function cpSys(text,cls){ const b=$('#cpBody'); const e=$('#cpEmpty'); if(e) e.remove(); const d=document.createElement('div'); d.className='cp-sys '+(cls||''); cpSet(d,text); b.appendChild(d); b.scrollTop=b.scrollHeight; CP.pvEl=null; cpSet('#cpPv',text); }
 function cpEnd(note){
+  cpVoiceStop();CVOICE.notice=null;cpVoiceUi();
   const p=$('#callPane'); const was=CP.t0; CP.t0=0; p.classList.remove('onair','ring');
   cpSet('#cpSt',note||'통화 종료');
   $('#cpBody').querySelectorAll('.cp-l.cur').forEach(x=>{x.classList.remove('cur');x.classList.add('past');});
   const tt=was?' '+mmss((performance.now()-was)/1000):''; cpSet('#cpT',{ko:'종료'+tt,ja:'終了'+tt});
 }
-function cpIdle(){ if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
+function cpIdle(){ cpVoiceStop(); if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
 function cpShow(id){ cpToggle(true); const el=document.getElementById('cpc-'+id); if(el){ el.scrollIntoView({block:'start'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
 
 
