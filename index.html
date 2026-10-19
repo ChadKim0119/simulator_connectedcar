@@ -1210,6 +1210,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.2.9',date:'2026-10-19',name:'고객 · 긴급출동 우선 양보',notes:['일반 차량은 가장자리 정차 · 교차로 후진 양보','로드스터는 고객 차량과 출동 · 견인 차량을 냉가스 점프로 회피 · 같은 방향에서는 뒤로 점프']},
   {v:'0.2.8',date:'2026-10-18',name:'고객 차량 주행 우선 · 측면 추진가스',notes:['앞선 일반 차량은 멈추는 대신 교차로를 빠르게 비움 · 덜 막힌 공원 경로 선택','충돌 검사 유지 · 공중 선회 중 로드스터 앞뒤 측면 추진가스']},
   {v:'0.2.7',date:'2026-10-18',name:'공원 주행 범위 · 충돌 방지 · 축구',notes:['고객 자유 주행을 공원 9개 교차로 안으로 제한','모든 차량의 차체·이동 구간 충돌 방지 및 로드스터 착지 확인','공원 축구장 · 두 팀 아이들의 패스와 슛']},
   {v:'0.2.6',date:'2026-10-18',name:'공원 순환 주행 · 로드스터 오마주',notes:['공원 사이 도로를 포함하는 불규칙 주행 · 교차로에서 경로 확장','두 스포츠카의 냉가스 점프 연출 · 캐치볼과 배팅 연습 교대']},
@@ -1741,11 +1742,11 @@ class Mover{
     if(!this.active) return;
     const dv=this.target-this.speed; this.speed+=clamp(dv,-this.accel*1.4*dt,this.accel*dt);
     if(!this.loop){ const rem=this.end-this.s; this.speed=Math.min(this.speed,Math.sqrt(Math.max(0,2*5*rem))+.3); }
-    const travel=this.speed*dt;
+    const travel=this.speed*dt*(this.jump?.direction||1);
     if(this.travelGuard&&!this.travelGuard(this,travel,dt)){this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;return;}
     this.blockedTime=0;
     this.s+=travel;
-    if(!this.loop&&this.s>=this.end){ this.s=this.end; this.speed=0; this.target=0; if(this.onArrive){const cb=this.onArrive;this.onArrive=null;cb();} }
+    if(!this.loop&&this.s>=this.end&&travel>=0){ this.s=this.end; this.speed=0; this.target=0; if(this.onArrive){const cb=this.onArrive;this.onArrive=null;cb();} }
     this.place(false,dt);
   }
   place(snapNow,dt=0){
@@ -1822,10 +1823,17 @@ function approaching(a,b){
   const encounter=-(dx*vx+dz*vz)/v2;
   return encounter>.08&&encounter<1.05&&Math.hypot(dx+vx*encounter,dz+vz*encounter)<5.7;
 }
-function resetRoadsterEffects(){junctionOwners.clear();for(const m of npcs.filter(v=>!v.roadster)){m.s=m.spawnS;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);}for(const [i,m] of roadsters.entries()){m.s=i?72:12;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.jumpCooldown=0;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}}
+function resetRoadsterEffects(){junctionOwners.clear();for(const m of npcs){if(m.normalLane!==undefined)m.lane=m.normalLane;m.yieldHold=0;m.yieldSide=0;}for(const m of npcs.filter(v=>!v.roadster)){m.s=m.spawnS;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);}for(const [i,m] of roadsters.entries()){m.s=i?72:12;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.jumpCooldown=0;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}}
 function updateRoadsterEffects(dt){
   for(const m of roadsters){m.jumpCooldown=Math.max(0,m.jumpCooldown-dt);
-    if(!m.jump&&m.jumpCooldown===0&&PROJECT==='ecare'&&[carM,...npcs].some(other=>approaching(m,other))){m.jump={time:0,gas:0};m.jumpCooldown=9;emitColdGas(m);m.jumpTag=addTag('냉가스 점프',()=>m.obj.position.clone().add(V3(0,5,0)),'pk',0xc9f1ff);}
+    const priority=typeof priorityVehicles==='function'?priorityVehicles().find(v=>priorityConflict(m,v)):null;
+    if(!m.jump&&PROJECT==='ecare'&&(priority||(m.jumpCooldown===0&&[carM,...npcs].some(other=>approaching(m,other))))){
+      // Never pace a priority vehicle through a jump: leave its direction of travel.
+      const a=m.at(m.s),b=priority?.at(priority.s);
+      const direction=b&&a.hx*b.hx+a.hz*b.hz>.3?-1:1;
+      m.jump={time:0,gas:0,direction};m.jumpCooldown=9;emitColdGas(m);m.jumpTag=addTag(direction<0?'냉가스 후방 회피':'냉가스 점프',()=>m.obj.position.clone().add(V3(0,5,0)),'pk',0xc9f1ff);
+    }
+    if(priority&&m.jump){const a=m.at(m.s),b=priority.at(priority.s);if(a.hx*b.hx+a.hz*b.hz>.3)m.jump.direction=-1;}
     if(m.jump){const previous=m.jump.time,next=previous+dt;let wanted=next>1.65*.72&&!canLand(m)?1.65*.72:next;const height=Math.sin(clamp(wanted/1.65,0,1)*Math.PI)*6.5;if(!canChangeHeight(m,height))wanted=previous;m.jump.time=wanted;const k=clamp(wanted/1.65,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;m.obj.position.y=m.flightHeight;m.obj.rotation.z=Math.cos(k*Math.PI)*.18;
       const turn=roadsterTurn(m);(m.roadster.sideJets||[]).forEach(j=>j.visible=turn!==0&&j.userData.side===Math.sign(j.userData.x)*turn);m.jump.sideGas=(m.jump.sideGas||0)+dt;if(turn&&m.jump.sideGas>.045){m.jump.sideGas=0;emitColdGas(m,turn);}
       const thrust=k<.28||k>.87;m.roadster.jets.forEach(j=>j.visible=thrust);m.jump.gas+=dt;if(thrust&&m.jump.gas>.045){m.jump.gas=0;emitColdGas(m);}
@@ -1864,7 +1872,7 @@ function predictedPose(m,travel,dt){
   return {x:p.x+latX,z:p.z+latZ,y:m.flightHeight||0,yaw:m.rot+angle*Math.min(1,dt*7),...vehicleSize(m)};
 }
 function safeVehicleMove(m,travel,dt){
-  if(junctionBlocked(m,travel))return false;
+  if(travel>=0&&junctionBlocked(m,travel))return false;
   const others=allVehicles().filter(other=>other!==m);
   // Check the swept motion as well as the endpoint, including lateral lane changes.
   for(const fraction of [.25,.5,.75,1]){const pose=predictedPose(m,travel*fraction,dt*fraction);if(others.some(other=>bodiesOverlap(pose,vehiclePose(other))))return false;}
@@ -1882,28 +1890,63 @@ function upcomingJunction(m,travel=0){
 function junctionBlocked(m,travel){
   if(m.jump||(m.roadster&&!m.jumpCooldown))return false;
   const j=upcomingJunction(m,travel);if(!j||j.along<-.1)return false;
+  if((m===carM||m===truckM)&&m.target>.2)return false;
   let owner=junctionOwners.get(j.key);
   if(owner){const p=owner.center();if(owner.active===false||Math.hypot(p.x-j.x,p.z-j.z)>12.1)owner=null;}
   if(!owner){const candidates=allVehicles().filter(v=>!(v.jump||(v.roadster&&!v.jumpCooldown))&&(v.target>.1||v.speed>.1)).filter(v=>upcomingJunction(v)?.key===j.key);const inside=v=>{const p=v.center();return Math.hypot(p.x-j.x,p.z-j.z)<12?0:1;};owner=candidates.sort((a,b)=>inside(a)-inside(b)||a.trafficId-b.trafficId)[0];if(owner)junctionOwners.set(j.key,owner);else junctionOwners.delete(j.key);}
   if(owner===m||!owner)return false;
-  if(owner===carM&&clearingHeroLane(m))return false;
   if(m===truckM&&owner===carM&&carM.speed<.1&&phase==='dispatch')return false;
   return Math.abs(j.along)<12;
 }
 [carM,truckM,...npcs].forEach((m,i)=>{m.trafficId=i;m.travelGuard=safeVehicleMove;});
-function clearingHeroLane(m){
-  if(m===carM||m===truckM||!carM.active||carM.target<.5)return false;
-  const a=carM.at(carM.s),b=m.at(m.s),dx=m.obj.position.x-carM.obj.position.x,dz=m.obj.position.z-carM.obj.position.z;
-  return a.hx*b.hx+a.hz*b.hz>.9&&dx*a.hx+dz*a.hz>0&&dx*a.hx+dz*a.hz<38&&Math.abs(dx*a.hz-dz*a.hx)<5;
+// Reserve the upcoming corridor even when a priority vehicle is temporarily blocked.
+function priorityVehicles(){return [carM,truckM].filter(m=>m.active!==false&&m.target>.2);}
+function priorityConflict(m,priority,includeLane=true){
+  if(m===priority||priority.active===false||priority.target<=.2)return false;
+  if(Math.hypot(m.obj.position.x-priority.obj.position.x,m.obj.position.z-priority.obj.position.z)>48)return false;
+  const pose={...vehiclePose(m),y:0},heading=m.at(m.s);
+  const poses=[pose];if(includeLane&&m.normalLane!==undefined)poses.push({...pose,x:heading.x-heading.hz*m.normalLane,z:heading.z+heading.hx*m.normalLane});
+  const horizon=Math.max(22,priority.target*2.5);
+  for(let d=0;d<=horizon;d+=2){
+    const p=priority.at(priority.s+Math.min(d,priority.remaining()));
+    const q={x:p.x-p.hz*priority.lane,z:p.z+p.hx*priority.lane,y:0,yaw:Math.atan2(-p.hz,p.hx),...vehicleSize(priority)};
+    if(poses.some(p=>bodiesOverlap({...p,length:p.length+2,width:p.width+.6},q)))return true;
+  }
+  return false;
 }
 function updateTraffic(dt){for(const m of npcs){
-  const stuntReady=m.roadster&&!m.jumpCooldown;
-  let yieldNow=!m.jump&&((!stuntReady&&shouldYield(m,carM))||(phase==='dispatch'&&shouldYield(m,truckM)));
-  if(!stuntReady&&!m.jump)yieldNow=yieldNow||npcs.some(other=>other!==m&&other.trafficId<m.trafficId&&shouldYield(m,other));
-  const clearAhead=clearingHeroLane(m)&&!m.jump;
-  if(clearAhead)yieldNow=phase==='dispatch'&&shouldYield(m,truckM);
-  m.target=yieldNow?0:clearAhead?Math.max(m.cruiseSpeed||9,carM.speed+3,12):(m.cruiseSpeed||9);m.accel=yieldNow?12:clearAhead?9:6;
+  if(m.normalLane===undefined)m.normalLane=m.lane;
+  const priorities=priorityVehicles(),conflict=priorities.some(p=>priorityConflict(m,p));
+  m.yieldHold=conflict?1:Math.max(0,(m.yieldHold||0)-dt);
+  const yielding=m.yieldHold>0;
+  // Pull to the road edge while stopped; back out if already occupying the corridor.
+  m.yieldSide=yielding?(m.yieldSide||1):0;
+  m.lane=yielding&&!m.jump?6.5*m.yieldSide:m.normalLane;
+  if(yielding&&!m.roadster){
+    m.target=0;m.accel=18;m.speed=0;
+    const retreat=priorities.some(p=>priorityConflict(m,p,false))?-4*dt:0;
+    if((m.loop||m.s+retreat>=0)&&safeVehicleMove(m,retreat,dt)){m.s+=retreat;m.place(false,dt);}
+    else if(safeVehicleMove(m,0,dt))m.place(false,dt);
+    else {
+      // A second yielding car may occupy this shoulder. Use the other edge safely.
+      m.lane=-m.lane;
+      if(safeVehicleMove(m,0,dt)){m.yieldSide=-m.yieldSide;m.place(false,dt);}
+      else m.lane=-m.lane;
+    }
+    continue;
+  }
+  const yieldNow=!m.jump&&(yielding||npcs.some(other=>other!==m&&other.trafficId<m.trafficId&&shouldYield(m,other)));
+  m.target=yieldNow?0:(m.cruiseSpeed||9);m.accel=yieldNow?18:7;
   m.update(dt);
+  if(!yielding&&!m.jump&&m.blockedTime>.2){
+    // Merge only when there is room. Parallel cars can continue along their edge
+    // instead of stopping side by side while both try to enter the same lane.
+    const p=m.at(m.s),wantedLane=m.lane;
+    m.lane=-p.hz*m.lat.x+p.hx*m.lat.y;
+    const speed=m.cruiseSpeed||9,travel=speed*dt;
+    if(safeVehicleMove(m,travel,dt)){m.s+=travel;m.place(false,dt);m.speed=speed;m.blockedTime=0;}
+    m.lane=wantedLane;
+  }
 }}
 /* ================= 3D tags ================= */
 const tags=[];
