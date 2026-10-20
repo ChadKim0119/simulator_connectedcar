@@ -1210,6 +1210,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.3.0',date:'2026-10-20',name:'내 차량 스케치 모델 · NPC 6대 · 우선 통로',notes:['내 차량을 스케치 기준으로 새로 모델링: 둥근 앞범퍼 · 세로 슬랫 그릴, 앞으로 돌출된 루프 바이저와 중앙 이음선, 루프 뒤 둥근 슬랫 바, 문손잡이 · 짧은 트렁크','NPC는 사이버트럭(은색 · 검은색) · 테슬라 로드스터 2 · 토요타 프리우스 2, 일반 차량 삭제','모든 차량이 코너를 곡선으로 돌고 NPC는 차로 변경 없음 → 옆으로 미끄러지는 현상 제거','내 차 · 긴급출동 차량 앞 통로를 매 프레임 예약: NPC는 들어가지 않고, 이미 들어와 있으면 후진(또는 가까운 쪽) · 같은 방향 앞차는 앞으로 비켜 달림 · 로드스터는 수직 상승 회피']},
   {v:'0.2.9',date:'2026-10-19',name:'고객 · 긴급출동 우선 양보',notes:['일반 차량은 가장자리 정차 · 교차로 후진 양보','로드스터는 고객 차량과 출동 · 견인 차량을 냉가스 점프로 회피 · 같은 방향에서는 뒤로 점프']},
   {v:'0.2.8',date:'2026-10-18',name:'고객 차량 주행 우선 · 측면 추진가스',notes:['앞선 일반 차량은 멈추는 대신 교차로를 빠르게 비움 · 덜 막힌 공원 경로 선택','충돌 검사 유지 · 공중 선회 중 로드스터 앞뒤 측면 추진가스']},
   {v:'0.2.7',date:'2026-10-18',name:'공원 주행 범위 · 충돌 방지 · 축구',notes:['고객 자유 주행을 공원 9개 교차로 안으로 제한','모든 차량의 차체·이동 구간 충돌 방지 및 로드스터 착지 확인','공원 축구장 · 두 팀 아이들의 패스와 슛']},
@@ -1688,6 +1689,97 @@ function makeRoadster(color){
   }
   car.sideJets=sideJets;car.jets=jets;return car;
 }
+/* ================= vehicles (v0.3.0) ================= */
+const VB=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+function vMesh(g,geo,mat,x,y,z,shadow=true){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(shadow)m.castShadow=true;g.add(m);return m;}
+function vWheels(g,xs,zs,r,w){
+  const tire=new THREE.CylinderGeometry(r,r,w,18),tm=new THREE.MeshStandardMaterial({color:0x0a0d12,roughness:.85});
+  const hub=new THREE.CylinderGeometry(r*.56,r*.56,w+.02,14),hm=new THREE.MeshStandardMaterial({color:0x9aa4b0,metalness:.85,roughness:.3});
+  for(const x of xs)for(const z of zs){const t=vMesh(g,tire,tm,x,r,z);t.rotation.x=Math.PI/2;const h=vMesh(g,hub,hm,x,r,z,false);h.rotation.x=Math.PI/2;}
+}
+// Side-profile extrusion: points are [x(forward), y(up)], extruded across the width (z).
+function vProfile(points,width,mat){
+  const sh=new THREE.Shape();points.forEach(([x,y],i)=>i?sh.lineTo(x,y):sh.moveTo(x,y));sh.closePath();
+  const geo=new THREE.ExtrudeGeometry(sh,{depth:width,bevelEnabled:false,steps:1});geo.translate(0,0,-width/2);
+  const m=new THREE.Mesh(geo,mat);m.castShadow=true;return m;
+}
+/* 내 차량: 사용자 스케치 기반 — 긴 보닛, 둥근 앞범퍼와 세로 슬랫 그릴, 앞으로 돌출된 루프 바이저(가운데 분할선),
+   평평한 루프와 중앙 이음선, 루프 뒤쪽 둥근 슬랫 바, 짙은 A·C 필러 유리, 문손잡이, 짧은 트렁크와 후미등 */
+function makeHeroCar(color){
+  const g=new THREE.Group();
+  const bodyM=new THREE.MeshStandardMaterial({color,metalness:.5,roughness:.36});
+  const trimM=new THREE.MeshStandardMaterial({color:0x12161c,metalness:.3,roughness:.62});
+  const glassM=new THREE.MeshStandardMaterial({color:0x0b1320,metalness:.85,roughness:.12});
+  const chromeM=new THREE.MeshStandardMaterial({color:0xc9d1da,metalness:.9,roughness:.25});
+  // lower body: long boxy hull with the short rear deck
+  vMesh(g,VB(4.46,.74,2.0),bodyM,-.08,.79,0);
+  // rounded front bumper with vertical grille slats (outer two are the headlamps)
+  vMesh(g,VB(.34,.5,1.62),bodyM,2.3,.72,0);
+  for(const z of [-.81,.81])vMesh(g,new THREE.CylinderGeometry(.17,.17,.5,16),bodyM,2.3,.72,z);
+  vMesh(g,VB(.06,.3,1.5),trimM,2.48,.74,0,false);
+  const headM=new THREE.MeshBasicMaterial({color:0xf2f6ff});
+  [-.6,-.3,0,.3,.6].forEach((z,i)=>vMesh(g,VB(.07,.24,.12),i===0||i===4?headM:chromeM,2.5,.74,z,false));
+  // hood edge line
+  vMesh(g,VB(.04,.02,1.9),trimM,1.15,1.17,0,false);
+  // cabin glass (windshield and rear glass lean in), body-coloured pillars
+  g.add(vProfile([[.62,1.16],[.18,1.98],[-1.58,1.98],[-1.98,1.16]],1.86,glassM));
+  const pillar=(x1,y1,x2,y2,z)=>{const len=Math.hypot(x2-x1,y2-y1),m=vMesh(g,VB(len,.09,.1),bodyM,(x1+x2)/2,(y1+y2)/2,z,false);m.rotation.z=Math.atan2(y2-y1,x2-x1);};
+  for(const z of [-.94,.94]){pillar(.64,1.16,.18,1.99,z);pillar(-1.58,1.99,-2.0,1.16,z);vMesh(g,VB(.14,.84,.1),bodyM,-.62,1.57,z,false);vMesh(g,VB(2.62,.08,.1),bodyM,-.68,1.19,z,false);}
+  // flat roof with a centre seam, and the visor box that juts forward over the windshield
+  vMesh(g,VB(1.86,.12,1.98),bodyM,-.7,2.04,0);
+  vMesh(g,VB(.68,.3,2.02),bodyM,.02,2.22,0);
+  vMesh(g,VB(.04,.3,.05),trimM,.37,2.22,0,false);
+  vMesh(g,VB(2.5,.02,.06),trimM,-.55,2.38,0,false);
+  vMesh(g,VB(1.82,.02,.06),trimM,-.7,2.11,0,false);
+  // rounded roof bar with slats at the rear of the roof
+  vMesh(g,VB(.46,.22,1.42),trimM,-1.22,2.23,0);
+  for(const z of [-.71,.71])vMesh(g,new THREE.CylinderGeometry(.23,.23,.22,16),trimM,-1.22,2.23,z);
+  for(const z of [-.55,-.33,-.11,.11,.33,.55])vMesh(g,VB(.48,.04,.07),chromeM,-1.22,2.35,z,false);
+  // door seams and handles, mirrors
+  for(const z of [-1.005,1.005]){
+    for(const x of [.5,-.62,-1.72])vMesh(g,VB(.03,.62,.02),trimM,x,.8,z,false);
+    for(const x of [-.05,-1.2])vMesh(g,VB(.24,.05,.03),chromeM,x,1.03,z,false);
+    vMesh(g,VB(.18,.14,.16),bodyM,.48,1.3,z*1.06,false);
+  }
+  // rear: tail lamps, plate
+  const tailM=new THREE.MeshStandardMaterial({color:0x550008,emissive:0xff1a2a,emissiveIntensity:.6});
+  for(const z of [-.68,.68])vMesh(g,VB(.06,.24,.42),tailM,-2.33,.98,z,false);
+  vMesh(g,VB(.05,.18,.5),chromeM,-2.33,.7,0,false);
+  vWheels(g,[1.48,-1.48],[-.98,.98],.47,.4);
+  const hazM=new THREE.MeshStandardMaterial({color:0x553300,emissive:0xffa514,emissiveIntensity:0});
+  for(const z of [-.84,.84])for(const x of [2.36,-2.3])vMesh(g,VB(.16,.12,.2),hazM,x,1.0,z,false);
+  const hl=glow(0xdfe9ff,9,.5);hl.position.set(4.4,.6,0);g.add(hl);
+  const hz1=glow(0xffa514,6,0),hz2=glow(0xffa514,6,0);hz1.position.set(2.3,1.2,0);hz2.position.set(-2.3,1.2,0);g.add(hz1,hz2);
+  scene.add(g);return {g,tailM,hazM,hl,hzGlow:[hz1,hz2]};
+}
+function makeCybertruck(color){
+  const g=new THREE.Group(),dark=new THREE.Color(color).getHSL({}).l<.25;
+  const bodyM=new THREE.MeshStandardMaterial({color,metalness:dark?.55:.95,roughness:dark?.42:.26,flatShading:true});
+  const glassM=new THREE.MeshStandardMaterial({color:0x0a0f17,metalness:.9,roughness:.1});
+  const trimM=new THREE.MeshStandardMaterial({color:0x101318,roughness:.7});
+  g.add(vProfile([[2.78,.52],[2.86,.98],[2.66,1.2],[.22,2.08],[-2.86,1.36],[-2.88,.52]],2.12,bodyM));
+  g.add(vProfile([[2.28,1.38],[.26,2.1],[-.98,1.66],[-1.02,1.34]],2.15,glassM));
+  vMesh(g,VB(5.76,.2,2.18),trimM,-.04,.56,0);
+  vMesh(g,VB(.04,.05,2.06),new THREE.MeshBasicMaterial({color:0xeaf6ff}),2.73,1.2,0,false);
+  vMesh(g,VB(.04,.07,2.08),new THREE.MeshStandardMaterial({color:0x550008,emissive:0xff1a2a,emissiveIntensity:1.2}),-2.89,1.3,0,false);
+  vMesh(g,VB(2.6,.02,.04),trimM,-1.5,1.62,0,false);
+  vWheels(g,[1.86,-1.86],[-1.02,1.02],.54,.46);
+  scene.add(g);return {g};
+}
+function makePrius(color){
+  const g=new THREE.Group();
+  const bodyM=new THREE.MeshStandardMaterial({color,metalness:.5,roughness:.34});
+  const glassM=new THREE.MeshStandardMaterial({color:0x0b1320,metalness:.85,roughness:.12});
+  const trimM=new THREE.MeshStandardMaterial({color:0x14181e,roughness:.65});
+  g.add(vProfile([[2.3,.46],[2.36,.84],[1.3,1.12],[.12,1.72],[-1.5,1.6],[-2.24,1.22],[-2.3,.46]],1.86,bodyM));
+  g.add(vProfile([[1.12,1.15],[.16,1.67],[-1.42,1.55],[-1.96,1.22]],1.9,glassM));
+  vMesh(g,VB(4.5,.14,1.9),trimM,0,.5,0);
+  const headM=new THREE.MeshBasicMaterial({color:0xf2f6ff});
+  for(const z of [-.66,.66]){const h=vMesh(g,VB(.5,.08,.34),headM,2.08,.92,z,false);h.rotation.z=-.22;}
+  vMesh(g,VB(.05,.1,1.7),new THREE.MeshStandardMaterial({color:0x550008,emissive:0xff1a2a,emissiveIntensity:1.1}),-2.27,1.05,0,false);
+  vWheels(g,[1.42,-1.42],[-.9,.9],.42,.34);
+  scene.add(g);return {g};
+}
 /* ================= road paths ================= */
 function snap(p){
   const bx=ROAD.reduce((a,b)=>Math.abs(b-p.x)<Math.abs(a-p.x)?b:a), bz=ROAD.reduce((a,b)=>Math.abs(b-p.z)<Math.abs(a-p.z)?b:a);
@@ -1723,7 +1815,7 @@ function roadPath(a,b){
 
 /* ================= movers ================= */
 class Mover{
-  constructor(obj,opts){this.obj=obj;this.speed=0;this.target=0;this.accel=opts.accel||6;this.lane=opts.lane||2;this.lat=new THREE.Vector2();this.rot=0;this.onArrive=null;this.active=true;this.setPath(opts.points,opts.loop,opts.stopShort||0);if(opts.s)this.s=opts.s;this.place(true);}
+  constructor(obj,opts){this.obj=obj;this.speed=0;this.target=0;this.accel=opts.accel||6;this.lane=opts.lane||2;this.laneNow=this.lane;this.rot=0;this.onArrive=null;this.active=true;this.setPath(opts.points,opts.loop,opts.stopShort||0);if(opts.s)this.s=opts.s;this.place(true);}
   setPath(pts,loop,stopShort=0){
     this.roaming=false;this.blockedTime=0;this.pts=pts.map(p=>new THREE.Vector2(p[0],p[1])); this.loop=!!loop; this.cum=[0];
     const n=this.pts.length, segs=loop?n:n-1;
@@ -1736,31 +1828,68 @@ class Mover{
     const a=this.pts[i], b=this.pts[(i+1)%n]; const L=(this.cum[i+1]-this.cum[i])||1; const k=(s-this.cum[i])/L;
     return {x:lerp(a.x,b.x,k),z:lerp(a.y,b.y,k),hx:(b.x-a.x)/L,hz:(b.y-a.y)/L};
   }
+  /* v0.3.0: 차로 위치를 코너에서 곡선으로 이어 줌 — 코너마다 옆으로 미끄러지던 현상 제거.
+     차로 오프셋 (-hz, hx)*lane 을 들어오는 길·나가는 길 각각에 적용하고, 코너 앞뒤 R 구간을 2차 베지어로 연결 */
+  pose(s,lane=this.laneNow){
+    const n=this.pts.length; if(this.loop) s=((s%this.len)+this.len)%this.len; else s=clamp(s,0,this.len);
+    let i=0; while(i<this.cum.length-2&&this.cum[i+1]<s) i++;
+    for(const j of [i,i+1]){
+      if(!this.loop&&(j<1||j>n-2)) continue;
+      const C=this.pts[j%n], P=this.pts[(j-1+n)%n], N=this.pts[(j+1)%n];
+      const l1=C.distanceTo(P), l2=N.distanceTo(C); if(l1<1e-6||l2<1e-6) continue;
+      const d1x=(C.x-P.x)/l1,d1z=(C.y-P.y)/l1,d2x=(N.x-C.x)/l2,d2z=(N.y-C.y)/l2,cr=d1x*d2z-d1z*d2x;
+      if(d1x*d2x+d1z*d2z<-.999){ // U-turn: half circle of radius |lane| from one lane to the other
+        const Ru=Math.PI*Math.abs(lane)/2,t=s-this.cum[j]; if(Ru<1e-3||l1<Ru-1e-6||l2<Ru-1e-6||Math.abs(t)>=Ru) continue;
+        const th=Math.PI*(t+Ru)/(2*Ru),al=Math.abs(lane),cx=C.x-d1x*Ru,cz=C.y-d1z*Ru,n1x=-d1z*lane,n1z=d1x*lane;
+        let hx=-n1x*Math.sin(th)+d1x*al*Math.cos(th),hz=-n1z*Math.sin(th)+d1z*al*Math.cos(th);const hl=Math.hypot(hx,hz)||1;hx/=hl;hz/=hl;
+        return {x:cx+n1x*Math.cos(th)+d1x*al*Math.sin(th),z:cz+n1z*Math.cos(th)+d1z*al*Math.sin(th),hx,hz,yaw:Math.atan2(-hz,hx)};
+      }
+      if(Math.abs(cr)<1e-4) continue;
+      const R=Math.min(5.5,l1*.5,l2*.5), t=s-this.cum[j]; if(Math.abs(t)>=R) continue;
+      const n1x=-d1z*lane,n1z=d1x*lane,n2x=-d2z*lane,n2z=d2x*lane;
+      const wx=n2x-n1x,wz=n2z-n1z,tm=(wx*d2z-wz*d2x)/cr;
+      const p0x=C.x+n1x-d1x*R,p0z=C.y+n1z-d1z*R,mx=C.x+n1x+d1x*tm,mz=C.y+n1z+d1z*tm,p2x=C.x+n2x+d2x*R,p2z=C.y+n2z+d2z*R;
+      const k=(t+R)/(2*R),u=1-k;
+      let hx=2*u*(mx-p0x)+2*k*(p2x-mx),hz=2*u*(mz-p0z)+2*k*(p2z-mz);const hl=Math.hypot(hx,hz)||1;hx/=hl;hz/=hl;
+      return {x:u*u*p0x+2*u*k*mx+k*k*p2x,z:u*u*p0z+2*u*k*mz+k*k*p2z,hx,hz,yaw:Math.atan2(-hz,hx)};
+    }
+    const a=this.pts[i], b=this.pts[(i+1)%n]; const L=(this.cum[i+1]-this.cum[i])||1; const k=(s-this.cum[i])/L, hx=(b.x-a.x)/L, hz=(b.y-a.y)/L;
+    return {x:lerp(a.x,b.x,k)-hz*lane,z:lerp(a.y,b.y,k)+hx*lane,hx,hz,yaw:Math.atan2(-hz,hx)};
+  }
   center(){const p=this.at(this.s);return {x:p.x,z:p.z};}
   remaining(){return this.loop?Infinity:Math.max(0,this.end-this.s);}
   update(dt){
     if(!this.active) return;
     const dv=this.target-this.speed; this.speed+=clamp(dv,-this.accel*1.4*dt,this.accel*dt);
     if(!this.loop){ const rem=this.end-this.s; this.speed=Math.min(this.speed,Math.sqrt(Math.max(0,2*5*rem))+.3); }
-    const travel=this.speed*dt*(this.jump?.direction||1);
-    if(this.travelGuard&&!this.travelGuard(this,travel,dt)){this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;return;}
+    const travel=this.speed*dt;
+    if(this.travelGuard&&!this.travelGuard(this,travel,dt)){this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;this.place(false,dt);return;}
     this.blockedTime=0;
     this.s+=travel;
     if(!this.loop&&this.s>=this.end&&travel>=0){ this.s=this.end; this.speed=0; this.target=0; if(this.onArrive){const cb=this.onArrive;this.onArrive=null;cb();} }
     this.place(false,dt);
   }
   place(snapNow,dt=0){
-    const p=this.at(this.s);
-    const want=new THREE.Vector2(-p.hz*this.lane,p.hx*this.lane);
-    if(snapNow) this.lat.copy(want); else this.lat.lerp(want,1-Math.exp(-dt*3.2));
-    this.obj.position.set(p.x+this.lat.x,this.flightHeight||0,p.z+this.lat.y);
-    const ta=Math.atan2(-p.hz,p.hx);
-    if(snapNow) this.rot=ta; else { let d=ta-this.rot; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; this.rot+=d*Math.min(1,dt*7); }
+    const before=this.laneNow;
+    if(snapNow) this.laneNow=this.lane; else this.laneNow+=clamp(this.lane-this.laneNow,-2.2*dt,2.2*dt);
+    const p=this.pose(this.s);
+    this.obj.position.set(p.x,this.flightHeight||0,p.z);
+    let ta=p.yaw;
+    // A deliberate lane change (pulling over) steers the nose instead of sliding sideways.
+    if(!snapNow&&dt>0&&before!==this.laneNow){const lv=(this.laneNow-before)/dt,v=Math.max(Math.abs(this.speed),3);ta=Math.atan2(-(p.hz*v+p.hx*lv),p.hx*v-p.hz*lv);}
+    if(snapNow) this.rot=ta; else { let d=ta-this.rot; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; this.rot+=d*Math.min(1,dt*10); }
     this.obj.rotation.y=this.rot;
   }
 }
+// New route from where a vehicle is now. If it must head back, drive a short U-turn arc instead of jumping lanes.
+function pathFrom(m,target){
+  const X=m.at(m.s),route=roadPath({x:X.x,z:X.z},target);
+  if(route.length>1){const a=route[0],b=route[1],L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
+    if(((b[0]-a[0])*X.hx+(b[1]-a[1])*X.hz)/L<-.5){const Ru=Math.PI*Math.abs(m.lane)/2+.01;return [[X.x,X.z],[X.x+X.hx*Ru,X.z+X.hz*Ru],...route];}}
+  return route;
+}
 const LOOP=[[-30,30],[30,30],[30,-30],[-30,-30]];
-const hero=makeCar(0x2b323d,true); hero.g.scale.setScalar(1.22);
+const hero=makeHeroCar(0x2b323d); hero.g.scale.setScalar(1.22);
 const carM=new Mover(hero.g,{points:LOOP,loop:true,s:18,lane:2.1,accel:5});
 carM.target=carM.speed=10;
 // Extend a finite road path ahead of the car; never teleport at a junction.
@@ -1781,12 +1910,13 @@ function extendRoaming(){
   if(consumed){const offset=carM.cum[consumed];carM.pts.splice(0,consumed);carM.cum=carM.cum.slice(consumed).map(v=>v-offset);carM.s-=offset;carM.len-=offset;carM.end-=offset;}
   while(carM.end-carM.s<160){const n=carM.pts.length,a=carM.pts[n-2],b=carM.pts[n-1],p=nextRoamPoint([a.x,a.y],[b.x,b.y]);carM.pts.push(new THREE.Vector2(...p));carM.len+=30;carM.end=carM.len;carM.cum.push(carM.len);}
 }
+// Prefer a turn that keeps the customer away from other traffic (decided 7~24 ahead, before any NPC commits).
 function planClearRoamTurn(){
   if(typeof npcs==='undefined'||!carM.active||carM.target<.5)return;
   const index=carM.cum.findIndex(d=>d-carM.s>7&&d-carM.s<24);if(index<1||index>=carM.pts.length-1)return;
   const node=carM.pts[index];if(node.trafficChosen)return;node.trafficChosen=true;
   const prev=carM.pts[index-1],options=[[30,0],[-30,0],[0,30],[0,-30]].map(([x,z])=>[node.x+x,node.y+z]).filter(([x,z])=>Math.abs(x)<=30&&Math.abs(z)<=30&&(x!==prev.x||z!==prev.y));
-  const score=([x,z])=>{const hx=(x-node.x)/30,hz=(z-node.y)/30;let cost=0;for(const m of npcs){if((m.flightHeight||0)>3.5)continue;for(const t of [0,1,2]){const p=m.at(m.s+m.speed*t),px=p.x-p.hz*m.lane,pz=p.z+p.hx*m.lane;for(const d of [8,16,24]){const gap=Math.hypot(node.x+hx*d-hz*carM.lane-px,node.y+hz*d+hx*carM.lane-pz);cost+=Math.max(0,13-gap)*(m.roadster?.3:1);}}}return cost;};
+  const score=([x,z])=>{const hx=(x-node.x)/30,hz=(z-node.y)/30;let cost=0;for(const m of npcs){if((m.flightHeight||0)>3.5)continue;for(const t of [0,1,2]){const p=m.at(m.s+m.speed*t),px=p.x-p.hz*m.lane,pz=p.z+p.hx*m.lane;for(const d of [8,16,24]){const gap=Math.hypot(node.x+hx*d-hz*carM.lane-px,node.y+hz*d+hx*carM.lane-pz);cost+=Math.max(0,13-gap);}}}return cost;};
   const current=carM.pts[index+1],currentScore=score([current.x,current.y]);const ranked=options.map(p=>({p,cost:score(p)})).sort((a,b)=>a.cost-b.cost);
   if(!ranked.length||ranked[0].cost+5>=currentScore)return;
   carM.pts=carM.pts.slice(0,index+1);carM.pts.push(new THREE.Vector2(...ranked[0].p));
@@ -1799,155 +1929,176 @@ const pulseMat=ringMat.clone(); const pulseRing=new THREE.Mesh(new THREE.RingGeo
 scene.add(selRing,pulseRing);
 const truck=makeTruck();
 const truckM=new Mover(truck.g,{points:[[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],loop:false,lane:2.2,accel:7});
+
+/* ================= NPC traffic (v0.3.0) =================
+   - NPC는 사이버트럭 2 · 테슬라 로드스터 2 · 토요타 프리우스 2, 정해진 순환 경로의 차로(1.8)만 달림 (차로 변경 · 옆 미끄러짐 없음)
+   - 우선 차량(내 차 · 긴급출동)이 앞으로 지나갈 통로를 매 프레임 예약하고, NPC는 그 통로에 들어가지 않음
+   - 이미 통로 안에 있으면: 같은 방향 앞차는 앞으로 비켜 달리고, 나머지는 후진(또는 가까운 쪽)으로 빠져나감,
+     로드스터는 냉가스로 수직 상승해 우선 차량을 아래로 통과시킴
+   - 교차로는 NPC끼리 한 대씩 점유, 오래 막히면 뒤로 물러나 교착을 풂 */
 const OUTER=[[-60,-60],[60,-60],[60,60],[-60,60]];
 const PARK_RING=[[-30,-30],[0,-30],[30,-30],[30,0],[30,30],[0,30],[-30,30],[-30,0]];
-const npcs=[0x8a96a8,0x3b4a5e,0x7a2a30,0xc9cfd6,0x31423a,0x56606e,0xa88c5a].map((c,i)=>{const car=makeCar(c,false);const near=i<2;const m=new Mover(car.g,{points:near?PARK_RING:OUTER,loop:true,s:near?i*120:(i-2)*96,lane:2.1});m.spawnS=near?i*120:(i-2)*96;m.cruiseSpeed=near?6.5:9;m.target=m.speed=m.cruiseSpeed;return m;});
-const roadsters=[0xe12736,0xcbd5e2].map((c,i)=>{
-  const car=makeRoadster(c),route=[[-30,0],[0,0],[30,0],[30,30],[0,30],[-30,30]];if(i)route.reverse();
-  const m=new Mover(car.g,{points:route,loop:true,s:i?72:12,lane:1.8,accel:7});m.cruiseSpeed=10;m.target=m.speed=10;m.roadster=car;m.jump=null;m.jumpCooldown=0;npcs.push(m);return m;
+const STUNT=[[-30,0],[0,0],[30,0],[30,30],[0,30],[-30,30]];
+const NPC_LANE=1.8;
+const NPC_SPEC=[
+  {kind:'cyber',color:0xc3c9cf,route:OUTER,s:20,speed:11,size:{length:2.95,width:1.12,height:2.2}},
+  {kind:'cyber',color:0x17191d,route:[...OUTER].reverse(),s:150,speed:11,size:{length:2.95,width:1.12,height:2.2}},
+  {kind:'prius',color:0xe9edf1,route:PARK_RING,s:10,speed:10.5,size:{length:2.4,width:.98,height:1.8}},
+  {kind:'prius',color:0x2f4d70,route:[...PARK_RING].reverse(),s:130,speed:10.5,size:{length:2.4,width:.98,height:1.8}},
+  {kind:'roadster',color:0xe12736,route:STUNT,s:12,speed:12,size:{length:2.4,width:1.15,height:1.5}},
+  {kind:'roadster',color:0xcbd5e2,route:[...STUNT].reverse(),s:72,speed:12,size:{length:2.4,width:1.15,height:1.5}}
+];
+const roadsters=[];
+const npcs=NPC_SPEC.map(sp=>{
+  const car=sp.kind==='cyber'?makeCybertruck(sp.color):sp.kind==='prius'?makePrius(sp.color):makeRoadster(sp.color);
+  const m=new Mover(car.g,{points:sp.route,loop:true,s:sp.s,lane:NPC_LANE,accel:7});
+  Object.assign(m,{kind:sp.kind,size:sp.size,spawnS:sp.s,cruiseSpeed:sp.speed,holds:new Set(),mode:'drive',stuck:0,back:0,push:0,pushT:0,jump:null,jumpCooldown:0});
+  m.target=m.speed=sp.speed;
+  if(sp.kind==='roadster'){m.roadster=car;roadsters.push(m);}
+  return m;
 });
 const coldGasTexture=glowTex;
 const gasPuffs=Array.from({length:80},()=>{const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:coldGasTexture,color:0xe6f6ff,transparent:true,opacity:0,depthWrite:false}));sprite.visible=false;scene.add(sprite);return {sprite,life:0,velocity:V3(0,0,0)};});let nextGasPuff=0;
 function emitColdGas(m,turn=0){m.obj.updateMatrixWorld();for(const x of [-1.5,1.5])for(const z of turn?[Math.sign(x)*turn*1.16]:[-.8,.8]){const p=gasPuffs[nextGasPuff++%gasPuffs.length];p.life=.85;p.sprite.visible=true;p.sprite.position.copy(m.obj.localToWorld(V3(x,turn?.85:.3,z)));if(turn){const side=Math.sign(z);p.velocity.set(Math.sin(m.rot)*side*8,.3,Math.cos(m.rot)*side*8);}else p.velocity.set((Math.random()-.5)*3,-5,(Math.random()-.5)*3);p.sprite.scale.setScalar(.8);}}
 function roadsterTurn(m){if(!m.jump)return 0;const heading=m.at(m.s+Math.max(.1,m.speed*.05));let delta=Math.atan2(-heading.hz,heading.hx)-m.rot;while(delta>Math.PI)delta-=2*Math.PI;while(delta<-Math.PI)delta+=2*Math.PI;return Math.abs(delta)>.08?Math.sign(delta):0;}
-function approaching(a,b){
-  if(a===b||!b.active||b.jump)return false;
-  const launchSpeed=a.speed>=3?a.speed:(a.roadster&&!a.jumpCooldown?a.cruiseSpeed:0);if(launchSpeed<3)return false;
-  const pa=a.at(a.s),pb=b.at(b.s),dx=b.obj.position.x-a.obj.position.x,dz=b.obj.position.z-a.obj.position.z;
-  // A roadster can also lift vertically when a turn is blocked by a nearby body.
-  if(a.roadster&&(a.blockedTime||0)>.3&&Math.hypot(dx,dz)<11)return true;
-  // Opposing and crossing traffic can meet; parallel traffic never triggers a jump.
-  if(b.speed>=.5&&pa.hx*pb.hx+pa.hz*pb.hz>.3)return false;
-  const vx=pb.hx*b.speed-pa.hx*launchSpeed,vz=pb.hz*b.speed-pa.hz*launchSpeed,v2=vx*vx+vz*vz;
-  if(v2<1)return false;
-  const encounter=-(dx*vx+dz*vz)/v2;
-  return encounter>.08&&encounter<1.05&&Math.hypot(dx+vx*encounter,dz+vz*encounter)<5.7;
-}
-function resetRoadsterEffects(){junctionOwners.clear();for(const m of npcs){if(m.normalLane!==undefined)m.lane=m.normalLane;m.yieldHold=0;m.yieldSide=0;}for(const m of npcs.filter(v=>!v.roadster)){m.s=m.spawnS;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);}for(const [i,m] of roadsters.entries()){m.s=i?72:12;m.blockedTime=0;m.speed=m.target=m.cruiseSpeed;m.place(true);if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.jumpCooldown=0;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}}
-function updateRoadsterEffects(dt){
-  for(const m of roadsters){m.jumpCooldown=Math.max(0,m.jumpCooldown-dt);
-    const priority=typeof priorityVehicles==='function'?priorityVehicles().find(v=>priorityConflict(m,v)):null;
-    if(!m.jump&&PROJECT==='ecare'&&(priority||(m.jumpCooldown===0&&[carM,...npcs].some(other=>approaching(m,other))))){
-      // Never pace a priority vehicle through a jump: leave its direction of travel.
-      const a=m.at(m.s),b=priority?.at(priority.s);
-      const direction=b&&a.hx*b.hx+a.hz*b.hz>.3?-1:1;
-      m.jump={time:0,gas:0,direction};m.jumpCooldown=9;emitColdGas(m);m.jumpTag=addTag(direction<0?'냉가스 후방 회피':'냉가스 점프',()=>m.obj.position.clone().add(V3(0,5,0)),'pk',0xc9f1ff);
-    }
-    if(priority&&m.jump){const a=m.at(m.s),b=priority.at(priority.s);if(a.hx*b.hx+a.hz*b.hz>.3)m.jump.direction=-1;}
-    if(m.jump){const previous=m.jump.time,next=previous+dt;let wanted=next>1.65*.72&&!canLand(m)?1.65*.72:next;const height=Math.sin(clamp(wanted/1.65,0,1)*Math.PI)*6.5;if(!canChangeHeight(m,height))wanted=previous;m.jump.time=wanted;const k=clamp(wanted/1.65,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;m.obj.position.y=m.flightHeight;m.obj.rotation.z=Math.cos(k*Math.PI)*.18;
-      const turn=roadsterTurn(m);(m.roadster.sideJets||[]).forEach(j=>j.visible=turn!==0&&j.userData.side===Math.sign(j.userData.x)*turn);m.jump.sideGas=(m.jump.sideGas||0)+dt;if(turn&&m.jump.sideGas>.045){m.jump.sideGas=0;emitColdGas(m,turn);}
-      const thrust=k<.28||k>.87;m.roadster.jets.forEach(j=>j.visible=thrust);m.jump.gas+=dt;if(thrust&&m.jump.gas>.045){m.jump.gas=0;emitColdGas(m);}
-      if(k>=1){if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}
-    }
-  }
-  for(const p of gasPuffs)if(p.life>0){p.life-=dt;p.sprite.visible=p.life>0;p.sprite.position.addScaledVector(p.velocity,dt);p.velocity.y*=Math.exp(-dt*3);p.sprite.position.y=Math.max(.2,p.sprite.position.y);p.sprite.material.opacity=Math.max(0,p.life/.85)*.6;p.sprite.scale.setScalar(.8+(1-p.life/.85)*3.5);}
-}
 
-
-function roadPoint(m,distance){const p=m.at(m.s+distance);return {x:p.x-p.hz*m.lane,z:p.z+p.hx*m.lane};}
-function shouldYield(m,priority){
-  if(!priority.active||priority.speed<.2)return false;
-  const distance=m.obj.position.distanceTo(priority.obj.position);if(distance>52)return false;
-  const a=priority.at(priority.s),b=m.at(m.s),dx=m.obj.position.x-priority.obj.position.x,dz=m.obj.position.z-priority.obj.position.z;
-  if(a.hx*b.hx+a.hz*b.hz>.9&&dx*a.hx+dz*a.hz>0)return false;
-  const horizon=Math.max(12,priority.speed*2.2),ahead=Math.max(14,m.speed*m.speed/(2*8)+8);
-  for(let a=0;a<=ahead;a+=3)for(let b=0;b<=horizon;b+=3){const p=roadPoint(m,a),q=roadPoint(priority,b);if(Math.hypot(p.x-q.x,p.z-q.z)<6)return true;}
-  return false;
-}
-// Collision checks include the physical body and a margin, not just centre distance.
-function vehicleSize(m){return m===truckM?{length:5.2,width:1.8,height:4.1}:m===carM?{length:3.15,width:1.55,height:3.1}:{length:2.85,width:1.45,height:m.roadster?2.1:2.7};}
+// Bodies are oriented boxes: length/width are half extents, height is measured from y.
+function vehicleSize(m){return m===truckM?{length:5.0,width:1.5,height:4.1}:m===carM?{length:3.02,width:1.3,height:3.0}:m.size;}
 function vehiclePose(m){const p=m.obj.position;return {x:p.x,z:p.z,y:p.y||0,yaw:m.rot,...vehicleSize(m)};}
 function bodiesOverlap(a,b){
   if(a.y>=b.y+b.height+.25||b.y>=a.y+a.height+.25)return false;
   const axes=[{x:Math.cos(a.yaw),z:-Math.sin(a.yaw)},{x:Math.sin(a.yaw),z:Math.cos(a.yaw)},{x:Math.cos(b.yaw),z:-Math.sin(b.yaw)},{x:Math.sin(b.yaw),z:Math.cos(b.yaw)}];
-  const radius=(p,axis)=>Math.abs(axis.x*Math.cos(p.yaw)-axis.z*Math.sin(p.yaw))*(p.length+.25)+Math.abs(axis.x*Math.sin(p.yaw)+axis.z*Math.cos(p.yaw))*(p.width+.25);
+  const radius=(p,axis)=>Math.abs(axis.x*Math.cos(p.yaw)-axis.z*Math.sin(p.yaw))*(p.length+.12)+Math.abs(axis.x*Math.sin(p.yaw)+axis.z*Math.cos(p.yaw))*(p.width+.12);
   return axes.every(axis=>Math.abs((a.x-b.x)*axis.x+(a.z-b.z)*axis.z)<radius(a,axis)+radius(b,axis));
 }
 function allVehicles(){return [carM,truckM,...npcs].filter(m=>m.active!==false);}
-function canChangeHeight(m,height){const pose={...vehiclePose(m),y:height};return allVehicles().every(other=>other===m||!bodiesOverlap(pose,vehiclePose(other)));}
-function canLand(m){const landing={...vehiclePose(m),y:0};return allVehicles().every(other=>other===m||!bodiesOverlap(landing,vehiclePose(other)));}
-function predictedPose(m,travel,dt){
-  const p=m.at(m.s+travel),blend=1-Math.exp(-dt*3.2),latX=lerp(m.lat.x,-p.hz*m.lane,blend),latZ=lerp(m.lat.y,p.hx*m.lane,blend);
-  let angle=Math.atan2(-p.hz,p.hx)-m.rot;while(angle>Math.PI)angle-=2*Math.PI;while(angle<-Math.PI)angle+=2*Math.PI;
-  return {x:p.x+latX,z:p.z+latZ,y:m.flightHeight||0,yaw:m.rot+angle*Math.min(1,dt*7),...vehicleSize(m)};
+function npcPose(m,s,y=m.flightHeight||0){const q=m.pose(s,m.lane);return {x:q.x,z:q.z,y,yaw:q.yaw,...m.size};}
+function hitVehicle(m,pose){for(const o of allVehicles()){if(o===m)continue;const q=vehiclePose(o);if(o.jump&&o.jump.down)q.y=0;if(bodiesOverlap(pose,q))return o;}return null;}
+
+// Priority vehicles (customer car, rescue truck) reserve the road ahead of them.
+function priorityVehicles(){return [carM,truckM].filter(m=>m.active!==false&&(m.target>.2||m.speed>.3));}
+let CORR=[];
+function buildCorridors(){
+  CORR=priorityVehicles().map(p=>{
+    const sz=vehicleSize(p),boxes=[],ahead=Math.max(p.speed,p.target);
+    const H=Math.min(clamp(12+ahead*3.2,22,46),p.remaining());
+    const lanes=Math.abs(p.lane-p.laneNow)>.05?[p.laneNow,p.lane]:[p.laneNow];   // also the lane it is merging into
+    for(const ln of lanes)for(let d=ln===p.laneNow?1:-3;d<=H+.01;d+=1.5){const q=p.pose(p.s+d,ln);boxes.push({x:q.x,z:q.z,y:0,yaw:q.yaw,length:sz.length+1.2,width:sz.width+.2,height:sz.height});}
+    const o=p.obj.position;return {p,boxes,x:o.x,z:o.z,r:H+8};
+  });
 }
-function safeVehicleMove(m,travel,dt){
-  if(travel>=0&&junctionBlocked(m,travel))return false;
-  const others=allVehicles().filter(other=>other!==m);
-  // Check the swept motion as well as the endpoint, including lateral lane changes.
-  for(const fraction of [.25,.5,.75,1]){const pose=predictedPose(m,travel*fraction,dt*fraction);if(others.some(other=>bodiesOverlap(pose,vehiclePose(other))))return false;}
+function corridorHit(pose){
+  if(pose.y>=3.4)return null;
+  for(const c of CORR){if(Math.hypot(pose.x-c.x,pose.z-c.z)>c.r+4)continue;for(const b of c.boxes)if(bodiesOverlap(pose,b))return c;}
+  return null;
+}
+// Junction squares (road half width 4): NPCs enter one at a time.
+const JUNCTIONS=[];for(const x of ROAD)for(const z of ROAD)JUNCTIONS.push({x,z,owner:null});
+function poseJunctions(pose){const ex=Math.abs(Math.cos(pose.yaw))*pose.length+Math.abs(Math.sin(pose.yaw))*pose.width,ez=Math.abs(Math.sin(pose.yaw))*pose.length+Math.abs(Math.cos(pose.yaw))*pose.width;return JUNCTIONS.filter(j=>Math.abs(pose.x-j.x)<ex+4.1&&Math.abs(pose.z-j.z)<ez+4.1);}
+function junctionFree(m,pose){return poseJunctions(pose).every(j=>!j.owner||j.owner===m||j.owner.active===false);}
+function claimJunctions(m){const now=new Set(poseJunctions(npcPose(m,m.s,0)));for(const j of m.holds)if(!now.has(j)){if(j.owner===m)j.owner=null;m.holds.delete(j);}for(const j of now)if(!j.owner||j.owner===m){j.owner=m;m.holds.add(j);}}
+function releaseJunctions(m){for(const j of m.holds)if(j.owner===m)j.owner=null;m.holds.clear();}
+
+// Free distance ahead before a body, a priority corridor or someone else's junction.
+function npcFreeAhead(m,limit){
+  for(let d=.5;d<=limit;d+=.5){const p=npcPose(m,m.s+d,0),look=npcPose(m,m.s+d+1.4,0);
+    if(hitVehicle(m,look)||corridorHit(p)||!junctionFree(m,p))return d-.5;}
+  return limit;
+}
+// Move along the own lane only; returns the distance actually moved. A blocking NPC is asked to make room.
+function npcStep(m,travel,{corridorOk=false,junctionOk=false}={}){
+  if(Math.abs(travel)<1e-5)return 0;
+  for(const f of [.34,.67,1]){const p=npcPose(m,m.s+travel*f,0),o=hitVehicle(m,p);
+    if(o){if(o.size&&o!==m&&!o.jump){const v=o.at(o.s),dir=Math.sign((o.obj.position.x-m.obj.position.x)*v.hx+(o.obj.position.z-m.obj.position.z)*v.hz)||1;o.push=dir;o.pushT=.8;}return 0;}
+    if(!corridorOk&&corridorHit(p))return 0;
+    if(!junctionOk&&!junctionFree(m,p))return 0;}
+  m.s+=travel;return travel;
+}
+// Shortest way out of every corridor along the own lane (ties → reverse).
+function escapeDir(m){let best=-1,cost=Infinity;for(const dir of [-1,1]){for(let d=.5;d<=16;d+=.5){if(!corridorHit(npcPose(m,m.s+dir*d,0))){if(d<cost||(d===cost&&dir<0)){cost=d;best=dir;}break;}}}return best;}
+function canLandAt(m){const p=npcPose(m,m.s,0);return !hitVehicle(m,p)&&!corridorHit(p);}
+
+function npcJump(m,mode){
+  m.jump={t:0,mode,gas:0,sideGas:0};m.jumpCooldown=mode==='show'?9:2;emitColdGas(m);
+  m.jumpTag=addTag(mode==='show'?'냉가스 점프':'냉가스 수직 회피',()=>m.obj.position.clone().add(V3(0,5,0)),'pk',0xc9f1ff);
+}
+function npcUpdateJump(m,dt){
+  const J=m.jump,T=1.65;let next=J.t+dt;
+  // Hover until the landing spot is clear; once descending, the spot is reserved for it (others treat it as on the ground).
+  if(next>T*.5&&!J.down){if(canLandAt(m))J.down=true;else next=T*.5;}
+  if(J.down&&!canLandAt(m))next=J.t;
+  J.t=next;const k=clamp(J.t/T,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;
+  if(J.mode==='show'){m.s+=m.speed*dt;}else m.speed=0;
+  const turn=roadsterTurn(m);(m.roadster.sideJets||[]).forEach(j=>j.visible=turn!==0&&j.userData.side===Math.sign(j.userData.x)*turn);J.sideGas+=dt;if(turn&&J.sideGas>.045){J.sideGas=0;emitColdGas(m,turn);}
+  const thrust=k<.28||k>.87||(J.mode==='evade'&&k>=.49&&k<=.51);m.roadster.jets.forEach(j=>j.visible=thrust);J.gas+=dt;if(thrust&&J.gas>.06){J.gas=0;emitColdGas(m);}
+  m.place(false,dt);m.obj.rotation.z=J.mode==='show'?Math.cos(k*Math.PI)*.18:0;
+  if(k>=1){if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);if(m.speed<1)m.speed=4;}
+}
+function headOn(m){
+  if(m.speed<6)return false;const h=m.at(m.s),p=m.obj.position;
+  return allVehicles().some(o=>{if(o===m||(o.flightHeight||0)>1||o.speed<1)return false;const g=o.at(o.s),dx=o.obj.position.x-p.x,dz=o.obj.position.z-p.z,along=dx*h.hx+dz*h.hz,side=Math.abs(dx*h.hz-dz*h.hx);return h.hx*g.hx+h.hz*g.hz<-.6&&along>5&&along<15&&side<5;});
+}
+
+function updateNPC(m,dt){
+  m.jumpCooldown=Math.max(0,m.jumpCooldown-dt);m.pushT=Math.max(0,m.pushT-dt);
+  if(m.jump){npcUpdateJump(m,dt);releaseJunctions(m);return;}
+  const cur=npcPose(m,m.s,0),inC=corridorHit(cur);let moved=0;
+  if(inC){
+    const p=inC.p,ph=p.at(p.s),mh=m.at(m.s),po=p.obj.position,o=m.obj.position;
+    const same=ph.hx*mh.hx+ph.hz*mh.hz>.6,ahead=(o.x-po.x)*ph.hx+(o.z-po.z)*ph.hz>0;
+    if(m.roadster&&PROJECT!=='gs'&&!(same&&ahead&&m.speed>Math.max(p.speed,4)+2)){npcJump(m,'evade');releaseJunctions(m);return;}
+    if(same&&ahead){ // run ahead of the priority vehicle on the same lane
+      m.mode='run';const want=Math.max(m.cruiseSpeed,p.speed+5,8);m.speed=Math.min(want,m.speed+14*dt);
+      moved=npcStep(m,m.speed*dt,{corridorOk:true,junctionOk:true});if(!moved)m.speed=Math.max(0,m.speed-20*dt);
+    } else {          // back out (or pull through, whichever leaves the corridor sooner)
+      m.mode='clear';const dir=escapeDir(m);m.speed=Math.min(7,Math.abs(m.speed)+16*dt);
+      moved=npcStep(m,dir*m.speed*dt,{corridorOk:true,junctionOk:true});
+      if(!moved){moved=npcStep(m,-dir*m.speed*dt,{corridorOk:true,junctionOk:true});}
+      m.speed=moved?m.speed:0;
+    }
+    m.stuck=0;m.back=0;
+  } else if(m.pushT>0&&m.push){ // make room for a car that is clearing a priority corridor
+    m.mode='room';moved=npcStep(m,m.push*6*dt,{junctionOk:true});m.speed=moved?6:0;
+  } else if(m.back>0){         // unwind a local NPC deadlock
+    m.mode='back';m.back-=dt;moved=npcStep(m,-3*dt,{junctionOk:true});m.speed=0;
+  } else {
+    m.mode='drive';
+    if(m.roadster&&!m.jumpCooldown&&PROJECT==='ecare'&&headOn(m)){npcJump(m,'show');return;}
+    const v=Math.max(m.speed,0),limit=v*v/(2*14)+v*dt+2.5,free=npcFreeAhead(m,limit);
+    const cap=Math.sqrt(Math.max(0,2*14*Math.max(0,free-.6)));
+    m.speed=Math.min(m.speed+7*dt,m.cruiseSpeed,cap);
+    moved=m.speed>.05?npcStep(m,Math.min(m.speed*dt,Math.max(0,free-.4))):0;
+    if(!moved)m.speed=0;
+    m.stuck=moved?0:m.stuck+dt;
+    if(m.stuck>5&&!corridorHit(npcPose(m,m.s+3,0))){m.back=1.4;m.stuck=0;}
+  }
+  claimJunctions(m);m.place(false,dt);
+}
+function updateTraffic(dt){
+  buildCorridors();
+  for(const m of npcs)updateNPC(m,dt);
+  for(const p of gasPuffs)if(p.life>0){p.life-=dt;p.sprite.visible=p.life>0;p.sprite.position.addScaledVector(p.velocity,dt);p.velocity.y*=Math.exp(-dt*3);p.sprite.position.y=Math.max(.2,p.sprite.position.y);p.sprite.material.opacity=Math.max(0,p.life/.85)*.6;p.sprite.scale.setScalar(.8+(1-p.life/.85)*3.5);}
+}
+// Customer car and rescue truck only stop for a body physically in the way (never expected: NPCs keep clear).
+function priorityGuard(m,travel,dt){
+  const ln=m.laneNow+clamp(m.lane-m.laneNow,-2.2*dt,2.2*dt);
+  for(const f of [.5,1]){const q=m.pose(m.s+travel*f,ln),pose={x:q.x,z:q.z,y:m.flightHeight||0,yaw:q.yaw,...vehicleSize(m)};
+    for(const o of allVehicles()){if(o===m||(o.jump&&o.jump.mode==='evade'))continue;if(bodiesOverlap(pose,vehiclePose(o)))return false;}}
   return true;
 }
-const junctionOwners=new Map();
-function upcomingJunction(m,travel=0){
-  const p=m.at(m.s+travel+.001);let best=null;
-  for(const x of [-60,-30,0,30,60])for(const z of [-60,-30,0,30,60]){
-    const dx=x-p.x,dz=z-p.z,along=dx*p.hx+dz*p.hz,lateral=Math.abs(dx*p.hz-dz*p.hx);
-    if(lateral<.1&&along>=-12&&along<22&&(!best||Math.abs(along)<Math.abs(best.along)))best={x,z,key:x+','+z,along};
+carM.travelGuard=truckM.travelGuard=priorityGuard;
+function resetTraffic(){
+  JUNCTIONS.forEach(j=>j.owner=null);CORR=[];
+  for(const m of npcs){
+    if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}
+    Object.assign(m,{s:m.spawnS,jump:null,jumpCooldown:0,flightHeight:0,mode:'drive',stuck:0,back:0,push:0,pushT:0});m.holds.clear();
+    m.speed=m.target=m.cruiseSpeed;m.obj.position.y=0;m.obj.rotation.z=0;m.place(true);
+    if(m.roadster){m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}
   }
-  return best;
+  for(const m of npcs)claimJunctions(m);
+  for(const p of gasPuffs){p.life=0;p.sprite.visible=false;}
 }
-function junctionBlocked(m,travel){
-  if(m.jump||(m.roadster&&!m.jumpCooldown))return false;
-  const j=upcomingJunction(m,travel);if(!j||j.along<-.1)return false;
-  if((m===carM||m===truckM)&&m.target>.2)return false;
-  let owner=junctionOwners.get(j.key);
-  if(owner){const p=owner.center();if(owner.active===false||Math.hypot(p.x-j.x,p.z-j.z)>12.1)owner=null;}
-  if(!owner){const candidates=allVehicles().filter(v=>!(v.jump||(v.roadster&&!v.jumpCooldown))&&(v.target>.1||v.speed>.1)).filter(v=>upcomingJunction(v)?.key===j.key);const inside=v=>{const p=v.center();return Math.hypot(p.x-j.x,p.z-j.z)<12?0:1;};owner=candidates.sort((a,b)=>inside(a)-inside(b)||a.trafficId-b.trafficId)[0];if(owner)junctionOwners.set(j.key,owner);else junctionOwners.delete(j.key);}
-  if(owner===m||!owner)return false;
-  if(m===truckM&&owner===carM&&carM.speed<.1&&phase==='dispatch')return false;
-  return Math.abs(j.along)<12;
-}
-[carM,truckM,...npcs].forEach((m,i)=>{m.trafficId=i;m.travelGuard=safeVehicleMove;});
-// Reserve the upcoming corridor even when a priority vehicle is temporarily blocked.
-function priorityVehicles(){return [carM,truckM].filter(m=>m.active!==false&&m.target>.2);}
-function priorityConflict(m,priority,includeLane=true){
-  if(m===priority||priority.active===false||priority.target<=.2)return false;
-  if(Math.hypot(m.obj.position.x-priority.obj.position.x,m.obj.position.z-priority.obj.position.z)>48)return false;
-  const pose={...vehiclePose(m),y:0},heading=m.at(m.s);
-  const poses=[pose];if(includeLane&&m.normalLane!==undefined)poses.push({...pose,x:heading.x-heading.hz*m.normalLane,z:heading.z+heading.hx*m.normalLane});
-  const horizon=Math.max(22,priority.target*2.5);
-  for(let d=0;d<=horizon;d+=2){
-    const p=priority.at(priority.s+Math.min(d,priority.remaining()));
-    const q={x:p.x-p.hz*priority.lane,z:p.z+p.hx*priority.lane,y:0,yaw:Math.atan2(-p.hz,p.hx),...vehicleSize(priority)};
-    if(poses.some(p=>bodiesOverlap({...p,length:p.length+2,width:p.width+.6},q)))return true;
-  }
-  return false;
-}
-function updateTraffic(dt){for(const m of npcs){
-  if(m.normalLane===undefined)m.normalLane=m.lane;
-  const priorities=priorityVehicles(),conflict=priorities.some(p=>priorityConflict(m,p));
-  m.yieldHold=conflict?1:Math.max(0,(m.yieldHold||0)-dt);
-  const yielding=m.yieldHold>0;
-  // Pull to the road edge while stopped; back out if already occupying the corridor.
-  m.yieldSide=yielding?(m.yieldSide||1):0;
-  m.lane=yielding&&!m.jump?6.5*m.yieldSide:m.normalLane;
-  if(yielding&&!m.roadster){
-    m.target=0;m.accel=18;m.speed=0;
-    const retreat=priorities.some(p=>priorityConflict(m,p,false))?-4*dt:0;
-    if((m.loop||m.s+retreat>=0)&&safeVehicleMove(m,retreat,dt)){m.s+=retreat;m.place(false,dt);}
-    else if(safeVehicleMove(m,0,dt))m.place(false,dt);
-    else {
-      // A second yielding car may occupy this shoulder. Use the other edge safely.
-      m.lane=-m.lane;
-      if(safeVehicleMove(m,0,dt)){m.yieldSide=-m.yieldSide;m.place(false,dt);}
-      else m.lane=-m.lane;
-    }
-    continue;
-  }
-  const yieldNow=!m.jump&&(yielding||npcs.some(other=>other!==m&&other.trafficId<m.trafficId&&shouldYield(m,other)));
-  m.target=yieldNow?0:(m.cruiseSpeed||9);m.accel=yieldNow?18:7;
-  m.update(dt);
-  if(!yielding&&!m.jump&&m.blockedTime>.2){
-    // Merge only when there is room. Parallel cars can continue along their edge
-    // instead of stopping side by side while both try to enter the same lane.
-    const p=m.at(m.s),wantedLane=m.lane;
-    m.lane=-p.hz*m.lat.x+p.hx*m.lat.y;
-    const speed=m.cruiseSpeed||9,travel=speed*dt;
-    if(safeVehicleMove(m,travel,dt)){m.s+=travel;m.place(false,dt);m.speed=speed;m.blockedTime=0;}
-    m.lane=wantedLane;
-  }
-}}
+resetTraffic();
 /* ================= 3D tags ================= */
 const tags=[];
 function addTag(html,getPos,cls,color){
@@ -2622,7 +2773,7 @@ function start(p){
   applyProject(p);
   if(p==='gs'){ reset(true); addLog('GS · Global South 커넥티드 서비스 시작','teal'); return; }
   if(p==='wng'){ reset(true); addLog('WNG 정보 흐름 시뮬레이션 시작','teal'); return; }
-  startRoaming();resetRoadsterEffects();
+  startRoaming();resetTraffic();
   setPhase('drive'); sideIdle(); vehUI('주행 중'); focus(carPos,50);
   addLog('e-Care 활성화 · 고객 차량 연결','teal');
 }
@@ -2642,7 +2793,7 @@ async function warnFlow(sc){
   const run=++token; scenario=sc; const severe=sc==='severe';
   setPhase('warn'); lamps(sc); S.status=sc; flowReset();
   S.warnSim=simMs(); S.calls=0;
-  if(severe){ sfx.severe(); vehUI('경고 감지','red'); carM.target=0; carM.lane=4.4; hazard(true); addLog('브레이크 시스템 경고등 점등','red'); }
+  if(severe){ sfx.severe(); vehUI('경고 감지','red'); carM.target=0; carM.lane=4.6; hazard(true); addLog('브레이크 시스템 경고등 점등','red'); }
   else { sfx.maint(); vehUI('경고 감지','amber'); carM.target=6.5; addLog('엔진 점검 경고등 점등','amber'); }
   fNode('veh',severe?'warn':'warn amber'); fCap('<b>①</b> 차량에서 경고등 점등 · TCU가 고장 신호 생성');
   pulseAt(carPos().setY(.2),severe?0xff4552:0xffb21e,4);
@@ -2935,10 +3086,10 @@ async function callFlow(o,run){
 
 async function dispatchFlow(){
   const run=++token; setPhase('dispatch');
-  if(carM.target>0||carM.speed>.2){ carM.target=0; carM.lane=4.4; hazard(true); vehUI('정차 중','red'); while(carM.speed>.15){ if(!await live(run,120)) return; } }
+  if(carM.target>0||carM.speed>.2){ carM.target=0; carM.lane=4.6; hazard(true); vehUI('정차 중','red'); while(carM.speed>.15){ if(!await live(run,120)) return; } }
   vehUI('정차 · 출동 대기','red');
   const tgt=carM.center();
-  const path=roadPath(truckM.center(),tgt);
+  const path=pathFrom(truckM,tgt);
   truckM.setPath(path,false,8.5); truckM.place(true);
   sideDispatch(); S.eta={m:truckM,total:truckM.end};
   S.route=ribbon(path,0xff4552); S.pin=pin(tgt,0xff4552);
@@ -2966,7 +3117,7 @@ async function towFlow(){
   carM.active=false; S.load={t:0,from:hero.g.position.clone(),rot:hero.g.rotation.y};
   vehUI('견인 적재 중','');
   if(!await live(run,1900)) return;
-  const path=roadPath(truckM.center(),{x:PREF.x,z:PREF.z});
+  const path=pathFrom(truckM,{x:PREF.x,z:PREF.z});
   truckM.setPath(path,false,0); truckM.target=13;
   S.route=ribbon(path,0x2ee6cf); S.pin=pin({x:PREF.x,z:PREF.z},0x2ee6cf);
   sideService('tow'); S.eta={m:truckM,total:truckM.end};
@@ -2980,7 +3131,7 @@ async function reserveFlow(){
   fCap(`<b>⑩</b> ${d.name} <b>DMS</b>에 입고 예약과 진단 정보 등록`);
   focus(V3(d.bx,8,d.bz),40); pulseAt(V3(d.bx,.3,d.bz),0x2ee6cf,10);
   if(!await live(run,1400)) return; fNode('dms','done');
-  const path=roadPath(carM.center(),{x:d.x,z:d.z});
+  const path=pathFrom(carM,{x:d.x,z:d.z});
   carM.setPath(path,false,0); carM.target=10;
   S.route=ribbon(path,0x2ee6cf); S.pin=pin({x:d.x,z:d.z},0x2ee6cf);
   sideService('drive'); S.eta={m:carM,total:carM.end}; vehUI('서비스센터로 이동','amber');
@@ -3070,7 +3221,7 @@ function reset(silent){
   token++; G.ask=null; G.hs=false; G.unlock=0; (G.devTags||[]).forEach(removeTag); G.devTags=[]; clearFX(); endLapse(); S.beam=null; S.route=S.pin=null; S.load=null; S.beacon=false; S.eta=null; S.followDispatch=false;updateRescueSiren(); S.callT0=0; S.callLive=false; S.callLink=null; S.dealer=PREF; S.dlist=[];
   scenario=null; S.status='normal'; hazard(false); lamps(null); flowReset(); removeTag(S.phoneTag); S.phoneTag=null;
   S.slaT0=0; S.slaStop=0; $('#slaBox').hidden=true; simOffset=baseOffset;
-  carM.active=true; startRoaming(); resetRoadsterEffects(); carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
+  carM.active=true; startRoaming(); resetTraffic(); carM.lane=2.1; carM.target=carM.speed=10; carM.onArrive=null; carM.place(true);
   truckM.setPath([[DEPOT.x,DEPOT.z],[DEPOT.x-1,DEPOT.z]],false); truckM.speed=truckM.target=0; truckM.onArrive=null; truckM.place(true);
   cpIdle(); celebrHide(); S.warnSim=0; S.calls=0;
   if(PROJECT==='gs'){ gsEnter(); if(!silent) addLog('시나리오 초기화'); return; }
@@ -3953,7 +4104,7 @@ function frame(){
   }
   const ndt=dt*S.ff;
   const gsPark=PROJECT==='gs';
-  extendRoaming();updateRoadsterEffects(dt);carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); updateTraffic(dt);
+  extendRoaming();carM.update(dt); if(gsPark) hero.g.position.y=.5; truckM.update(dt); updateTraffic(dt);
   if(S.load){
     S.load.t+=dt; const k=clamp(S.load.t/1.6,0,1), e=ease(k);
     truck.g.updateMatrixWorld(); const bed=truck.g.localToWorld(truck.bedLocal.clone());
