@@ -1729,7 +1729,7 @@ function makeHeroCar(color){
   vMesh(g,VB(1.86,.12,1.98),bodyM,-.7,2.04,0);
   vMesh(g,VB(.68,.3,2.02),bodyM,.02,2.22,0);
   vMesh(g,VB(.04,.3,.05),trimM,.37,2.22,0,false);
-  vMesh(g,VB(2.5,.02,.06),trimM,-.55,2.38,0,false);
+  vMesh(g,VB(.66,.02,.06),trimM,.02,2.38,0,false);
   vMesh(g,VB(1.82,.02,.06),trimM,-.7,2.11,0,false);
   // rounded roof bar with slats at the rear of the roof
   vMesh(g,VB(.46,.22,1.42),trimM,-1.22,2.23,0);
@@ -1747,7 +1747,8 @@ function makeHeroCar(color){
   vMesh(g,VB(.05,.18,.5),chromeM,-2.33,.7,0,false);
   vWheels(g,[1.48,-1.48],[-.98,.98],.47,.4);
   const hazM=new THREE.MeshStandardMaterial({color:0x553300,emissive:0xffa514,emissiveIntensity:0});
-  for(const z of [-.84,.84])for(const x of [2.36,-2.3])vMesh(g,VB(.16,.12,.2),hazM,x,1.0,z,false);
+  for(const z of [-.84,.84])vMesh(g,VB(.16,.12,.2),hazM,2.36,1.0,z,false);
+  for(const z of [-.84,.84])vMesh(g,VB(.07,.1,.2),hazM,-2.34,.74,z,false);
   const hl=glow(0xdfe9ff,9,.5);hl.position.set(4.4,.6,0);g.add(hl);
   const hz1=glow(0xffa514,6,0),hz2=glow(0xffa514,6,0);hz1.position.set(2.3,1.2,0);hz2.position.set(-2.3,1.2,0);g.add(hz1,hz2);
   scene.add(g);return {g,tailM,hazM,hl,hzGlow:[hz1,hz2]};
@@ -1862,23 +1863,30 @@ class Mover{
     if(!this.active) return;
     const dv=this.target-this.speed; this.speed+=clamp(dv,-this.accel*1.4*dt,this.accel*dt);
     if(!this.loop){ const rem=this.end-this.s; this.speed=Math.min(this.speed,Math.sqrt(Math.max(0,2*5*rem))+.3); }
-    const travel=this.speed*dt;
-    if(this.travelGuard&&!this.travelGuard(this,travel,dt)){this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;this.place(false,dt);return;}
+    const travel=this.speed*dt;let holdLane=false;
+    if(this.travelGuard&&!this.travelGuard(this,travel,dt,false)){
+      // Keep driving straight on and finish the lane change once the side is clear.
+      if(Math.abs(this.lane-this.laneNow)>1e-3&&this.travelGuard(this,travel,dt,true))holdLane=true;
+      else {this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;this.place(false,dt,true);return;}
+    }
     this.blockedTime=0;
     this.s+=travel;
     if(!this.loop&&this.s>=this.end&&travel>=0){ this.s=this.end; this.speed=0; this.target=0; if(this.onArrive){const cb=this.onArrive;this.onArrive=null;cb();} }
-    this.place(false,dt);
+    this.place(false,dt,holdLane);
   }
-  place(snapNow,dt=0){
-    const before=this.laneNow;
-    if(snapNow) this.laneNow=this.lane; else this.laneNow+=clamp(this.lane-this.laneNow,-2.2*dt,2.2*dt);
-    const p=this.pose(this.s);
-    this.obj.position.set(p.x,this.flightHeight||0,p.z);
-    let ta=p.yaw;
-    // A deliberate lane change (pulling over) steers the nose instead of sliding sideways.
-    if(!snapNow&&dt>0&&before!==this.laneNow){const lv=(this.laneNow-before)/dt,v=Math.max(Math.abs(this.speed),3);ta=Math.atan2(-(p.hz*v+p.hx*lv),p.hx*v-p.hz*lv);}
-    if(snapNow) this.rot=ta; else { let d=ta-this.rot; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; this.rot+=d*Math.min(1,dt*10); }
-    this.obj.rotation.y=this.rot;
+  // Lane changes (pull over / rejoin) move sideways only in proportion to forward speed, like steering.
+  laneStep(dt){const rate=this.target<.2?Math.max(1.2,.35*Math.abs(this.speed)):.2+.35*Math.abs(this.speed);return this.laneNow+clamp(this.lane-this.laneNow,-rate*dt,rate*dt);}
+  // Pose after a step: position on the lane curve, nose steered into a deliberate lane change.
+  stepPose(s,dt,holdLane=false){
+    const ln=holdLane?this.laneNow:this.laneStep(dt),p=this.pose(s,ln);let ta=p.yaw;
+    if(dt>0&&ln!==this.laneNow){const lv=(ln-this.laneNow)/dt,v=Math.max(Math.abs(this.speed),3);ta=Math.atan2(-(p.hz*v+p.hx*lv),p.hx*v-p.hz*lv);}
+    let d=ta-this.rot;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+    return {x:p.x,z:p.z,lane:ln,yaw:this.rot+d*Math.min(1,dt*10)};
+  }
+  place(snapNow,dt=0,holdLane=false){
+    if(snapNow){this.laneNow=this.lane;const p=this.pose(this.s);this.obj.position.set(p.x,this.flightHeight||0,p.z);this.rot=p.yaw;this.obj.rotation.y=this.rot;return;}
+    const q=this.stepPose(this.s,dt,holdLane);this.laneNow=q.lane;this.rot=q.yaw;
+    this.obj.position.set(q.x,this.flightHeight||0,q.z);this.obj.rotation.y=this.rot;
   }
 }
 // New route from where a vehicle is now. If it must head back, drive a short U-turn arc instead of jumping lanes.
@@ -1973,7 +1981,7 @@ function bodiesOverlap(a,b){
 }
 function allVehicles(){return [carM,truckM,...npcs].filter(m=>m.active!==false);}
 function npcPose(m,s,y=m.flightHeight||0){const q=m.pose(s,m.lane);return {x:q.x,z:q.z,y,yaw:q.yaw,...m.size};}
-function hitVehicle(m,pose){for(const o of allVehicles()){if(o===m)continue;const q=vehiclePose(o);if(o.jump&&o.jump.down)q.y=0;if(bodiesOverlap(pose,q))return o;}return null;}
+function hitVehicle(m,pose){for(const o of allVehicles()){if(o===m)continue;const q=vehiclePose(o);if(o.jump&&o.jump.down&&(o.flightHeight||0)<3)q.y=0;if(bodiesOverlap(pose,q))return o;}return null;}
 
 // Priority vehicles (customer car, rescue truck) reserve the road ahead of them.
 function priorityVehicles(){return [carM,truckM].filter(m=>m.active!==false&&(m.target>.2||m.speed>.3));}
@@ -2025,10 +2033,13 @@ function npcJump(m,mode){
 function npcUpdateJump(m,dt){
   const J=m.jump,T=1.65;let next=J.t+dt;
   // Hover until the landing spot is clear; once descending, the spot is reserved for it (others treat it as on the ground).
-  if(next>T*.5&&!J.down){if(canLandAt(m))J.down=true;else next=T*.5;}
-  if(J.down&&!canLandAt(m))next=J.t;
+  if(!J.down){if(next>T*.5){if(canLandAt(m))J.down=true;else next=T*.5;}}
+  else if(!canLandAt(m)){next=Math.max(T*.5,J.t-dt);if(next<=T*.5+1e-6)J.down=false;}   // spot taken: climb back and wait
   J.t=next;const k=clamp(J.t/T,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;
-  if(J.mode==='show'){m.s+=m.speed*dt;}else m.speed=0;
+  if(J.mode==='show'){
+    if(J.down){const g=npcPose(m,m.s+m.speed*dt+1.2+m.speed*.25,0);if(hitVehicle(m,g)||corridorHit(g)||!junctionFree(m,g))m.speed=Math.max(0,m.speed-30*dt);}
+    m.s+=m.speed*dt;
+  }else m.speed=0;
   const turn=roadsterTurn(m);(m.roadster.sideJets||[]).forEach(j=>j.visible=turn!==0&&j.userData.side===Math.sign(j.userData.x)*turn);J.sideGas+=dt;if(turn&&J.sideGas>.045){J.sideGas=0;emitColdGas(m,turn);}
   const thrust=k<.28||k>.87||(J.mode==='evade'&&k>=.49&&k<=.51);m.roadster.jets.forEach(j=>j.visible=thrust);J.gas+=dt;if(thrust&&J.gas>.06){J.gas=0;emitColdGas(m);}
   m.place(false,dt);m.obj.rotation.z=J.mode==='show'?Math.cos(k*Math.PI)*.18:0;
@@ -2080,10 +2091,9 @@ function updateTraffic(dt){
   for(const p of gasPuffs)if(p.life>0){p.life-=dt;p.sprite.visible=p.life>0;p.sprite.position.addScaledVector(p.velocity,dt);p.velocity.y*=Math.exp(-dt*3);p.sprite.position.y=Math.max(.2,p.sprite.position.y);p.sprite.material.opacity=Math.max(0,p.life/.85)*.6;p.sprite.scale.setScalar(.8+(1-p.life/.85)*3.5);}
 }
 // Customer car and rescue truck only stop for a body physically in the way (never expected: NPCs keep clear).
-function priorityGuard(m,travel,dt){
-  const ln=m.laneNow+clamp(m.lane-m.laneNow,-2.2*dt,2.2*dt);
-  for(const f of [.5,1]){const q=m.pose(m.s+travel*f,ln),pose={x:q.x,z:q.z,y:m.flightHeight||0,yaw:q.yaw,...vehicleSize(m)};
-    for(const o of allVehicles()){if(o===m||(o.jump&&o.jump.mode==='evade'))continue;if(bodiesOverlap(pose,vehiclePose(o)))return false;}}
+function priorityGuard(m,travel,dt,holdLane){
+  for(const f of [.5,1]){const q=m.stepPose(m.s+travel*f,dt*f,holdLane),pose={x:q.x,z:q.z,y:m.flightHeight||0,yaw:q.yaw,...vehicleSize(m)};
+    for(const o of allVehicles()){if(o===m)continue;if(bodiesOverlap(pose,vehiclePose(o)))return false;}}
   return true;
 }
 carM.travelGuard=truckM.travelGuard=priorityGuard;
