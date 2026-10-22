@@ -1051,6 +1051,30 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+/* ---------- v0.3.2 ---------- */
+.cp-f .cp-skip{display:inline-flex;align-items:center;gap:5px;font:700 11.5px var(--f-body);padding:5px 10px;border-radius:7px;border:1px solid rgba(46,230,207,.55);background:rgba(46,230,207,.14);color:var(--teal);cursor:pointer;white-space:nowrap}
+.cp-f .cp-skip svg{width:12px;height:12px;fill:currentColor}
+.cp-f .cp-skip:hover{background:rgba(46,230,207,.24)}
+.cp-f .cp-skip[hidden]{display:none}
+.cp-f .cp-skip+.cp-clr{margin-left:0}
+.cp-f .cp-skip:not([hidden]){margin-left:auto}
+.subtitle{font-size:12.5px;line-height:1.45;padding:7px 14px;bottom:12px;max-width:min(600px,calc(100% - 120px))}
+@media (max-width:820px){.subtitle{display:none!important}}
+/* 패드처럼 조금 작은 화면: 조작 버튼과 확대 · 축소 버튼을 함께 줄임 */
+@media (max-width:1280px),(max-height:860px){
+  .dock{gap:8px;padding:8px 10px}
+  .act{min-height:46px;gap:9px;padding:6px 12px 6px 7px;border-radius:10px}
+  .act .ic{width:30px;height:30px;border-radius:8px}
+  .act .ic svg{width:17px;height:17px}
+  .act b{font-size:13px}
+  .act small{font-size:11px}
+  .zone-ctrl .zone-h{padding:8px 12px}
+  .zoom{padding:4px;gap:1px;border-radius:11px;right:10px;bottom:10px}
+  .zoom button{width:32px;height:32px;border-radius:8px}
+  .zoom button svg{width:17px;height:17px}
+  .zoom .zp{font-size:9.5px}
+  .zoom .zsep{margin:2px 6px}
+}
 </style>
 </head>
 <body>
@@ -1175,7 +1199,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
     <div class="cp-who" id="cpWho"></div>
     <div class="cp-body" id="cpBody"></div>
     <div class="cp-audio" hidden><button type="button" id="cpVoice" aria-pressed="true">음성 ON</button><span id="cpVoiceStatus" role="status" aria-live="polite">선택한 언어로 대사를 읽습니다</span></div>
-    <div class="cp-f"><span id="cpSt">대기 중</span><span id="cpN">0줄</span><button class="cp-clr" id="cpClr" title="통화 기록 지우기">기록 지우기</button></div>
+    <div class="cp-f"><span id="cpSt">대기 중</span><span id="cpN">0줄</span><button class="cp-skip" id="cpSkip" type="button" hidden title="남은 대화를 바로 표시하고 다음 단계로">대화 건너뛰기 <svg viewBox="0 0 24 24"><path d="M5 5l8 7-8 7zM14 5l8 7-8 7z"/></svg></button><button class="cp-clr" id="cpClr" title="통화 기록 지우기">기록 지우기</button></div>
   </div>
   <div id="intro">
     <div class="intro-in">
@@ -1221,6 +1245,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.3.2',date:'2026-10-22',name:'우선 차량 무정차 보장 · 대화 건너뛰기',notes:['내 차 · 긴급출동 차량이 NPC 때문에 멈추는 일이 없도록 최후 보장 추가: 비키지 못한 NPC는 냉가스와 함께 사라졌다가 먼 빈 자리에 다시 나타남','상담 통화 중 통화 패널 아래 [대화 건너뛰기] 버튼 (남은 대사 바로 표시 · 음성 중지 · 다음 단계로)','시뮬레이션 화면이 닫혀 있으면 긴급출동 사이렌 음소거','패드 크기 화면에서 조작 버튼과 확대 · 축소 버튼을 함께 작게','시뮬레이션 하단 안내 문구 크기 축소 · 모바일 화면에서는 숨김']},
   {v:'0.3.1',date:'2026-10-21',name:'콜센터 상담원 3명 · 통화 패널 1x1 · 빠른 대화',notes:['콜센터 상담원 3명 기준으로 표시 (모니터링 · 자동 배정 안내)','통화 패널을 접으면 1x1 정사각 아이콘으로 축소 (통화 중 · 호출 중 표시, 끌어서 이동 · 눌러서 펼치기)','펼쳐도 패널 아래 끝이 조작 패널 위에서 멈춤','녹음 음성이 없는 대화는 타이핑과 대사 간격을 3배 빠르게']},
   {v:'0.3.0',date:'2026-10-20',name:'내 차량 스케치 모델 · NPC 6대 · 우선 통로',notes:['내 차량을 스케치 기준으로 새로 모델링: 둥근 앞범퍼 · 세로 슬랫 그릴, 앞으로 돌출된 루프 바이저와 중앙 이음선, 루프 뒤 둥근 슬랫 바, 문손잡이 · 짧은 트렁크','NPC는 사이버트럭(은색 · 검은색) · 테슬라 로드스터 2 · 토요타 프리우스 2, 일반 차량 삭제','모든 차량이 코너를 곡선으로 돌고 NPC는 차로 변경 없음 → 옆으로 미끄러지는 현상 제거','내 차 · 긴급출동 차량 앞 통로를 매 프레임 예약: NPC는 들어가지 않고, 이미 들어와 있으면 후진(또는 가까운 쪽) · 같은 방향 앞차는 앞으로 비켜 달림 · 로드스터는 수직 상승 회피']},
   {v:'0.2.9',date:'2026-10-19',name:'고객 · 긴급출동 우선 양보',notes:['일반 차량은 가장자리 정차 · 교차로 후진 양보','로드스터는 고객 차량과 출동 · 견인 차량을 냉가스 점프로 회피 · 같은 방향에서는 뒤로 점프']},
@@ -1879,7 +1904,9 @@ class Mover{
     if(this.travelGuard&&!this.travelGuard(this,travel,dt,false)){
       // Keep driving straight on and finish the lane change once the side is clear.
       if(Math.abs(this.lane-this.laneNow)>1e-3&&this.travelGuard(this,travel,dt,true))holdLane=true;
-      else {this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;this.place(false,dt,true);return;}
+      else if(!this.loop&&this.end<=this.s+1e-6){ // reached the stopped customer car earlier than the road point: that is the arrival
+        this.s=this.end;this.speed=0;this.target=0;this.blockedTime=0;this.place(false,dt,true);if(this.onArrive){const cb=this.onArrive;this.onArrive=null;cb();}return;
+      } else {this.blockedTime=(this.blockedTime||0)+dt;this.speed=0;this.place(false,dt,true);return;}
     }
     this.blockedTime=0;
     this.s+=travel;
@@ -1893,7 +1920,7 @@ class Mover{
     const ln=holdLane?this.laneNow:this.laneStep(dt),p=this.pose(s,ln);let ta=p.yaw;
     if(dt>0&&ln!==this.laneNow){const lv=(ln-this.laneNow)/dt,v=Math.max(Math.abs(this.speed),3);ta=Math.atan2(-(p.hz*v+p.hx*lv),p.hx*v-p.hz*lv);}
     let d=ta-this.rot;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
-    return {x:p.x,z:p.z,lane:ln,yaw:this.rot+d*Math.min(1,dt*10)};
+    return {x:p.x,z:p.z,lane:ln,yaw:this.size?ta:this.rot+d*Math.min(1,dt*10)};   // NPC: 몸체 방향 = 경로 방향 (충돌 검사와 화면이 정확히 일치)
   }
   place(snapNow,dt=0,holdLane=false){
     if(snapNow){this.laneNow=this.lane;const p=this.pose(this.s);this.obj.position.set(p.x,this.flightHeight||0,p.z);this.rot=p.yaw;this.obj.rotation.y=this.rot;return;}
@@ -1991,7 +2018,7 @@ function bodiesOverlap(a,b){
   const radius=(p,axis)=>Math.abs(axis.x*Math.cos(p.yaw)-axis.z*Math.sin(p.yaw))*(p.length+.12)+Math.abs(axis.x*Math.sin(p.yaw)+axis.z*Math.cos(p.yaw))*(p.width+.12);
   return axes.every(axis=>Math.abs((a.x-b.x)*axis.x+(a.z-b.z)*axis.z)<radius(a,axis)+radius(b,axis));
 }
-function allVehicles(){return [carM,truckM,...npcs].filter(m=>m.active!==false);}
+function allVehicles(){return [carM,truckM,...npcs].filter(m=>m.active!==false&&!(m.ghost&&m.ghost.phase==='out'));}
 function npcPose(m,s,y=m.flightHeight||0){const q=m.pose(s,m.lane);return {x:q.x,z:q.z,y,yaw:q.yaw,...m.size};}
 function hitVehicle(m,pose){for(const o of allVehicles()){if(o===m)continue;const q=vehiclePose(o);if(o.jump&&o.jump.down&&(o.flightHeight||0)<3)q.y=0;if(bodiesOverlap(pose,q))return o;}return null;}
 
@@ -2050,6 +2077,7 @@ function npcUpdateJump(m,dt){
   J.t=next;const k=clamp(J.t/T,0,1);m.flightHeight=Math.sin(k*Math.PI)*6.5;
   if(J.mode==='show'){
     if(J.down){const g=npcPose(m,m.s+m.speed*dt+1.2+m.speed*.25,0);if(hitVehicle(m,g)||corridorHit(g)||!junctionFree(m,g))m.speed=Math.max(0,m.speed-30*dt);}
+    else if(m.flightHeight<3.4){const g=npcPose(m,m.s+m.speed*dt+.6,m.flightHeight);if(hitVehicle(m,g))m.speed=Math.max(0,m.speed-30*dt);}   // 낮게 떠 있을 때는 앞차에 닿지 않게
     m.s+=m.speed*dt;
   }else m.speed=0;
   const turn=roadsterTurn(m);(m.roadster.sideJets||[]).forEach(j=>j.visible=turn!==0&&j.userData.side===Math.sign(j.userData.x)*turn);J.sideGas+=dt;if(turn&&J.sideGas>.045){J.sideGas=0;emitColdGas(m,turn);}
@@ -2062,8 +2090,28 @@ function headOn(m){
   return allVehicles().some(o=>{if(o===m||(o.flightHeight||0)>1||o.speed<1)return false;const g=o.at(o.s),dx=o.obj.position.x-p.x,dz=o.obj.position.z-p.z,along=dx*h.hx+dz*h.hz,side=Math.abs(dx*h.hz-dz*h.hx);return h.hx*g.hx+h.hz*g.hz<-.6&&along>5&&along<15&&side<5;});
 }
 
+/* v0.3.2 최후 보장: 우선 차량이 실제로 닿기 직전인데 NPC가 비키지 못하면, NPC가 냉가스와 함께 사라졌다가
+   우선 차량에서 먼 자기 순환 경로의 빈 자리에 다시 나타남 → 내 차 · 긴급출동 차량은 어떤 경우에도 멈추지 않음 */
+function npcVanish(m){
+  if(m.ghost&&m.ghost.phase==='out')return;
+  if(m.jump){if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}m.jump=null;m.flightHeight=0;m.obj.position.y=0;m.obj.rotation.z=0;m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}
+  emitColdGas(m);releaseJunctions(m);m.ghost={t:0,phase:'out'};m.speed=0;m.vanished=(m.vanished||0)+1;
+}
+function npcSafeSpot(m){
+  const pri=priorityVehicles(),others=allVehicles().filter(o=>o!==m);let best=null,score=-1;
+  for(let s=0;s<m.len;s+=3){const p=npcPose(m,s,0);if(corridorHit(p)||hitVehicle(m,p)||!junctionFree(m,p))continue;
+    const dp=pri.length?Math.min(...pri.map(v=>Math.hypot(v.obj.position.x-p.x,v.obj.position.z-p.z))):60,da=others.length?Math.min(...others.map(v=>Math.hypot(v.obj.position.x-p.x,v.obj.position.z-p.z))):30;
+    const sc=Math.min(dp,60)+Math.min(da,16)*1.5;if(sc>score){score=sc;best=s;}}
+  return best;
+}
+function npcUpdateGhost(m,dt){
+  const G=m.ghost;G.t+=dt;
+  if(G.phase==='out'){m.obj.scale.setScalar(Math.max(.001,1-G.t/.3));if(G.t<.3)return;const s=npcSafeSpot(m);if(s===null){G.t=.3;return;}m.s=s;m.place(true);G.phase='in';G.t=0;claimJunctions(m);return;}
+  m.obj.scale.setScalar(Math.min(1,Math.max(.001,G.t/.35)));if(G.t>=.35){m.ghost=null;m.obj.scale.setScalar(1);m.speed=0;}
+}
 function updateNPC(m,dt){
   m.jumpCooldown=Math.max(0,m.jumpCooldown-dt);m.pushT=Math.max(0,m.pushT-dt);
+  if(m.ghost){npcUpdateGhost(m,dt);return;}
   if(m.jump){npcUpdateJump(m,dt);releaseJunctions(m);return;}
   const cur=npcPose(m,m.s,0),inC=corridorHit(cur);let moved=0;
   if(inC){
@@ -2080,6 +2128,10 @@ function updateNPC(m,dt){
       m.speed=moved?m.speed:0;
     }
     m.stuck=0;m.back=0;
+    // cannot get out and the priority vehicle is about to arrive → clear the road at once
+    m.escFail=moved?0:(m.escFail||0)+dt;
+    const gap=Math.hypot(o.x-po.x,o.z-po.z)-vehicleSize(p).length-m.size.length;
+    if(m.escFail>.35&&gap<Math.max(6,p.speed*1.1)){npcVanish(m);return;}
   } else if(m.pushT>0&&m.push){ // make room for a car that is clearing a priority corridor
     m.mode='room';moved=npcStep(m,m.push*6*dt,{junctionOk:true});m.speed=moved?6:0;
   } else if(m.back>0){         // unwind a local NPC deadlock
@@ -2105,7 +2157,7 @@ function updateTraffic(dt){
 // Customer car and rescue truck only stop for a body physically in the way (never expected: NPCs keep clear).
 function priorityGuard(m,travel,dt,holdLane){
   for(const f of [.5,1]){const q=m.stepPose(m.s+travel*f,dt*f,holdLane),pose={x:q.x,z:q.z,y:m.flightHeight||0,yaw:q.yaw,...vehicleSize(m)};
-    for(const o of allVehicles()){if(o===m)continue;if(bodiesOverlap(pose,vehiclePose(o)))return false;}}
+    for(const o of allVehicles()){if(o===m)continue;if(bodiesOverlap(pose,vehiclePose(o))){if(o.size){npcVanish(o);continue;}if(m===truckM&&o===carM&&carM.target<=.2&&!m.loop)m.end=m.s;return false;}}}
   return true;
 }
 carM.travelGuard=truckM.travelGuard=priorityGuard;
@@ -2113,7 +2165,7 @@ function resetTraffic(){
   JUNCTIONS.forEach(j=>j.owner=null);CORR=[];
   for(const m of npcs){
     if(m.jumpTag){removeTag(m.jumpTag);m.jumpTag=null;}
-    Object.assign(m,{s:m.spawnS,jump:null,jumpCooldown:0,flightHeight:0,mode:'drive',stuck:0,back:0,push:0,pushT:0});m.holds.clear();
+    Object.assign(m,{s:m.spawnS,jump:null,jumpCooldown:0,flightHeight:0,mode:'drive',stuck:0,back:0,push:0,pushT:0,ghost:null,escFail:0});m.holds.clear();m.obj.scale.setScalar(1);
     m.speed=m.target=m.cruiseSpeed;m.obj.position.y=0;m.obj.rotation.z=0;m.place(true);
     if(m.roadster){m.roadster.jets.forEach(j=>j.visible=false);(m.roadster.sideJets||[]).forEach(j=>j.visible=false);}
   }
@@ -2439,7 +2491,8 @@ const sfx={
 };
 let rescueSiren=null;
 function updateRescueSiren(){
-  const active=PROJECT==='ecare'&&phase==='dispatch'&&S.beacon&&!muted;
+  const simClosed=typeof document!=='undefined'&&!!document.getElementById('app')?.classList.contains('stageClosed');
+  const active=PROJECT==='ecare'&&phase==='dispatch'&&S.beacon&&!muted&&!simClosed;   // v0.3.2: 시뮬레이션이 닫혀 있으면 사이렌 음소거
   if(!active){if(rescueSiren){rescueSiren.osc.stop();rescueSiren.osc.disconnect();rescueSiren.gain.disconnect();rescueSiren=null;}return;}
   const a=AC;if(!a||a.state!=='running')return;
   if(!rescueSiren){const osc=a.createOscillator(),gain=a.createGain();osc.type='triangle';gain.gain.value=.035;osc.connect(gain);gain.connect(a.destination);osc.start();rescueSiren={osc,gain};}
@@ -3057,7 +3110,7 @@ async function pickDealerFlow(i){
   addLog(`고객 → ${d.name} 전화 · e-Care 앱`,'teal');
   await callFlow({party:'dealer',dir:'in',via:'app'},run);
 }
-function typeText(el,text,run,rate=1){const els=(Array.isArray(el)?el:[el]).filter(Boolean);els.forEach(e=>e.classList.add('typing'));const fin=()=>{els.forEach(e=>e.classList.remove('typing'));};return new Promise(res=>{let i=0;const step=()=>{if(run!==token){fin();return res();}i=Math.min(text.length,i+rate);els.forEach(e=>{const t=e.dataset&&e.dataset.ko!=null?e.dataset[CPL]:text;e.textContent=t.slice(0,Math.ceil(i/text.length*t.length));});const cb=$('#cpBody');if(cb)cb.scrollTop=cb.scrollHeight;if(i<text.length)setTimeout(step,reduce?0:26);else{fin();res();}};step();});}
+function typeText(el,text,run,rate=1){if(typeof CP!=='undefined'&&CP.skip)rate=text.length;const els=(Array.isArray(el)?el:[el]).filter(Boolean);els.forEach(e=>e.classList.add('typing'));const fin=()=>{els.forEach(e=>e.classList.remove('typing'));};return new Promise(res=>{let i=0;const step=()=>{if(run!==token){fin();return res();}if(CP.skip)rate=text.length;i=Math.min(text.length,i+rate);els.forEach(e=>{const t=e.dataset&&e.dataset.ko!=null?e.dataset[CPL]:text;e.textContent=t.slice(0,Math.ceil(i/text.length*t.length));});const cb=$('#cpBody');if(cb)cb.scrollTop=cb.scrollHeight;if(i<text.length)setTimeout(step,reduce?0:26);else{fin();res();}};step();});}
 async function callFlow(o,run){
   const toDealer=o.party==='dealer', d=S.dealer;
   if(o.party==='center'){ setPhase('busy'); if(!await ccwStep(o,run)) return; }
@@ -3082,20 +3135,22 @@ async function callFlow(o,run){
   S.callT0=performance.now(); vehUI('통화 중','');
   if(S.phoneTag) setTag(S.phoneTag,'<span class="d"></span>고객 휴대폰<small>통화 중</small>');
   addLog('통화 연결','teal');
+  cpSkipShow(true);
   for(const [who,ko,ja] of scriptFor(o)){
     if(run!==token) return;
     const t2=cpLine(who,who==='agent'?agNm:'홍길동 고객님'); t2.dataset.ko=ko; t2.dataset.ja=ja;
-    if(PROJECT==='ecare'&&CVOICE.enabled&&cpVoiceSupported()){
+    if(PROJECT==='ecare'&&CVOICE.enabled&&cpVoiceSupported()&&!CP.skip){
       t2.textContent=t2.dataset[CPL];
       const spoken=await cpSpeak(t2,who,run);
       if(run!==token) return;
-      if(!spoken){ await typeText(t2,ko,run,3); if(!await live(run,(850+ko.length*17)/3)) return; }
-      else if(!await live(run,250)) return;
+      if(!spoken){ await typeText(t2,ko,run,3); if(!await cpPause(run,(850+ko.length*17)/3)) return; }
+      else if(!await cpPause(run,250)) return;
     } else {   // 녹음 음성이 없는 대화는 3배 빠르게
       await typeText(t2,ko,run,3);
-      if(!await live(run,(850+ko.length*17)/3)) return;
+      if(!await cpPause(run,(850+ko.length*17)/3)) return;
     }
   }
+  cpSkipShow(false);
   if(!await live(run,500)) return;
   S.callT0=0; cpEnd('통화 종료'); S.beam.fade=1; S.callLive=false; fLink(a,b,'on'); fNode(a,'done'); fNode(b,'done');
   removeTag(S.phoneTag); S.phoneTag=null;
@@ -3576,6 +3631,10 @@ function cpVoiceUi(){
   cpSet(b,{ko:cpVoiceSupported()?'음성 '+(CVOICE.enabled?'ON':'OFF'):'음성 미지원',ja:cpVoiceSupported()?'音声 '+(CVOICE.enabled?'ON':'OFF'):'音声非対応'});
   cpSet('#cpVoiceStatus',CVOICE.notice||(!cpVoiceSupported()?{ko:'이 브라우저는 음성을 지원하지 않습니다',ja:'このブラウザは音声に対応していません'}:CVOICE.enabled?{ko:'선택한 언어로 대사를 읽습니다',ja:'選択した言語で会話を読み上げます'}:{ko:'대사만 표시합니다',ja:'会話のテキストのみ表示します'}));
 }
+/* v0.3.2: 통화 중 [대화 건너뛰기] — 남은 대사를 바로 채우고 다음 단계로 */
+function cpSkipShow(on){ if(typeof CP==='undefined')return; CP.skip=false; const b=$('#cpSkip'); if(b) b.hidden=!on; }
+async function cpPause(run,ms){ const t0=performance.now(); while(performance.now()-t0<ms){ if(CP.skip) return run===token; if(!await live(run,Math.min(80,ms-(performance.now()-t0)))) return false; } return true; }
+function cpSkip(){ if(!CP.t0) return; CP.skip=true; cpVoiceStop('abort'); const b=$('#cpSkip'); if(b) b.hidden=true; addLog('상담 대화 건너뛰기'); }
 function cpVoiceStop(reason='abort'){
   if(CVOICE.cancel) CVOICE.cancel(reason);
 }
@@ -3649,6 +3708,7 @@ function cpToggle(v,manual){ if(manual){ CP.manual=!(v==null?!CP.open:v); CP.aut
   const up=e=>{ if(!d||e.pointerId!==d.id) return; const moved=d.moved; d=null; p.classList.remove('drag'); if(moved) cpSave(); else cpToggle(null,true); };
   h.addEventListener('pointerup',up); h.addEventListener('pointercancel',e=>{d=null;p.classList.remove('drag');});
   $('#cpMin').addEventListener('click',e=>{e.stopPropagation();cpToggle(null,true);});
+  $('#cpSkip').addEventListener('click',e=>{e.stopPropagation();cpSkip();});
   $('#cpClr').addEventListener('click',()=>{ $('#cpBody').innerHTML=cpEmptyHTML(); CP.n=0; cpSet('#cpN',{ko:'0줄',ja:'0行'}); if(!CP.t0){ CVOICE.scene=false;cpVoiceUi();cpSet('#cpSt','대기 중'); CP.pvEl=null; cpSet('#cpPv','통화 대기 중'); cpSet('#cpT',''); } });
   addEventListener('resize',()=>{ cpPlace(false); fitFlowSoon(); });
   try{ const ro=new ResizeObserver(fitFlowSoon); ro.observe($('#side')); ro.observe(document.querySelector('.zone-flow .zone-body')); ro.observe($('#statBox')); }catch(e){}
@@ -3689,7 +3749,7 @@ function cpEnd(note){
   $('#cpBody').querySelectorAll('.cp-l.cur').forEach(x=>{x.classList.remove('cur');x.classList.add('past');});
   const tt=was?' '+mmss((performance.now()-was)/1000):''; cpSet('#cpT',{ko:'종료'+tt,ja:'終了'+tt});
 }
-function cpIdle(){ cpVoiceStop(); CVOICE.scene=false;cpVoiceUi(); if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
+function cpIdle(){ cpSkipShow(false); cpVoiceStop(); CVOICE.scene=false;cpVoiceUi(); if(CP.t0||$('#callPane').classList.contains('ring')) cpEnd('통화 중단'); }
 function cpShow(id){ cpToggle(true); const el=document.getElementById('cpc-'+id); if(el){ el.scrollIntoView({block:'start'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); } }
 
 

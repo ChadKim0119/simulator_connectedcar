@@ -22,7 +22,7 @@ function check(tag,i){
   for(let a=0;a<all.length;a++)for(let b=a+1;b<all.length;b++)if(bodiesOverlap(vehiclePose(all[a]),vehiclePose(all[b]))){overlaps++;assert.fail(`${tag} overlap frame ${i}: ${all[a].kind||'priority'} / ${all[b].kind||'priority'}`);}
   if(carM.active&&carM.target>.2&&carM.blockedTime>0){heroBlocked++;assert.fail(`${tag}: customer car blocked at frame ${i}`);}
   if(truckM.target>.2&&truckM.blockedTime>0){truckBlocked++;assert.fail(`${tag}: rescue truck blocked at frame ${i}`);}
-  for(const m of npcs){const p=m.obj.position,q=prevPos.get(m);
+  for(const m of npcs){if(m.ghost){prevPos.delete(m);continue;}const p=m.obj.position,q=prevPos.get(m);
     if(q&&!m.jump){const dx=p.x-q.x,dz=p.z-q.z,move=Math.hypot(dx,dz),side=Math.abs(-dx*Math.sin(m.rot)-dz*Math.cos(m.rot));
       if(move>1e-4&&side>.12*move+.02){slide++;assert.fail(`${tag}: ${m.kind} slid sideways ${side.toFixed(3)} / ${move.toFixed(3)} at frame ${i}`);}}
     prevPos.set(m,{x:p.x,z:p.z});}
@@ -63,3 +63,20 @@ for(const d of [{x:-45,z:30},{x:45,z:30},{x:-15,z:-60}]){
   assert(arrived,'customer must reach the dealer');
 }
 console.log('PASS: 정비 예약 3개 딜러 경로 — 고객 차량 막힘 0, 차체 겹침 0');
+// 4) 실제 시연 순서: 자유 주행 중 아무 때나 경고 → 그 자리 갓길 정차 → 출동 → 견인 / 또는 주행 중 정비 예약
+for(let k=0;k<8;k++){
+  resetTraffic();prevPos.clear();startRoaming();carM.active=true;carM.lane=2.1;carM.speed=carM.target=10;ctx.phase='drive';
+  const roam=300+Math.floor(math.random()*900);for(let i=0;i<roam;i++){frame();check(`demo${k}-roam`,i);}
+  if(k%2===0){
+    carM.target=0;carM.lane=4.6;for(let i=0;i<260;i++){frame();check(`demo${k}-stop`,i);}
+    truckM.setPath(pathFrom(truckM,carM.center()),false,8.5);truckM.speed=0;truckM.target=13;truckM.place(true);ctx.phase='dispatch';
+    let arrived=false;for(let i=0;i<5000&&!arrived;i++){frame();check(`demo${k}-dispatch`,i);arrived=truckM.remaining()<.01;}assert(arrived,'demo dispatch');
+    carM.active=false;truckM.setPath(pathFrom(truckM,{x:-45,z:30}),false);truckM.speed=0;truckM.target=13;truckM.place(true);
+    arrived=false;for(let i=0;i<5000&&!arrived;i++){frame();check(`demo${k}-tow`,i);arrived=truckM.remaining()<.01;}assert(arrived,'demo tow');
+    truckM.setPath([[45,-30],[44,-30]],false);truckM.target=truckM.speed=0;truckM.place(true);
+  } else {
+    const d=[{x:-45,z:30},{x:45,z:30},{x:-15,z:-60}][k%3];carM.setPath(pathFrom(carM,d),false);carM.target=10;
+    let arrived=false;for(let i=0;i<5000&&!arrived;i++){frame();check(`demo${k}-service`,i);arrived=carM.remaining()<.01;}assert(arrived,'demo service');
+  }
+}
+console.log(`PASS: 실제 시연 순서 8회 — 우선 차량 막힘 0, 차체 겹침 0 · 비키지 못해 사라졌다 다시 나타난 NPC ${npcs.reduce((a,m)=>a+(m.vanished||0),0)}회 (전체 검사 누적)`);
