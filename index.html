@@ -293,7 +293,7 @@ button{font:inherit;color:inherit}
 .intro-t{font:300 clamp(30px,5vw,50px)/1.15 var(--f-body);margin:0;text-wrap:balance;letter-spacing:-.02em}
 .intro-t b{font-weight:700}
 .intro-p{color:#aab5c4;font-size:15px;line-height:1.7;margin:0;max-width:62ch}
-.svcs{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px}
+.svcs{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
 .svc{display:flex;flex-direction:column;gap:10px;padding:20px;border-radius:14px;border:1px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;transition:all .25s}
 .svc:hover{border-color:var(--teal);transform:translateY(-3px);box-shadow:0 0 0 4px rgba(46,230,207,.12),0 20px 40px rgba(0,0,0,.4)}
 .svc .logo{font-size:34px}
@@ -1088,7 +1088,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
     <div class="topr">
       <div class="seg" role="group" aria-label="프로젝트">
         <button id="btnPE" aria-pressed="true">e-Care</button>
-        <button id="btnPG" aria-pressed="false">GS</button>
+        <button id="btnPG" aria-pressed="false" hidden>GS</button>
         <button id="btnPW" aria-pressed="false">WNG</button>
       </div>
       <div class="seg" role="group" aria-label="시간대">
@@ -1181,7 +1181,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
     <div class="zone-body">
       <section class="card flow">
         <div id="flowSvg"></div>
-        <div class="fcap" id="flowCap">차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.</div>
+        <div class="fcap" id="flowCap">차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP(TSP)를 거칩니다. 고객 앱·HU는 VEP(TSP) → VDP로, 콜센터 웹·DMS는 VEP(TSP)에서 전달됩니다.</div>
         <div class="stat" id="statBox"></div>
         <div class="legend" id="legend"><span><i style="background:var(--alert)"></i>고장 신호</span><span><i style="background:var(--amber)"></i>경고 신호</span><span><i style="background:var(--blue)"></i>진단 데이터</span><span><i style="background:var(--teal)"></i>경고 정보 배포 · 통화</span></div>
       </section>
@@ -1205,7 +1205,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
     <div class="intro-in">
       <div class="intro-k">Connected Care Simulation</div>
       <h1 class="intro-t">경고등이 켜지는 순간부터<br><b>현장 조치까지, 한 화면에서.</b></h1>
-      <p class="intro-p">차량의 고장 신호가 일본 VDP와 한국 VEP를 거쳐 차량·고객 휴대폰·콜센터 웹·DMS로 전달되고, SLA 기준에 따라 상담과 긴급출동으로 이어지는 과정을 버튼 하나씩 눌러가며 보여드립니다.</p>
+      <p class="intro-p">차량의 고장 신호를 일본 VDP와 한국 VEP(TSP)가 처리하고, 고객 앱·HU 알림은 VDP를 거쳐 전달하며 콜센터 웹·DMS는 VEP(TSP)에서 직접 연계합니다. 이후 SLA 기준에 따라 상담과 긴급출동으로 이어지는 과정을 버튼 하나씩 눌러가며 보여드립니다.</p>
       <div class="svcs">
         <button class="svc" id="pickEcare">
           <span class="tags2"><span class="chip">LIVE DEMO</span><span class="chip mute">긴급 · 정비 · SLA 25분 · 딜러 연결</span></span>
@@ -1213,7 +1213,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
           <span class="d">스마트 케어 시스템. 경고 감지, 정보 흐름, 고객 연락 SLA, 선제 콜아웃, 긴급출동과 서비스센터 연계까지.</span>
           <span class="go">시뮬레이션 시작 <span aria-hidden="true">→</span></span>
         </button>
-        <button class="svc" id="pickGS">
+        <button class="svc" id="pickGS" hidden>
           <span class="tags2"><span class="chip">LIVE DEMO</span><span class="chip mute">프로비저닝 · 키 · OTT · OTA</span></span>
           <span style="font-size:30px;font-weight:800;letter-spacing:-.03em">GS</span>
           <span class="d">Global South. 서비스 가입과 Flag 프로비저닝, Digital Key, OTT, Wi-Fi Hotspot, OTA, DMS 팝업까지.</span>
@@ -1226,7 +1226,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
           <span class="go">시뮬레이션 시작 <span aria-hidden="true">→</span></span>
         </button>
       </div>
-      <div class="keys"><span><kbd>1</kbd>경고등(심각)</span><span><kbd>2</kbd>경고등(정비)</span><span><kbd>H</kbd>HU 전화하기</span><span><kbd>A</kbd>앱 전화 · 딜러 찾기</span><span><kbd>C</kbd>25분 미연락</span><span><kbd>E</kbd>긴급출동</span><span><kbd>P K O W U</kbd>GS 서비스</span><span><kbd>T</kbd>WNG Trigger</span><span><kbd>N</kbd>낮/밤</span><span><kbd>+</kbd><kbd>-</kbd>확대·축소</span><span><kbd>R</kbd>초기화</span></div>
+      <div class="keys"><span><kbd>1</kbd>경고등(심각)</span><span><kbd>2</kbd>경고등(정비)</span><span><kbd>H</kbd>HU 전화하기</span><span><kbd>A</kbd>앱 전화 · 딜러 찾기</span><span><kbd>C</kbd>25분 미연락</span><span><kbd>E</kbd>긴급출동</span><span hidden><kbd>P K O W U</kbd>GS 서비스</span><span><kbd>T</kbd>WNG Trigger</span><span><kbd>N</kbd>낮/밤</span><span><kbd>+</kbd><kbd>-</kbd>확대·축소</span><span><kbd>R</kbd>초기화</span></div>
     </div>
   </div>
 
@@ -1245,6 +1245,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.3.3',date:'2026-10-25',name:'GS 진입 숨김 · 고객 알림 VDP 경유',notes:['메인 GS 카드 · 상단 GS 버튼 · GS 단축키 안내 임시 숨김','e-Care 고객 알림: VEP(TSP) → VDP → 앱 · HU · 흐름도와 3D 전송 · 로그 · 설명 반영','콜센터 웹 · DMS는 VEP(TSP) 직접 연계 유지 · 긴급 · 정비 경고 모두 적용']},
   {v:'0.3.2',date:'2026-10-22',name:'우선 차량 무정차 보장 · 대화 건너뛰기',notes:['내 차 · 긴급출동 차량이 NPC 때문에 멈추는 일이 없도록 최후 보장 추가: 비키지 못한 NPC는 냉가스와 함께 사라졌다가 먼 빈 자리에 다시 나타남','상담 통화 중 통화 패널 아래 [대화 건너뛰기] 버튼 (남은 대사 바로 표시 · 음성 중지 · 다음 단계로)','시뮬레이션 화면이 닫혀 있으면 긴급출동 사이렌 음소거','패드 크기 화면에서 조작 버튼과 확대 · 축소 버튼을 함께 작게','시뮬레이션 하단 안내 문구 크기 축소 · 모바일 화면에서는 숨김']},
   {v:'0.3.1',date:'2026-10-21',name:'콜센터 상담원 3명 · 통화 패널 1x1 · 빠른 대화',notes:['콜센터 상담원 3명 기준으로 표시 (모니터링 · 자동 배정 안내)','통화 패널을 접으면 1x1 정사각 아이콘으로 축소 (통화 중 · 호출 중 표시, 끌어서 이동 · 눌러서 펼치기)','펼쳐도 패널 아래 끝이 조작 패널 위에서 멈춤','녹음 음성이 없는 대화는 타이핑과 대사 간격을 3배 빠르게']},
   {v:'0.3.0',date:'2026-10-20',name:'내 차량 스케치 모델 · NPC 6대 · 우선 통로',notes:['내 차량을 스케치 기준으로 새로 모델링: 둥근 앞범퍼 · 세로 슬랫 그릴, 앞으로 돌출된 루프 바이저와 중앙 이음선, 루프 뒤 둥근 슬랫 바, 문손잡이 · 짧은 트렁크','NPC는 사이버트럭(은색 · 검은색) · 테슬라 로드스터 2 · 토요타 프리우스 2, 일반 차량 삭제','모든 차량이 코너를 곡선으로 돌고 NPC는 차로 변경 없음 → 옆으로 미끄러지는 현상 제거','내 차 · 긴급출동 차량 앞 통로를 매 프레임 예약: NPC는 들어가지 않고, 이미 들어와 있으면 후진(또는 가까운 쪽) · 같은 방향 앞차는 앞으로 비켜 달림 · 로드스터는 수직 상승 회피']},
@@ -2188,7 +2189,7 @@ const night=()=>dayTarget<.5;
 function updDealers(){DEALERS.forEach(d=>{const n=night();setTag(d.tag,`<span class="d"${n?' style="background:#7d8a9c;box-shadow:none"':''}></span>${d.name}<small>${d.pref?'선호 딜러 · ':''}DMS${n?' · 영업 종료':''}</small>`);d.sign.material.emissiveIntensity=n?.12:1.4;});}
 const T_DEPOT=addTag('<span class="d" style="background:var(--alert)"></span>긴급출동 센터',V3(45,10,-47));
 const T_VDP=addTag('<span class="d"></span>VDP · 일본<small>GLOBAL</small>',NODE.vdp.pos.clone().add(V3(0,9,0)),'node vdp');
-const T_VEP=addTag('<span class="d"></span>VEP · 한국<small>LOCAL</small>',NODE.vep.pos.clone().add(V3(0,9,0)),'node vep');
+const T_VEP=addTag('<span class="d"></span>VEP(TSP) · 한국<small>LOCAL</small>',NODE.vep.pos.clone().add(V3(0,9,0)),'node vep');
 const T_TMC=addTag('<span class="d" style="background:var(--amber)"></span>TMC · 일본<small>OTA 배포</small>',NODE.tmc.pos.clone().add(V3(0,9,0)),'node'); T_TMC.el.style.display='none';
 const T_NET=addTag('<span class="d" style="background:#a78bfa"></span>인터넷 · CP<small>OTT 콘텐츠</small>',NODE.net.pos.clone().add(V3(0,9,0)),'node'); T_NET.el.style.display='none';
 addTag('JAPAN',V3(JAPAN.x,-2,JAPAN.z+26),'region');
@@ -2210,7 +2211,7 @@ function rooftopSign(label,subtitle,pos,color,width=22){
 const facilitySigns={
   center:rooftopSign('e-Care 상담센터','24H · CALL CENTER',V3(-45,41,-45),'#ff6472',25),
   depot:rooftopSign('긴급출동 센터','EMERGENCY RESPONSE',V3(45,8.5,-47),'#ff6472',23),
-  vep:rooftopSign('VEP · 한국','DATA CENTER',V3(15,12,-75),'#2ee6cf',22),
+  vep:rooftopSign('VEP(TSP) · 한국','DATA CENTER',V3(15,12,-75),'#2ee6cf',22),
   vdp:rooftopSign('VDP · 일본','GLOBAL',V3(JAPAN.x,9,JAPAN.z),'#59a8ff',20)
 };
 DEALERS.forEach(d=>d.rooftop=rooftopSign(d.name,'SERVICE · DMS',V3(d.bx,9.5,d.bz+1),'#2ee6cf',22));
@@ -2512,7 +2513,7 @@ const mmss=sec=>{sec=Math.max(0,Math.floor(sec));return String(Math.floor(sec/60
 const FN_EC={
   vdp:{x:220,y:48,w:124,h:40,t:'VDP',s:'일본 · 글로벌 서버'},
   veh:{x:72,y:142,w:112,h:40,t:'차량 TCU',s:'고장 신호 발생'},
-  vep:{x:220,y:142,w:124,h:40,t:'VEP',s:'한국 · WNG 필터'},
+  vep:{x:220,y:142,w:124,h:40,t:'VEP (TSP)',s:'한국 · WNG 필터'},
   hu:{x:47,y:250,w:72,h:44,t:'차량 HU',s:'경고 팝업'},
   app:{x:127,y:250,w:72,h:44,t:'e-Care 앱',s:'고객 휴대폰'},
   web:{x:207,y:250,w:72,h:44,t:'콜센터 웹',s:'CCW · 긴급'},
@@ -2520,7 +2521,9 @@ const FN_EC={
 };
 const FE_EC={
   e1:'M72 122 C72 78 104 48 158 48', e2:'M220 68 L220 122',
-  e3:'M196 162 C196 205 47 196 47 228', e4:'M210 162 C210 205 127 200 127 228',
+  e3:'M180 68 C180 90 142 90 142 110 L142 176 C142 196 47 196 47 228',
+  e4:'M196 68 C196 96 150 96 150 112 L150 180 C150 208 127 200 127 228',
+  e7:'M282 142 C330 142 330 48 282 48',
   e5:'M226 162 C226 200 207 204 207 228', e6:'M240 162 C240 200 287 200 287 228'
 };
 const FN_GS={
@@ -2595,7 +2598,7 @@ function flowTick(){ const now=performance.now();
 function fNode(id,cls){const g=document.getElementById('fn-'+id);if(g)g.setAttribute('class','fn '+(cls||''));}
 function fEdge(id,cls){const p=document.getElementById('fe-'+id);if(p)p.setAttribute('class','fe '+(cls||''));}
 function fCap(html){$('#flowCap').innerHTML=html;const wc=$('#wvCap');if(wc)wc.innerHTML=html;const st=$('#subtitle');if(st){st.innerHTML=html;st.classList.remove('fresh');void st.offsetWidth;st.classList.add('fresh');}}
-function flowReset(){$('#flinks').innerHTML='';Object.keys(FN).forEach(k=>fNode(k,''));Object.keys(FE).forEach(k=>fEdge(k,''));FPK.splice(0).forEach(f=>f.c.remove());S.callLive=false;fCap(PROJECT==='wng'?'WNG는 매 Trigger마다 256개 전체 상태로 VDP → TSP에 들어옵니다.':PROJECT==='gs'?'GS 서비스는 Service Provisioning으로 차량 기능을 켜고 끕니다. 조작 패널에서 서비스를 골라 보세요.':'차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP를 거쳐 전달되는 과정이 표시됩니다.');}
+function flowReset(){$('#flinks').innerHTML='';Object.keys(FN).forEach(k=>fNode(k,''));Object.keys(FE).forEach(k=>fEdge(k,''));FPK.splice(0).forEach(f=>f.c.remove());S.callLive=false;fCap(PROJECT==='wng'?'WNG는 매 Trigger마다 256개 전체 상태로 VDP → TSP에 들어옵니다.':PROJECT==='gs'?'GS 서비스는 Service Provisioning으로 차량 기능을 켜고 끕니다. 조작 패널에서 서비스를 골라 보세요.':'차량에서 경고가 발생하면 신호가 일본 VDP와 한국 VEP(TSP)를 거칩니다. 고객 앱·HU는 VEP(TSP) → VDP로, 콜센터 웹·DMS는 VEP(TSP)에서 전달됩니다.');}
 
 /* ================= UI ================= */
 const ICON={
@@ -2633,7 +2636,7 @@ const info=t=>({info:t});
 const DOCK={
   drive:()=>[btn('warnSevere','경고등 (심각)','브레이크 시스템 이상','1','red','warn'),btn('warnMaint','경고등 (정비)','엔진 점검 필요','2','amber','tool')],
   warn:()=>[info('경고 감지 · 차량 데이터 수집 중')],
-  diagnose:()=>[info('VDP(일본) → VEP(한국) 정보 전달 중')],
+  diagnose:()=>[info('고장 신호 VDP → VEP(TSP) · 고객 알림 VEP(TSP) → VDP → 앱·HU')],
   awaitCall:()=>scenario==='severe'?[
     btn('huCall','HU 팝업 [전화하기]','고객 → 콜센터 · 차량에서 통화','H','teal','car'),
     btn('appCall','앱 [콜센터 전화하기]','고객 → 콜센터 · 휴대폰','A','teal','tel'),
@@ -2709,7 +2712,7 @@ function sideIdle(){
   <ul class="slist">
    <li><span><i class="dot"></i>차량 TCU</span><b>연결됨</b></li>
    <li><span><i class="dot" style="background:var(--blue)"></i>VDP · 일본</span><b>정상</b></li>
-   <li><span><i class="dot"></i>VEP · 한국</span><b>정상</b></li>
+   <li><span><i class="dot"></i>VEP(TSP) · 한국</span><b>정상</b></li>
    <li><span><i class="dot" style="background:var(--red)"></i>콜센터 웹</span><b>상담원 3명 대기</b></li>
    <li><span><i class="dot"></i>DMS · 딜러 서비스센터 3곳</span><b>연동</b></li>
   </ul></section>`;
@@ -2721,11 +2724,11 @@ const DIAG={
 function sideDiag(){
   const d=DIAG[scenario];
   side.innerHTML=`<section class="card"><header class="card-h"><span class="eyebrow">Signal Relay</span>${d.chip}</header>
-  <h3>경고 정보 전달</h3><p>고장 신호가 일본 VDP와 한국 VEP를 거쳐 관련 시스템으로 배포됩니다.</p>
+  <h3>경고 정보 전달</h3><p>고장 신호는 일본 VDP와 한국 VEP(TSP)에서 처리합니다. 고객 앱·HU 알림은 VDP로 되돌려 전달하고, 콜센터 웹·DMS는 VEP(TSP)에서 직접 연계합니다.</p>
   <ol class="diag">
    <li id="dg0"><span class="st"></span><div><b>고장 신호 수신</b><small>차량 → VDP · 일본</small></div><i class="bar"><em></em></i></li>
-   <li id="dg1"><span class="st"></span><div><b>진단 데이터 전달</b><small>VDP · 일본 → VEP · 한국</small></div><i class="bar"><em></em></i></li>
-   <li id="dg2"><span class="st"></span><div><b>경고 정보 배포</b><small>${scenario==='severe'?'VEP → WNG 필터 → 차량 HU · 앱 · 콜센터 웹 · DMS':'VEP → WNG 필터 → 차량 HU · 앱 · DMS (콜센터 제외)'}</small></div><i class="bar"><em></em></i></li>
+   <li id="dg1"><span class="st"></span><div><b>진단 데이터 전달</b><small>VDP · 일본 → VEP(TSP) · 한국</small></div><i class="bar"><em></em></i></li>
+   <li id="dg2"><span class="st"></span><div><b>경고 정보 배포</b><small>${scenario==='severe'?'VEP(TSP) · WNG 필터 → VDP → 앱 · HU / VEP(TSP) → 콜센터 웹 · DMS':'VEP(TSP) · WNG 필터 → VDP → 앱 · HU / VEP(TSP) → DMS (콜센터 제외)'}</small></div><i class="bar"><em></em></i></li>
   </ol>
   <div class="result ${d.cls}" id="dres" hidden><div class="k">DIAGNOSIS · ${d.code}</div><div class="v">${d.title}</div>
    <div class="r"><span>위험도</span><b>${d.risk}</b></div><div class="r"><span>권장 조치</span><b>${d.act}</b></div></div></section>`;
@@ -2836,7 +2839,7 @@ function applyProject(p){
   if(was==='wng'&&!wn) clockTo(dayTarget>.5?14:22,10);
   setTag(T_CENTER,gs?'<span class="d" style="background:var(--red)"></span>CCW · OPW<small>콜센터 웹 · 운영 웹</small>':'<span class="d" style="background:var(--red)"></span>e-Care 상담센터<small>콜센터 웹</small>');
   setTag(T_VDP,gs?'<span class="d"></span>TSC · 일본<small>One Server · MQTT</small>':'<span class="d"></span>VDP · 일본<small>GLOBAL</small>');
-  setTag(T_VEP,gs?'<span class="d"></span>TSP · 한국<small>상태 · 이력 · 프로비저닝</small>':'<span class="d"></span>VEP · 한국<small>LOCAL</small>');
+  setTag(T_VEP,gs?'<span class="d"></span>TSP · 한국<small>상태 · 이력 · 프로비저닝</small>':'<span class="d"></span>VEP(TSP) · 한국<small>LOCAL</small>');
   [T_TMC,T_NET].forEach(t=>t.el.style.display=gs?'':'none'); [T_DEPOT,truckTag].forEach(t=>t.el.style.display=gs?'none':'');
   NODE.tmc.g.visible=NODE.net.g.visible=gs;
   $('#vehSub').textContent=gs?'GX · 24 DCM · 12가 3456 · 대표자':'GX · 12가 3456 · TCU ONLINE';
@@ -2864,6 +2867,32 @@ $('#btnPE').addEventListener('click',()=>switchProject('ecare'));
 $('#btnPG').addEventListener('click',()=>switchProject('gs'));
 $('#btnPW').addEventListener('click',()=>switchProject('wng'));
 
+// Customer notifications return to VDP; business systems stay connected to VEP/TSP.
+async function distributeWarning(run,severe){
+  const business=severe?[['web','e5',CENTER.top,'콜센터 웹'],['dms','e6',PREF.top,'DMS']]
+                       :[['dms','e6',PREF.top,'DMS · 선호 딜러']];
+  diagStep(2,'run',3200);
+  fNode('vep','act');fNode('vdp','act');fEdge('e7','on');flowSend('e7',1600,'#2ee6cf');
+  business.forEach(([n,e])=>{fEdge(e,'on');flowSend(e,1600,'#2ee6cf');fNode(n,'act');});
+  if(!severe){fEdge('e5','skip');fNode('web','skip');}
+  const who=severe?'콜센터 웹 · DMS':'DMS · 정비 경고는 콜센터 웹 제외';
+  fCap(`<b>⑤</b> VEP(TSP) → <b>VDP (일본)</b> · 고객 알림 전달 / VEP(TSP) → ${who}`);
+  addLog(`VEP(TSP) → VDP(일본) 고객 알림 전달 · VEP(TSP) → ${who}`);
+  await Promise.all([
+    packet(NODE.vep.pos,NODE.vdp.pos,0x2ee6cf,1600,'고객 알림 → VDP 일본'),
+    ...business.map(([n,e,pos,label])=>packet(NODE.vep.pos,pos,0x2ee6cf,1600,label))
+  ]);if(run!==token)return false;
+  fNode('vep','done');business.forEach(([n])=>fNode(n,'done'));
+  const customers=[['hu','e3',carTop,'차량 HU'],['app','e4',phonePos,'e-Care 앱']];
+  customers.forEach(([n,e])=>{fEdge(e,'on');flowSend(e,1600,'#2ee6cf');fNode(n,'act');});
+  frameHop(NODE.vdp.pos,mid(carTop,phonePos));
+  fCap('<b>⑤</b> VEP(TSP) → VDP (일본) → <b>고객 앱 · 차량 HU</b> · 경고 알림 전송');
+  addLog('VEP(TSP) → VDP(일본) → 고객 앱 · 차량 HU 경고 전달');
+  await Promise.all(customers.map(([n,e,pos,label])=>packet(NODE.vdp.pos,pos,n==='app'?0x7ff5e6:0x2ee6cf,1600,label)));if(run!==token)return false;
+  fNode('vdp','done');customers.forEach(([n])=>fNode(n,'done'));diagStep(2,'done');
+  return true;
+}
+
 async function warnFlow(sc){
   const run=++token; scenario=sc; const severe=sc==='severe';
   setPhase('warn'); lamps(sc); S.status=sc; flowReset();
@@ -2886,26 +2915,17 @@ async function warnFlow(sc){
   // hop 2 — VDP → VEP Korea
   frameHop(NODE.vdp.pos,NODE.vep.pos); if(!await live(run,800)) return;
   diagStep(1,'run',1700); fEdge('e2','on blue'); fNode('vep','act'); flowSend('e2',1700,'#59a8ff');
-  fCap('<b>③</b> VDP (일본) → <b>VEP (한국)</b> · 진단 데이터 전달'); addLog('VDP(일본) → VEP(한국) 진단 데이터 전달');
-  await packet(NODE.vdp.pos,NODE.vep.pos,0x59a8ff,1700,'DIAGNOSIS DATA → VEP 한국'); if(run!==token) return;
+  fCap('<b>③</b> VDP (일본) → <b>VEP(TSP) (한국)</b> · 진단 데이터 전달'); addLog('VDP(일본) → VEP(TSP)(한국) 진단 데이터 전달');
+  await packet(NODE.vdp.pos,NODE.vep.pos,0x59a8ff,1700,'DIAGNOSIS DATA → VEP(TSP) 한국'); if(run!==token) return;
   diagStep(1,'done'); fNode('vep','done');
   // hop 3 — VEP → WNG filter → fan-out
   focus(V3(-10,6,-18),92); if(!await live(run,800)) return;
   const ft=addTag('<span class="d"></span>WNG 필터<small>중복 · VIN · 위치 · 정비</small>',NODE.vep.pos.clone().add(V3(0,-5,0)),'phone');
-  fNode('vep','act'); fCap('<b>④</b> VEP · OPW <b>WNG 필터</b> (중복 · VIN · 위치 · 정비) 적용');
-  addLog('VEP · WNG 필터 적용 (중복 · VIN · 위치 · 정비)');
+  fNode('vep','act'); fCap('<b>④</b> VEP(TSP) · OPW <b>WNG 필터</b> (중복 · VIN · 위치 · 정비) 적용');
+  addLog('VEP(TSP) · WNG 필터 적용 (중복 · VIN · 위치 · 정비)');
   pulseAt(V3(VEPDC.x,.3,VEPDC.z),0x2ee6cf,9);
   if(!await live(run,1300)) return; removeTag(ft); fNode('vep','done');
-  diagStep(2,'run',1600);
-  const T=severe?[['hu','e3',carTop,'차량 HU'],['app','e4',phonePos,'e-Care 앱'],['web','e5',CENTER.top,'콜센터 웹'],['dms','e6',PREF.top,'DMS']]
-                :[['hu','e3',carTop,'차량 HU'],['app','e4',phonePos,'e-Care 앱'],['dms','e6',PREF.top,'DMS · 선호 딜러']];
-  T.forEach(([n,e])=>{fEdge(e,'on');flowSend(e,1600,'#2ee6cf');fNode(n,'act');});
-  if(!severe){fEdge('e5','skip');fNode('web','skip');}
-  const who=severe?'차량 HU · 앱 · 콜센터 웹 · DMS':'차량 HU · 앱 · DMS';
-  fCap(severe?`<b>⑤</b> VEP → <b>${who}</b> 경고 정보 배포`:`<b>⑤</b> VEP → <b>${who}</b> · 정비 경고는 콜센터 웹으로 보내지 않음`);
-  addLog(`VEP → ${who} 경고 전달`);
-  await Promise.all(T.map(([n,e,pos,lbl])=>packet(NODE.vep.pos,pos,n==='app'?0x7ff5e6:0x2ee6cf,1600,lbl))); if(run!==token) return;
-  diagStep(2,'done'); T.forEach(([n])=>fNode(n,'done'));
+  if(!await distributeWarning(run,severe))return;
   removeTag(S.phoneTag); S.phoneTag=addTag(`<span class="d"></span>e-Care 앱<small>경고 알림 수신</small>`,()=>phonePos().add(V3(0,3,0)),'phone');
   const r=$('#dres'); if(r) r.hidden=false;
   addLog(severe?'차량 HU 팝업 · 앱 알림 · 즉시 정차 권고':'차량 HU 팝업 · 앱 알림 · 점검 권장',severe?'red':'amber');
