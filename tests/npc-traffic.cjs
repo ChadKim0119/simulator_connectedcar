@@ -3,13 +3,13 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const src=fs.readFileSync(require('path').join(__dirname,'..','index.html'),'utf8');
 class V2{constructor(x=0,y=0){this.x=x;this.y=y}distanceTo(v){return Math.hypot(this.x-v.x,this.y-v.y)}copy(v){this.x=v.x;this.y=v.y;return this}lerp(v,k){this.x+=(v.x-this.x)*k;this.y+=(v.y-this.y)*k;return this}}
-class Stub{constructor(){this.position={x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z},copy(){return this},addScaledVector(){return this},clone(){return {add(){return this}}}};this.rotation={x:0,y:0,z:0};this.scale={setScalar(){}};this.material={};}clone(){return new Stub()}updateMatrixWorld(){}localToWorld(v){return v}}
+class Stub{constructor(){this.position={x:0,y:0,z:0,set(x,y,z){this.x=x;this.y=y;this.z=z},copy(){return this},addScaledVector(){return this},clone(){return {add(){return this}}}};this.rotation={x:0,y:0,z:0};this.scale={setScalar(){}};this.material={};}clone(){return new Stub()}add(){}updateMatrixWorld(){}localToWorld(v){return v}}
 const THREE=new Proxy({Vector2:V2},{get:(t,k)=>t[k]||Stub});
 let seed=Number(process.env.TRAFFIC_SEED||42);const math=Object.create(Math);math.random=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);
 const car=()=>({g:new Stub()}),roadster=()=>({g:new Stub(),jets:[{visible:false}],sideJets:[]});
 const ctx={Math:math,THREE,clamp:(x,a,b)=>Math.max(a,Math.min(b,x)),lerp:(a,b,k)=>a+(b-a)*k,V3:(x=0,y=0,z=0)=>({x,y,z,set(a,b,c){this.x=a;this.y=b;this.z=c;return this},copy(v){Object.assign(this,{x:v.x,y:v.y,z:v.z});return this},clone(){return {...this}},add(){return this},addScaledVector(){return this}}),
   PROJECT:'ecare',phase:'drive',ROAD:[-60,-30,0,30,60],DEPOT:{x:45,z:-30},glowTex:{},scene:{add(){}},addTag:()=>({}),removeTag(){},
-  makeHeroCar:car,makeTruck:car,makeCybertruck:car,makePrius:car,makeRoadster:roadster};
+  makeHeroCar:car,makeHeroSUV:car,makeTruck:car,makeCybertruck:car,makePrius:car,makeRoadster:roadster};
 vm.createContext(ctx);
 vm.runInContext(src.slice(src.indexOf('/* ================= movers ================= */'),src.indexOf('/* ================= 3D tags'))+'\nthis.api={pathFrom,carM,truckM,npcs,allVehicles,vehiclePose,bodiesOverlap,startRoaming,extendRoaming,updateTraffic,resetTraffic,corridorHit,buildCorridors,roadPath:typeof roadPath==="function"?roadPath:null};',ctx);
 vm.runInContext(src.slice(src.indexOf('function snap(p)'),src.indexOf('/* ================= movers ================= */'))+'\nthis.api.roadPath=roadPath;',ctx);

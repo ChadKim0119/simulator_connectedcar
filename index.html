@@ -49,7 +49,7 @@ button{font:inherit;color:inherit}
 .brand{display:flex;align-items:center;gap:10px;padding:7px 12px 7px 12px;border-radius:10px;background:var(--zone);border:1px solid var(--line);cursor:pointer;transition:border-color .2s}
 .brand:hover{border-color:var(--teal)}
 .logo{font:800 21px/1 var(--f-body);letter-spacing:-.04em}
-.logo .e{color:var(--red)}
+.logo .e{color:inherit}
 .ver{font:700 11px/1 var(--f-mono);padding:4px 7px;border-radius:6px;background:rgba(46,230,207,.13);color:var(--teal)}
 .brand .sub{font:600 11px/1.2 var(--f-display);letter-spacing:.2em;color:var(--muted);text-transform:uppercase;border-left:1px solid var(--line);padding-left:10px}
 .brand svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2}
@@ -338,7 +338,7 @@ button{font:inherit;color:inherit}
 .ph{border-radius:18px;background:#05080d;border:2px solid #263042;padding:7px}
 .ph-in{border-radius:12px;background:#eef1f5;color:#141a22;padding:8px;min-height:150px}
 .ph-h{font:800 12px var(--f-body);letter-spacing:-.02em}
-.ph-h .e{color:#e60012}
+.ph-h .e{color:inherit}
 .ph-card{margin-top:6px;border-radius:8px;background:#fff;padding:7px 8px;font-size:10.5px;line-height:1.4;box-shadow:0 2px 6px rgba(20,30,50,.12);color:#4b5563}
 .ph-card b{display:block;font-size:12px;color:#141a22}
 .dl{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
@@ -1075,6 +1075,14 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
   .zoom .zp{font-size:9.5px}
   .zoom .zsep{margin:2px 6px}
 }
+/* ---------- v0.3.4 ---------- */
+.zoom.lock-only{padding:4px}
+.zoom.lock-only #zLock{width:auto;height:auto;display:flex;align-items:center;gap:6px;padding:7px 11px;font:700 12px var(--f-body);color:#d5dde8;white-space:nowrap}
+.zoom.lock-only #zLock svg{width:17px;height:17px}
+#segCar button svg{width:18px;height:18px}
+body.wng #segCar{display:none}
+@media (max-width:1180px){#segCar button{padding:6px 8px;font-size:11.5px}}
+@media (max-width:820px){#segCar button{font-size:0;gap:0}#segCar button svg{width:20px;height:20px}}
 </style>
 </head>
 <body>
@@ -1090,6 +1098,10 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
         <button id="btnPE" aria-pressed="true">e-Care</button>
         <button id="btnPG" aria-pressed="false" hidden>GS</button>
         <button id="btnPW" aria-pressed="false">WNG</button>
+      </div>
+      <div class="seg" id="segCar" role="group" aria-label="내 차량">
+        <button data-car="classic" aria-pressed="false" title="내 차량: 클래식"><svg viewBox="0 0 24 24"><path d="M3 15v-3l2-1 2-4h8l3 4 3 1v3"/><path d="M3 15h18"/><circle cx="7" cy="16.5" r="1.7"/><circle cx="17" cy="16.5" r="1.7"/></svg>클래식</button>
+        <button data-car="suv" aria-pressed="true" title="내 차량: SUV"><svg viewBox="0 0 24 24"><path d="M2.5 15.5v-4l2.5-1 2.5-4h10l3 4.5 1 1v3.5"/><path d="M2.5 15.5h19M7.5 6.5v4M12.5 6.5v4"/><circle cx="7" cy="16.5" r="1.9"/><circle cx="17" cy="16.5" r="1.9"/></svg>SUV</button>
       </div>
       <div class="seg" role="group" aria-label="시간대">
         <button id="btnDay" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>낮</button>
@@ -1163,13 +1175,8 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
       </div>
       <div class="hint">휠 확대·축소 · 드래그 이동</div>
       <div class="subtitle" id="subtitle"></div>
-      <div class="zoom" role="group" aria-label="화면 확대 축소">
-        <button id="zIn" title="확대 (+)" aria-label="확대"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L20 20M10.5 7.6v5.8M7.6 10.5h5.8"/></svg></button>
-        <div class="zp" id="zPct">100%</div>
-        <button id="zOut" title="축소 (-)" aria-label="축소"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L20 20M7.6 10.5h5.8"/></svg></button>
-        <span class="zsep" aria-hidden="true"></span>
-        <button id="zLock" aria-pressed="false" title="지도 고정 (G)" aria-label="지도 고정"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.2"/><path class="lk-c" d="M8 11V8a4 4 0 0 1 8 0v3"/><path class="lk-o" d="M8 11V8a4 4 0 0 1 7.7-1.5"/><path d="M12 15v2"/></svg></button>
-        <button id="zFit" title="자동 카메라로 복귀 (0)" aria-label="자동 카메라"><svg viewBox="0 0 24 24"><path d="M4 9V6a2 2 0 0 1 2-2h3M20 9V6a2 2 0 0 0-2-2h-3M4 15v3a2 2 0 0 0 2 2h3M20 15v3a2 2 0 0 1-2 2h-3"/><circle cx="12" cy="12" r="2.6"/></svg></button>
+      <div class="zoom lock-only" role="group" aria-label="화면 고정">
+        <button id="zLock" aria-pressed="false" title="화면 고정 (G) · 해제하면 자동 카메라로 복귀" aria-label="화면 고정"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.2"/><path class="lk-c" d="M8 11V8a4 4 0 0 1 8 0v3"/><path class="lk-o" d="M8 11V8a4 4 0 0 1 7.7-1.5"/><path d="M12 15v2"/></svg><span>화면 고정</span></button>
       </div>
       <div class="celebr" id="celebr" hidden></div>
     </div>
@@ -1209,7 +1216,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
       <div class="svcs">
         <button class="svc" id="pickEcare">
           <span class="tags2"><span class="chip">LIVE DEMO</span><span class="chip mute">긴급 · 정비 · SLA 25분 · 딜러 연결</span></span>
-          <span class="logo"><span class="e" style="color:var(--red)">e</span>-Care</span>
+          <span class="logo"><span class="e">e</span>-Care</span>
           <span class="d">스마트 케어 시스템. 경고 감지, 정보 흐름, 고객 연락 SLA, 선제 콜아웃, 긴급출동과 서비스센터 연계까지.</span>
           <span class="go">시뮬레이션 시작 <span aria-hidden="true">→</span></span>
         </button>
@@ -1245,6 +1252,7 @@ button,.act,.svc,.tbtn,.ibtn,.drawer-btn,.rail,.cp-x,.wfold,.wmore,.bit,.cbtn,.c
 'use strict';
 /* ================= versions ================= */
 const VERSIONS=[
+  {v:'0.3.4',date:'2026-10-27',name:'내 차량 선택(SUV 추가) · 공원 사람들 · 화면 고정',notes:['내 차량을 클래식(스케치) · SUV 중에서 선택 (상단 [클래식 | SUV], 선택 기억). SUV는 렉서스 3열 SUV 참고 이미지 기반 올리브 그린 상세 모델: 둥근 차체 · 휠 아치 컷 · 검은 유리 띠와 크롬 몰딩 · 파노라마 선루프 · 루프레일 · 샤크핀 · 스핀들 그릴 · 슬림 LED와 L자 DRL · 전폭 리어 라이트 바 · 10스포크 알로이 휠','강아지 공원에 벤치에서 책 읽는 사람(책장 넘김) · 산책하는 사람 · 술병을 들고 마시는 사람 추가','정보 흐름 크게: 고객 통화 패널을 가장 오른쪽에 배치','아이패드에서 차량 불빛이 깨지던 문제: 헤드라이트를 바닥에 비치는 빔으로 바꾸고, 비상등 · 경광등 빛이 차체에 잘리지 않게 처리','e-Care 글자는 한 가지 색으로 (e만 빨간색이던 것 제거)','시뮬레이션 화면의 확대 · 축소 버튼 묶음을 없애고 [화면 고정] 버튼 하나만 (해제하면 자동 카메라로 복귀, 확대 · 축소는 휠 · 핀치)','일본(VDP) 섬을 중심에서 조금 더 떨어뜨림']},
   {v:'0.3.3',date:'2026-10-25',name:'GS 진입 숨김 · 고객 알림 VDP 경유',notes:['메인 GS 카드 · 상단 GS 버튼 · GS 단축키 안내 임시 숨김','e-Care 고객 알림: VEP(TSP) → VDP → 앱 · HU · 흐름도와 3D 전송 · 로그 · 설명 반영','콜센터 웹 · DMS는 VEP(TSP) 직접 연계 유지 · 긴급 · 정비 경고 모두 적용']},
   {v:'0.3.2',date:'2026-10-22',name:'우선 차량 무정차 보장 · 대화 건너뛰기',notes:['내 차 · 긴급출동 차량이 NPC 때문에 멈추는 일이 없도록 최후 보장 추가: 비키지 못한 NPC는 냉가스와 함께 사라졌다가 먼 빈 자리에 다시 나타남','상담 통화 중 통화 패널 아래 [대화 건너뛰기] 버튼 (남은 대사 바로 표시 · 음성 중지 · 다음 단계로)','시뮬레이션 화면이 닫혀 있으면 긴급출동 사이렌 음소거','패드 크기 화면에서 조작 버튼과 확대 · 축소 버튼을 함께 작게','시뮬레이션 하단 안내 문구 크기 축소 · 모바일 화면에서는 숨김']},
   {v:'0.3.1',date:'2026-10-21',name:'콜센터 상담원 3명 · 통화 패널 1x1 · 빠른 대화',notes:['콜센터 상담원 3명 기준으로 표시 (모니터링 · 자동 배정 안내)','통화 패널을 접으면 1x1 정사각 아이콘으로 축소 (통화 중 · 호출 중 표시, 끌어서 이동 · 눌러서 펼치기)','펼쳐도 패널 아래 끝이 조작 패널 위에서 멈춤','녹음 음성이 없는 대화는 타이핑과 대사 간격을 3배 빠르게']},
@@ -1532,8 +1540,45 @@ function populatePark(cx,cz){
   }else{
     for(let i=0;i<3;i++){const child=parkPerson([0xffb646,0xe77891,0x65b8d9][i],.72);parkActors.push({type:'child',g:child,cx,cz,phase:i*2.1,r:3.5+i*.6});}
     for(let i=0;i<2;i++)parkActors.push({type:'dog',g:parkDog(),cx,cz,phase:i*3+1,r:2.2+i});
+    populateLeisure(cx,cz);
     const ball=new THREE.Mesh(new THREE.SphereGeometry(.45,12,8),new THREE.MeshStandardMaterial({color:0xf4cf51}));ball.position.set(cx,.95,cz);scene.add(ball);
   }
+}
+/* v0.3.4: 강아지 공원 — 벤치에서 책 읽는 사람, 산책하는 사람, 술병을 들고 마시는 사람 */
+function parkBench(x,z,ry){
+  const g=new THREE.Group(),wood=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.85}),iron=new THREE.MeshStandardMaterial({color:0x2a2f37,roughness:.6,metalness:.5});
+  const seat=new THREE.Mesh(new THREE.BoxGeometry(2.4,.12,.7),wood);seat.position.y=.62;g.add(seat);
+  const back=new THREE.Mesh(new THREE.BoxGeometry(2.4,.5,.1),wood);back.position.set(0,1.02,-.33);back.rotation.x=-.12;g.add(back);
+  for(const x of [-1.05,1.05])for(const z of [-.28,.28]){const l=new THREE.Mesh(new THREE.BoxGeometry(.08,.62,.08),iron);l.position.set(x,.31,z);g.add(l);}
+  g.position.set(x,.45,z);g.rotation.y=ry;g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(g);return g;
+}
+function seatPerson(p){const[l1,a1,l2,a2]=p.userData.limbs;for(const l of [l1,l2])l.rotation.x=-1.45;return p;}
+function populateLeisure(cx,cz){
+  const sx=cx>0?1:-1,sz=cz>0?1:-1;
+  // reader: sits on a bench facing the park centre, book in both hands, turns a page now and then
+  const bx=cx+sx*5,bz=cz-sz*5.2,bry=Math.atan2(cx-bx,cz-bz);parkBench(bx,bz,bry);
+  const reader=seatPerson(parkPerson(0x6f8f5a,1));reader.position.set(bx,.45+.62+.06-1.2*1+.08,bz);reader.rotation.y=bry;
+  reader.position.add(V3(Math.sin(bry)*.05,0,Math.cos(bry)*.05));
+  const [,ra1,,ra2]=reader.userData.limbs;ra1.rotation.set(-1.15,0,.35);ra2.rotation.set(-1.15,0,-.35);
+  const book=new THREE.Group();book.position.set(0,1.55,.62);book.rotation.x=-.75;
+  const cover=new THREE.Mesh(new THREE.BoxGeometry(.78,.03,.52),new THREE.MeshStandardMaterial({color:0x8e2f36,roughness:.7}));book.add(cover);
+  const pages=new THREE.Mesh(new THREE.BoxGeometry(.72,.05,.48),new THREE.MeshStandardMaterial({color:0xf2ede0,roughness:1}));pages.position.y=.04;book.add(pages);
+  const leafPivot=new THREE.Group();leafPivot.position.set(0,.075,0);const leaf=new THREE.Mesh(new THREE.BoxGeometry(.36,.01,.46),new THREE.MeshStandardMaterial({color:0xfffaf0,roughness:1,side:THREE.DoubleSide}));leaf.position.x=.18;leafPivot.add(leaf);book.add(leafPivot);
+  reader.add(book);reader.children[0].rotation.x=.35;
+  parkActors.push({type:'reader',g:reader,leaf:leafPivot,head:reader.children[0],phase:cx*.1});
+  // walker: strolls a slow loop between the trees and the play area
+  const walker=parkPerson(0xc9a46a,1.02);parkActors.push({type:'walker',g:walker,cx,cz,phase:sz*1.3,r:6.1});
+  // drinker: stands by a lamp post, sways a little, lifts a green bottle to drink
+  const dx=cx-sx*5.3,dz=cz+sz*4.9;const drinker=parkPerson(0x8b8f99,1.05);drinker.position.set(dx,.5,dz);drinker.rotation.y=Math.atan2(cx-dx,cz-dz)+.6;
+  const bottle=new THREE.Group(),glass=new THREE.MeshStandardMaterial({color:0x2f7a45,roughness:.2,metalness:.1,transparent:true,opacity:.85});
+  const bb=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.42,10),glass);bottle.add(bb);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.045,.09,.2,8),glass);neck.position.y=.3;bottle.add(neck);
+  const label=new THREE.Mesh(new THREE.CylinderGeometry(.113,.113,.16,10),new THREE.MeshStandardMaterial({color:0xe9ecef}));bottle.add(label);
+  bottle.position.set(0,-.82,.08);drinker.userData.limbs[3].add(bottle);
+  const lamp=new THREE.Group(),pole=new THREE.Mesh(new THREE.CylinderGeometry(.07,.09,4,8),new THREE.MeshStandardMaterial({color:0x2a2f37,metalness:.5,roughness:.5}));pole.position.y=2;lamp.add(pole);
+  const bulb=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),new THREE.MeshStandardMaterial({color:0xfff1c4,emissive:0xffd27a,emissiveIntensity:.9}));bulb.position.y=4.1;lamp.add(bulb);
+  lamp.position.set(dx+sx*.9,.45,dz-sz*.6);scene.add(lamp);
+  parkActors.push({type:'drinker',g:drinker,bottle,head:drinker.children[0],base:drinker.rotation.y,phase:cz*.07});
 }
 function populateFootball(cx,cz){
   const pitch=new THREE.Mesh(new THREE.PlaneGeometry(14,10),new THREE.MeshStandardMaterial({color:0x3d8652,roughness:1}));pitch.rotation.x=-Math.PI/2;pitch.position.set(cx,.5,cz);scene.add(pitch);
@@ -1577,6 +1622,15 @@ function animateParks(t){for(const a of parkActors){
       const k=(t*.32)%1,u=k<.5?k*2:2-k*2;a.ball.position.set(a.cx-5+u*10,2+Math.sin(u*Math.PI)*3,a.cz);
       a.dad.userData.limbs[3].rotation.x=-.8-Math.sin(t*2)*.7;a.son.userData.limbs[3].rotation.set(-1+Math.sin(t*2)*.45,0,0);a.son.userData.limbs[2].rotation.x=0;
     }
+  }else if(a.type==='reader'){
+    const c=(t+a.phase)%7,flip=c>6?ease((c-6)/1):0;a.leaf.rotation.z=flip*Math.PI;a.head.rotation.x=.35+Math.sin(t*.7+a.phase)*.04;
+  }else if(a.type==='walker'){
+    const k=t*.16+a.phase;a.g.position.set(a.cx+Math.cos(k)*a.r,.5+Math.abs(Math.sin(t*4.2))*.05,a.cz+Math.sin(k)*a.r*.95);a.g.rotation.y=-k;
+    a.g.userData.limbs.forEach((l,i)=>l.rotation.x=Math.sin(t*4.2+(i%2?Math.PI:0)+(i>1?Math.PI:0))*.45);
+  }else if(a.type==='drinker'){
+    const c=(t+a.phase)%6,lift=c<1.2?ease(c/1.2):c<3?1:c<4?1-ease(c-3):0;   // raise → drink → lower → idle
+    const [,arm]=[a.g.userData.limbs[1],a.g.userData.limbs[3]];arm.rotation.set(-.25-lift*1.95,0,-lift*.55);a.bottle.rotation.x=lift*.5;
+    a.head.rotation.x=-lift*.45;a.g.rotation.y=a.base+Math.sin(t*.9+a.phase)*.12;a.g.rotation.z=Math.sin(t*1.3+a.phase)*.05;
   }else{
     const k=t*(a.type==='dog'?.85:.45)+a.phase;a.g.position.set(a.cx+Math.cos(k)*a.r,.5+Math.abs(Math.sin(t*6+a.phase))*.13,a.cz+Math.sin(k)*a.r*.7);a.g.rotation.y=-k-Math.PI/2;
     if(a.type==='child')a.g.userData.limbs.forEach((l,i)=>l.rotation.x=Math.sin(t*6+i*2)*.55);
@@ -1634,7 +1688,7 @@ const VEPDC={x:15,z:-75};
   for(let i=0;i<4;i++){const u=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.6,10),new THREE.MeshStandardMaterial({color:0x2a3a4c,roughness:.5})); u.position.set(9+i*4,10.2,-75); u.castShadow=true; scene.add(u);}
 })();
 // Japan island (VDP)
-const JAPAN={x:-152,z:30};
+const JAPAN={x:-163,z:36};   // v0.3.4: 해외 서버라 중심에서 조금 더 떨어뜨림
 const islandMat=new THREE.MeshStandardMaterial({color:0x1a2533,roughness:.9,flatShading:true});
 (function(){
   const isl=new THREE.Mesh(new THREE.CylinderGeometry(22,26,4,6),islandMat); isl.position.set(JAPAN.x,-1.6,JAPAN.z); isl.receiveShadow=true; scene.add(isl);
@@ -1704,8 +1758,8 @@ function makeTruck(){
   const r=new THREE.Mesh(new THREE.BoxGeometry(.46,.22,.72),rM); r.position.set(2.7,3.0,-.44);
   const b=new THREE.Mesh(new THREE.BoxGeometry(.46,.22,.72),bM); b.position.set(2.7,3.0,.44);
   g.add(r,b);
-  const gr=glow(0xff2030,9,0), gb=glow(0x2e7bff,9,0); gr.position.set(2.7,3.1,-.6); gb.position.set(2.7,3.1,.6); g.add(gr,gb);
-  const hl=glow(0xdfe9ff,9,.45); hl.position.set(4.9,.7,0); g.add(hl);
+  const gr=noDepthGlow(glow(0xff2030,9,0)), gb=noDepthGlow(glow(0x2e7bff,9,0)); gr.position.set(2.7,3.1,-.6); gb.position.set(2.7,3.1,.6); g.add(gr,gb);
+  const hl=headBeam(g,3.85,8,4.4,.45);
   g.scale.setScalar(1.2);
   scene.add(g); return {g,rM,bM,gr,gb,hl,bedLocal:V3(-1.3,1.33,0)};
 }
@@ -1787,8 +1841,131 @@ function makeHeroCar(color){
   const hazM=new THREE.MeshStandardMaterial({color:0x553300,emissive:0xffa514,emissiveIntensity:0});
   for(const z of [-.84,.84])vMesh(g,VB(.16,.12,.2),hazM,2.36,1.0,z,false);
   for(const z of [-.84,.84])vMesh(g,VB(.07,.1,.2),hazM,-2.34,.74,z,false);
-  const hl=glow(0xdfe9ff,9,.5);hl.position.set(4.4,.6,0);g.add(hl);
-  const hz1=glow(0xffa514,6,0),hz2=glow(0xffa514,6,0);hz1.position.set(2.3,1.2,0);hz2.position.set(-2.3,1.2,0);g.add(hz1,hz2);
+  const hl=headBeam(g,2.5,7.5,4.2,.5);
+  const hz1=noDepthGlow(glow(0xffa514,6,0)),hz2=noDepthGlow(glow(0xffa514,6,0));hz1.position.set(2.3,1.2,0);hz2.position.set(-2.3,1.2,0);g.add(hz1,hz2);
+  scene.add(g);return {g,tailM,hazM,hl,hzGlow:[hz1,hz2]};
+}
+/* v0.3.4: 헤드라이트 빛은 바닥에 비치는 빔으로 (스프라이트가 바닥 · 차체에 잘려 아이패드에서 깨지던 문제 해결) */
+const beamTex=(()=>{const c=document.createElement('canvas');c.width=128;c.height=256;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,256,0,0);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.35,'rgba(255,255,255,.45)');gr.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=gr;g.beginPath();g.moveTo(44,256);g.lineTo(84,256);g.lineTo(128,0);g.lineTo(0,0);g.closePath();g.fill();
+  return new THREE.CanvasTexture(c);})();
+function headBeam(g,x,len,width,opacity){
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(width,len),new THREE.MeshBasicMaterial({map:beamTex,color:0xdfe9ff,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4,fog:false}));
+  m.rotation.x=-Math.PI/2;m.rotation.z=-Math.PI/2;m.position.set(x+len/2,.07,0);m.renderOrder=2;g.add(m);return m;
+}
+function noDepthGlow(s){s.material.depthTest=false;s.renderOrder=6;return s;}
+// Rounded side-profile solid: shape in (x,y), extruded across the width with softened edges.
+function vRounded(shape,width,mat,bevel=.06){
+  const geo=new THREE.ExtrudeGeometry(shape,{depth:Math.max(.01,width-bevel*2),bevelEnabled:true,bevelThickness:bevel,bevelSize:bevel*.8,bevelSegments:3,steps:1,curveSegments:12});
+  geo.translate(0,0,-(width-bevel*2)/2);const m=new THREE.Mesh(geo,mat);m.castShadow=true;return m;
+}
+const grilleTex=(()=>{const c=document.createElement('canvas');c.width=128;c.height=64;const g=c.getContext('2d');g.fillStyle='#0b0d10';g.fillRect(0,0,128,64);
+  g.strokeStyle='#5d6672';g.lineWidth=2;for(let x=-64;x<192;x+=10){g.beginPath();g.moveTo(x,0);g.lineTo(x+32,64);g.stroke();g.beginPath();g.moveTo(x+32,0);g.lineTo(x,64);g.stroke();}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(1.6,1);return t;})();
+// Detailed alloy wheel: rounded tyre, rim lip, ten spokes, hub, brake disc — both faces.
+function vAlloy(g,x,z,r,w,side){
+  const wg=new THREE.Group();wg.position.set(x,r,z);
+  const tyre=new THREE.LatheGeometry([[r*.66,-w/2],[r*.9,-w/2],[r*.98,-w/2+.05],[r,-w/2+.12],[r,w/2-.12],[r*.98,w/2-.05],[r*.9,w/2],[r*.66,w/2]].map(([a,b])=>new THREE.Vector2(a,b)),28);
+  const tm=new THREE.MeshStandardMaterial({color:0x0b0d10,roughness:.9}),rimM=new THREE.MeshStandardMaterial({color:0xdde3ea,metalness:.75,roughness:.3}),darkM=new THREE.MeshStandardMaterial({color:0x1b1f25,metalness:.6,roughness:.5});
+  const t=new THREE.Mesh(tyre,tm);t.rotation.x=Math.PI/2;t.castShadow=true;wg.add(t);
+  const barrel=new THREE.Mesh(new THREE.CylinderGeometry(r*.66,r*.66,w*.92,24,1,true),darkM);barrel.rotation.x=Math.PI/2;wg.add(barrel);
+  const disc=new THREE.Mesh(new THREE.CylinderGeometry(r*.46,r*.46,w*.5,20),new THREE.MeshStandardMaterial({color:0x6c727a,metalness:.7,roughness:.45}));disc.rotation.x=Math.PI/2;wg.add(disc);
+  for(const f of [-1,1]){
+    const lip=new THREE.Mesh(new THREE.TorusGeometry(r*.64,.03,6,28),rimM);lip.position.z=f*w*.49;wg.add(lip);const face=new THREE.Mesh(new THREE.RingGeometry(r*.5,r*.64,28),rimM);face.position.z=f*w*.495;if(f<0)face.rotation.y=Math.PI;wg.add(face);
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2,sp=new THREE.Mesh(VB(.07,r*.58,.035),rimM);sp.position.set(Math.cos(a)*r*.31,Math.sin(a)*r*.31,f*w*.48);sp.rotation.z=a-Math.PI/2;wg.add(sp);}
+    const hub=new THREE.Mesh(new THREE.CylinderGeometry(r*.13,r*.15,.05,14),rimM);hub.rotation.x=Math.PI/2;hub.position.z=f*w*.5;wg.add(hub);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(r*.07,r*.07,.06,10),darkM);cap.rotation.x=Math.PI/2;cap.position.z=f*w*.52;wg.add(cap);
+  }
+  g.add(wg);return wg;
+}
+/* 내 차량 · SUV (참고: 렉서스 3열 SUV 이미지) — 둥근 모서리의 높은 차체와 긴 보닛, 휠 아치 컷과 검은 아치 클래딩,
+   검은 유리 띠(떠 있는 루프)와 크롬 윈도 몰딩 · 필러 분할선, 차체색 D필러, 파노라마 선루프 2장 · 루프레일 · 샤크핀 안테나 · 리어 스포일러,
+   스핀들 그릴(메시) · 슬림 LED 헤드램프와 L자 DRL · 범퍼 하단 흡기구, 전폭 리어 라이트 바(양끝 감싸는 램프) · 테일게이트 분할선 · 번호판 홈 · 리플렉터,
+   도어 분할선 · 플러시 손잡이 · 사이드미러(방향지시등) · 사이드 스커트, 10스포크 알로이 휠과 브레이크 디스크 */
+function makeHeroSUV(color){
+  const g=new THREE.Group();
+  const bodyM=new THREE.MeshStandardMaterial({color,metalness:.5,roughness:.34});
+  const glassM=new THREE.MeshStandardMaterial({color:0x06080b,metalness:.9,roughness:.12});
+  const trimM=new THREE.MeshStandardMaterial({color:0x14171c,metalness:.25,roughness:.65});
+  const chromeM=new THREE.MeshStandardMaterial({color:0xc9d1da,metalness:.95,roughness:.2});
+  const lineM=new THREE.MeshStandardMaterial({color:0x2b3127,roughness:.7});
+  const xr=-1.6,xf=1.62,ar=.68,wy=.52;
+  // ---- body shell (side profile with wheel-arch cut-outs), rounded edges
+  const s=new THREE.Shape();
+  s.moveTo(-2.5,.46);s.lineTo(xr-ar,.46);
+  for(let i=0;i<=16;i++){const a=Math.PI-i/16*Math.PI;s.lineTo(xr+Math.cos(a)*ar,wy+Math.sin(a)*ar*.97);}
+  s.lineTo(xf-ar,.46);
+  for(let i=0;i<=16;i++){const a=Math.PI-i/16*Math.PI;s.lineTo(xf+Math.cos(a)*ar,wy+Math.sin(a)*ar*.97);}
+  s.lineTo(2.44,.46);s.quadraticCurveTo(2.6,.5,2.6,.72);s.lineTo(2.6,.9);s.quadraticCurveTo(2.6,1.12,2.38,1.18);
+  s.quadraticCurveTo(1.85,1.3,1.22,1.38);s.lineTo(-1.62,1.46);
+  s.lineTo(-1.84,1.96);s.lineTo(-2.2,1.94);s.quadraticCurveTo(-2.44,1.9,-2.48,1.62);s.lineTo(-2.52,1.12);s.quadraticCurveTo(-2.56,.5,-2.5,.46);
+  g.add(vRounded(s,2.04,bodyM,.09));
+  // ---- greenhouse (windshield, side glass, rear quarter) inset for tumblehome
+  const gh=new THREE.Shape();gh.moveTo(1.24,1.36);gh.quadraticCurveTo(.72,1.78,.44,1.98);gh.lineTo(-1.8,1.98);gh.lineTo(-1.64,1.42);gh.closePath();
+  g.add(vRounded(gh,1.9,glassM,.05));
+  // roof shell, panoramic glass, rails, shark fin, spoiler
+  const rf=new THREE.Shape();rf.moveTo(.5,1.95);rf.quadraticCurveTo(.4,2.07,.2,2.08);rf.lineTo(-1.95,2.05);rf.quadraticCurveTo(-2.12,2.02,-2.16,1.94);rf.closePath();
+  g.add(vRounded(rf,1.92,bodyM,.05));
+  vMesh(g,VB(1.12,.02,1.46),glassM,-.32,2.13,0,false);vMesh(g,VB(.72,.02,1.46),glassM,-1.36,2.12,0,false);
+  for(const z of [-.83,.83]){vMesh(g,VB(2.1,.04,.06),chromeM,-.9,2.165,z,false);for(const x of [.1,-.9,-1.9])vMesh(g,VB(.14,.05,.07),trimM,x,2.14,z,false);}
+  const fin=new THREE.Shape();fin.moveTo(0,0);fin.lineTo(-.34,0);fin.quadraticCurveTo(-.32,.1,-.22,.13);fin.closePath();
+  const fm=new THREE.Mesh(new THREE.ExtrudeGeometry(fin,{depth:.08,bevelEnabled:false}),glassM);fm.position.set(-1.72,2.11,-.04);g.add(fm);
+  const sp=new THREE.Shape();sp.moveTo(-2.1,1.94);sp.lineTo(-2.3,1.92);sp.lineTo(-2.26,1.86);sp.lineTo(-2.1,1.89);sp.closePath();g.add(vRounded(sp,1.88,bodyM,.03));
+  // window chrome surround, pillar splits on both sides
+  for(const z of [-.955,.955]){
+    const belt=vMesh(g,VB(2.9,.035,.02),chromeM,-.2,1.415,z,false);belt.rotation.z=-.028;
+    const top=vMesh(g,VB(2.24,.03,.02),chromeM,-.68,1.965,z,false);
+    for(const [x,ang] of [[-.28,.06],[-1.22,.1]]){const p=vMesh(g,VB(.07,.58,.025),lineM,x,1.69,z,false);p.rotation.z=ang;}
+    const aP=vMesh(g,VB(.06,.72,.02),chromeM,.85,1.68,z,false);aP.rotation.z=.98;
+  }
+  // rear glass (on the tailgate face), tailgate seams, plate, reflectors, bumper step
+  const rg=vMesh(g,VB(.03,.36,1.64),glassM,-2.565,1.73,0,false);rg.rotation.z=-.2;
+  vMesh(g,VB(.02,.02,1.86),lineM,-2.585,1.5,0,false);
+  for(const z of [-.86,.86])vMesh(g,VB(.02,.62,.02),lineM,-2.585,1.17,z,false);
+  vMesh(g,VB(.04,.26,.62),trimM,-2.6,1.0,0,false);vMesh(g,VB(.02,.18,.5),new THREE.MeshStandardMaterial({color:0xe8ecf0,roughness:.6}),-2.62,1.0,0,false);
+  vMesh(g,VB(.2,.2,2.02),trimM,-2.55,.58,0);
+  for(const z of [-.78,.78])vMesh(g,VB(.03,.05,.22),new THREE.MeshStandardMaterial({color:0x550008,emissive:0xff1a2a,emissiveIntensity:.5}),-2.66,.66,z,false);
+  // full-width rear light bar with wrap-around corner lamps
+  const tailM=new THREE.MeshStandardMaterial({color:0x550008,emissive:0xff1a2a,emissiveIntensity:.6});
+  vMesh(g,VB(.04,.065,1.74),tailM,-2.59,1.33,0,false);
+  for(const z of [-1,1]){const c=vMesh(g,VB(.24,.07,.02),tailM,-2.47,1.31,z*1.026,false);c.rotation.z=.1;const d=vMesh(g,VB(.05,.12,.3),tailM,-2.585,1.27,z*.86,false);d.rotation.x=z*.3;}
+  // front: spindle grille (mesh), frame, lamps with L-shaped DRL, lower intake & lip, hood creases
+  const sp2=new THREE.Shape();sp2.moveTo(-.56,.98);sp2.lineTo(.56,.98);sp2.lineTo(.44,.8);sp2.lineTo(.7,.48);sp2.lineTo(-.7,.48);sp2.lineTo(-.44,.8);sp2.closePath();
+  const grille=new THREE.Mesh(new THREE.ShapeGeometry(sp2),new THREE.MeshStandardMaterial({map:grilleTex,metalness:.5,roughness:.5}));
+  grille.rotation.y=Math.PI/2;grille.position.set(2.682,-.04,0);grille.scale.set(1,.96,1);g.add(grille);
+  const frame=new THREE.Mesh(new THREE.ShapeGeometry(sp2),chromeM);frame.rotation.y=Math.PI/2;frame.position.set(2.678,-.06,0);frame.scale.set(1.08,1.02,1);g.add(frame);
+  const headM=new THREE.MeshBasicMaterial({color:0xf3f7ff}),housing=new THREE.MeshStandardMaterial({color:0x101318,metalness:.7,roughness:.25});
+  for(const z of [-1,1]){
+    const h=vMesh(g,VB(.16,.11,.52),housing,2.6,1.03,z*.7,false);h.rotation.y=-z*.25;h.rotation.z=-.35;
+    const led=vMesh(g,VB(.04,.03,.48),headM,2.665,1.05,z*.7,false);led.rotation.y=-z*.25;led.rotation.z=-.35;
+    const drl=vMesh(g,VB(.03,.17,.035),headM,2.685,.86,z*.84,false);
+    const drl2=vMesh(g,VB(.03,.035,.16),headM,2.685,.78,z*.78,false);
+  }
+  vMesh(g,VB(.06,.1,1.5),trimM,2.62,.5,0,false);vMesh(g,VB(.04,.03,1.2),chromeM,2.64,.44,0,false);
+  for(const z of [-.84,.84])vMesh(g,VB(.04,.22,.26),trimM,2.68,.62,z,false);
+  vMesh(g,VB(.24,.05,1.7),trimM,2.56,.42,0,false);
+  for(const z of [-.42,.42]){const cr=vMesh(g,VB(1.0,.012,.03),lineM,1.82,1.372,z,false);cr.rotation.z=-.17;}
+  // sides: arch cladding, sill, door seams, flush handles, mirrors with indicators
+  for(const z of [-1.025,1.025]){
+    for(const x of [xr,xf]){const a=new THREE.Mesh(new THREE.TorusGeometry(ar+.02,.045,6,20,Math.PI),trimM);a.position.set(x,wy,z);g.add(a);}
+    vMesh(g,VB(1.86,.12,.05),trimM,0,.52,z,false);
+    vMesh(g,VB(.02,.86,.015),lineM,1.0,1.02,z,false);vMesh(g,VB(.02,.86,.015),lineM,-.2,1.0,z,false);
+    const rs=vMesh(g,VB(.02,.7,.015),lineM,-1.2,1.1,z,false);rs.rotation.z=-.1;
+    for(const x of [.55,-.68])vMesh(g,VB(.26,.035,.02),chromeM,x,1.3,z,false);
+    const mir=new THREE.Group();mir.position.set(1.05,1.47,z*1.06);
+    const mb=new THREE.Mesh(VB(.22,.15,.26),bodyM);mb.position.z=Math.sign(z)*.1;mir.add(mb);
+    const ms=new THREE.Mesh(VB(.12,.06,.14),trimM);mir.add(ms);
+    const mi=new THREE.Mesh(VB(.03,.02,.2),new THREE.MeshBasicMaterial({color:0xffb347}));mi.position.set(.11,-.04,Math.sign(z)*.12);mir.add(mi);
+    g.add(mir);
+  }
+  // underbody (hides the see-through behind the arches)
+  vMesh(g,VB(4.6,.12,1.7),trimM,0,.36,0,false);
+  for(const x of [xr,xf])for(const z of [-1.0,1.0])vAlloy(g,x,z,.52,.42);
+  const hazM=new THREE.MeshStandardMaterial({color:0x553300,emissive:0xffa514,emissiveIntensity:0});
+  for(const z of [-.95,.95]){vMesh(g,VB(.05,.06,.14),hazM,2.62,.98,z,false);vMesh(g,VB(.05,.06,.14),hazM,-2.6,1.18,z*.92,false);}
+  const hl=headBeam(g,2.7,7.5,4.2,.5);
+  const hz1=noDepthGlow(glow(0xffa514,5,0)),hz2=noDepthGlow(glow(0xffa514,5,0));hz1.position.set(2.78,1.0,0);hz2.position.set(-2.78,1.2,0);g.add(hz1,hz2);
   scene.add(g);return {g,tailM,hazM,hl,hzGlow:[hz1,hz2]};
 }
 function makeCybertruck(color){
@@ -1937,7 +2114,20 @@ function pathFrom(m,target){
   return route;
 }
 const LOOP=[[-30,30],[30,30],[30,-30],[-30,-30]];
-const hero=makeHeroCar(0x2b323d); hero.g.scale.setScalar(1.22);
+/* v0.3.4: 내 차량 선택 — 클래식(스케치) · SUV(올리브 그린). 움직이는 것은 공통 컨테이너, 보이는 모델만 바꿈 */
+const HERO_MODELS={classic:makeHeroCar(0x2b323d),suv:makeHeroSUV(0x5b6a38)};
+const heroRoot=new THREE.Group();scene.add(heroRoot);for(const k in HERO_MODELS)heroRoot.add(HERO_MODELS[k].g);
+const hero={g:heroRoot}; hero.g.scale.setScalar(1.22);
+let heroModel='suv';try{const v=localStorage.getItem('ecareHeroModel');if(v==='classic'||v==='suv')heroModel=v;}catch(e){}
+function setHeroModel(k){
+  const keep=hero.hl&&hero.hl.material?hero.hl.material.opacity:null;heroModel=k;
+  for(const n in HERO_MODELS)HERO_MODELS[n].g.visible=n===k;
+  const m=HERO_MODELS[k];Object.assign(hero,{tailM:m.tailM,hazM:m.hazM,hl:m.hl,hzGlow:m.hzGlow,dims:k==='suv'?{length:3.18,width:1.3,height:2.8}:{length:3.02,width:1.3,height:3.0}});
+  if(keep!==null&&hero.hl&&hero.hl.material)hero.hl.material.opacity=keep;
+  try{localStorage.setItem('ecareHeroModel',k);}catch(e){}
+  if(typeof document!=='undefined')document.querySelectorAll('#segCar button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.car===k));
+}
+setHeroModel(heroModel);
 const carM=new Mover(hero.g,{points:LOOP,loop:true,s:18,lane:2.1,accel:5});
 carM.target=carM.speed=10;
 // Extend a finite road path ahead of the car; never teleport at a junction.
@@ -2011,7 +2201,7 @@ function emitColdGas(m,turn=0){m.obj.updateMatrixWorld();for(const x of [-1.5,1.
 function roadsterTurn(m){if(!m.jump)return 0;const heading=m.at(m.s+Math.max(.1,m.speed*.05));let delta=Math.atan2(-heading.hz,heading.hx)-m.rot;while(delta>Math.PI)delta-=2*Math.PI;while(delta<-Math.PI)delta+=2*Math.PI;return Math.abs(delta)>.08?Math.sign(delta):0;}
 
 // Bodies are oriented boxes: length/width are half extents, height is measured from y.
-function vehicleSize(m){return m===truckM?{length:5.0,width:1.5,height:4.1}:m===carM?{length:3.02,width:1.3,height:3.0}:m.size;}
+function vehicleSize(m){return m===truckM?{length:5.0,width:1.5,height:4.1}:m===carM?(hero.dims||{length:3.02,width:1.3,height:3.0}):m.size;}
 function vehiclePose(m){const p=m.obj.position;return {x:p.x,z:p.z,y:p.y||0,yaw:m.rot,...vehicleSize(m)};}
 function bodiesOverlap(a,b){
   if(a.y>=b.y+b.height+.25||b.y>=a.y+a.height+.25)return false;
@@ -2304,18 +2494,18 @@ const pan=V3(0,0,0); let userZoom=1;
 let camLock=false;
 function focus(get,size){ goal.get=fn(get); goal.size=size; if(camLock) return; view.target.add(pan); pan.set(0,0,0); updViewLbl(); }
 function frameHop(a,b){const A=fn(a)(),B=fn(b)();const m=A.clone().add(B).multiplyScalar(.5);m.y*=.4;focus(m,clamp(A.distanceTo(B)*.6+18,40,135));}
-function updZoom(){ $('#zPct').textContent=Math.round(100/userZoom)+'%'; $('#tags').classList.toggle('far',userZoom>2.4); updViewLbl(); }
+function updZoom(){ $('#tags').classList.toggle('far',userZoom>2.4); updViewLbl(); }
 function updViewLbl(){ const manual=userZoom!==1||pan.lengthSq()>0.01; $('#viewLbl').textContent=camLock?`지도 고정${typeof autoLock!=='undefined'&&autoLock?' (자동)':''} · ${Math.round(100/userZoom)}%`:manual?`수동 보기 · ${Math.round(100/userZoom)}%`:'자동 카메라'; }
 let autoLock=false;
+document.querySelectorAll('#segCar button').forEach(b=>b.addEventListener('click',()=>setHeroModel(b.dataset.car)));
 function setLock(on){ camLock=on; $('#zLock').setAttribute('aria-pressed',on); updViewLbl(); }
-$('#zLock').addEventListener('click',()=>{autoLock=false;setLock(!camLock);});
+// 화면 고정 해제 = 자동 카메라로 복귀 (확대 · 축소 · 이동은 휠 · 핀치 · 드래그)
+function resetView(){autoLock=false;setLock(false);userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();}
+$('#zLock').addEventListener('click',()=>{if(camLock)resetView();else{autoLock=false;setLock(true);}});
 function zoomBy(f){ userZoom=clamp(userZoom*f,.3,100/15);
   if(100/userZoom<=30.5){ if(!camLock){ autoLock=true; setLock(true); } }
   else if(autoLock){ autoLock=false; setLock(false); }
   updZoom(); }
-$('#zIn').addEventListener('click',()=>zoomBy(1/1.25));
-$('#zOut').addEventListener('click',()=>zoomBy(1.25));
-$('#zFit').addEventListener('click',()=>{autoLock=false;setLock(false);userZoom=1;view.target.add(pan);pan.set(0,0,0);updZoom();});
 stage.addEventListener('wheel',e=>{if(PROJECT==='wng'||e.target.closest('#callPane'))return;e.preventDefault();zoomBy(Math.exp(e.deltaY*(e.ctrlKey?.009:.0012)));},{passive:false});
 /* v0.1.9: 한 손가락(마우스) 드래그 이동 · 두 손가락 핀치 확대·축소 */
 const PTR=new Map(); let drag=null, pinch=null;
@@ -2684,7 +2874,7 @@ document.addEventListener('keydown',e=>{
   if(!$('#verModal').hidden){ if(e.key==='Escape') closeVer(); return; }
   const k=e.key.toUpperCase();
   if(phase==='intro'){ if(k==='ENTER'||k===' '){e.preventDefault();start('ecare');} return; }
-  if(k==='+'||k==='='){zoomBy(1/1.25);return;} if(k==='-'||k==='_'){zoomBy(1.25);return;} if(k==='0'){$('#zFit').click();return;}
+  if(k==='+'||k==='='){zoomBy(1/1.25);return;} if(k==='-'||k==='_'){zoomBy(1.25);return;} if(k==='0'){resetView();return;}
   if(k==='N'){setDay(dayTarget<.5);return;}
   if(PROJECT==='wng'&&'LIVB'.includes(k)&&k.length===1&&!document.querySelector(`#dock [data-key="${k}"]`)) return;
   if(k==='L'){$('#btnLayout').click();return;} if(k==='G'){autoLock=false;setLock(!camLock);return;} if(k==='I'){setDrawer(!LAY.info);return;} if(k==='V'&&!document.querySelector('#dock [data-key="V"]')){setStage(!LAY.stage);return;} if(k==='B'){setFlow(!LAY.flow);return;}
@@ -3699,7 +3889,7 @@ function fitFlow(){
 }
 function fitFlowSoon(){ if(fitQ) return; fitQ=requestAnimationFrame(()=>{ fitQ=0; fitFlow(); }); }
 function cpDock(on){ const p=$('#callPane'); if(!p) return; const side=$('#side');
-  if(on){ if(!p.classList.contains('docked')){ side.parentNode.insertBefore(p,side); p.classList.add('docked'); p.classList.remove('anim','drag'); cpPlace(false); } }
+  if(on){ if(!p.classList.contains('docked')){ side.parentNode.appendChild(p); p.classList.add('docked'); p.classList.remove('anim','drag'); cpPlace(false); } }
   else if(p.classList.contains('docked')){ p.classList.remove('docked'); $('#intro').parentNode.insertBefore(p,$('#intro')); cpPlace(false); }
   const b=$('#cpBody'); if(b) b.scrollTop=b.scrollHeight; }
 function cpSave(){ try{localStorage.setItem('ecareCallPane',JSON.stringify({x:CP.x,y:CP.y,open:CP.open}));}catch(e){} }
