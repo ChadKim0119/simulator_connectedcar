@@ -2885,6 +2885,14 @@ document.addEventListener('keydown',e=>{
   if(k==='L'){$('#btnLayout').click();return;} if(k==='G'){autoLock=false;setLock(!camLock);return;} if(k==='I'){setDrawer(!LAY.info);return;} if(k==='V'&&!document.querySelector('#dock [data-key="V"]')){setStage(!LAY.stage);return;} if(k==='B'){setFlow(!LAY.flow);return;}
   const b=document.querySelector(`#dock [data-key="${k}"]`); if(b){e.preventDefault();b.click();}
 });
+/* v0.3.6 — 발표 자료(Global South 개발 진척 보고회)가 이 화면을 띄웠을 때: 발표자 화면 · 컨트롤러(Ulanzi 등)의 키를 받아 같은 단축키로 처리.
+   이 화면을 띄운 부모 창의 신호만 받고, 키 이름만 전달됩니다(위 단축키와 같은 동작). */
+const GS_PARENT=/^(https:\/\/gs-dev-progress-report[\w-]*\.vercel\.app|https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?|null)$/;
+addEventListener('message',e=>{
+  const d=e.data;
+  if(window.parent===window||e.source!==window.parent||!GS_PARENT.test(e.origin)||!d||d.type!=='gs-sim-key'||typeof d.key!=='string'||d.key.length>5)return;
+  document.dispatchEvent(new KeyboardEvent('keydown',{key:d.key,bubbles:true,cancelable:true}));
+});
 function setPhase(p){phase=p;renderSteps();renderDock();}
 
 /* --- log --- */
